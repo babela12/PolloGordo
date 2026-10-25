@@ -1,0 +1,92 @@
+<div class="container mt-2">
+
+    <!-- TÍTULO Y BOTÓN NUEVO INSUMO -->
+    <div class="encabezado-insumos">
+
+        <h2 class="titulo-insumos">
+            Gestión de Insumos
+        </h2>
+
+        <a routerLink="/insumos/nuevo" class="btn btn-nuevo-insumo">
+            <i class="bi bi-plus-circle me-1"></i>
+            Nuevo Insumo
+        </a>
+
+    </div>
+
+    <!-- TABLA DE INSUMOS -->
+    <div class="tabla-scroll">
+
+        <table class="table table-hover shadow-sm">
+
+            <thead class="tabla-encabezado">
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombres</th>
+                    <th>Unidad</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @for (i of insumosFiltrados; track i.idInsumo) {
+
+                <tr>
+
+                    <td>
+                        <img [src]="getImagen(i)" [alt]="i.nombre" class="rounded">
+                    </td>
+
+                    <td>{{ i.nombre }}</td>
+
+                    <td>{{ i.unidad }}</td>
+
+                    <td>{{ getStock(i) }}</td>
+
+                    <td>
+                        <div class="acciones-insumos">
+
+                            <a [routerLink]="['/insumos/editar', i.idInsumo]" class="btn btn-sm btn-warning">
+                                Editar
+                            </a>
+
+                            <button type="button" class="btn btn-sm btn-eliminar-insumo" (click)="eliminar(i.idInsumo)">
+                                Eliminar
+                            </button>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                } @empty {
+
+                <tr>
+                    <td colspan="5" class="text-center py-4">
+                        No se encontraron insumos.
+                    </td>
+                </tr>
+
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    @if (cargando) {
+    <p class="text-center mt-3">
+        Cargando insumos...
+    </p>
+    }
+
+    @if (error) {
+    <div class="alert alert-danger mt-3">
+        {{ error }}
+    </div>
+    }
+
+</div>

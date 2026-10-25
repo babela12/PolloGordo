@@ -1,0 +1,123 @@
+<div class="container mt-4 mb-5">
+
+  <div class="card formulario-cliente shadow-sm">
+
+    <div class="card-header encabezado-formulario">
+      <h4 class="mb-0">
+        {{ idCliente !== null ? 'Editar Cliente' : 'Nuevo Cliente' }}
+      </h4>
+    </div>
+
+    <div class="card-body p-4">
+
+      @if (cargando) {
+        <p>Cargando datos del cliente...</p>
+      } @else {
+
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+
+          <h5 class="subtitulo">Datos personales</h5>
+
+          <div class="row">
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nombres</label>
+              <input
+                type="text"
+                formControlName="nombre"
+                class="form-control"
+                placeholder="Ingrese los nombres">
+
+              @if (form.get('nombre')?.invalid && form.get('nombre')?.touched) {
+                <small class="text-danger">El nombre es obligatorio.</small>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Apellidos</label>
+              <input
+                type="text"
+                formControlName="apellidos"
+                class="form-control"
+                placeholder="Ingrese los apellidos">
+
+              @if (form.get('apellidos')?.invalid && form.get('apellidos')?.touched) {
+                <small class="text-danger">Los apellidos son obligatorios.</small>
+              }
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">DNI</label>
+              <input
+                type="text"
+                inputmode="numeric"
+                maxlength="8"
+                formControlName="dni"
+                class="form-control"
+                placeholder="8 dígitos">
+
+              @if (form.get('dni')?.invalid && form.get('dni')?.touched) {
+                <small class="text-danger">
+                  El DNI debe tener exactamente 8 números.
+                </small>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Celular</label>
+              <input
+                type="text"
+                inputmode="numeric"
+                maxlength="9"
+                formControlName="numTelef"
+                class="form-control"
+                placeholder="9 dígitos">
+
+              @if (form.get('numTelef')?.invalid && form.get('numTelef')?.touched) {
+                <small class="text-danger">
+                  El celular debe tener 9 dígitos y comenzar con 9.
+                </small>
+              }
+            </div>
+
+          </div>
+
+          <h5 class="subtitulo mt-3">Información del cliente</h5>
+
+          <div class="mb-4">
+            <label class="form-label">Dirección</label>
+            <input
+              type="text"
+              formControlName="direccion"
+              class="form-control"
+              placeholder="Ingrese la dirección del cliente">
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+
+            <a routerLink="/clientes" class="btn btn-cancelar">
+              Cancelar
+            </a>
+
+            <button
+              type="submit"
+              class="btn btn-guardar"
+              [disabled]="form.invalid || guardando">
+
+              {{ guardando ? 'Guardando...' : 'Guardar Cliente' }}
+            </button>
+
+          </div>
+
+        </form>
+
+      }
+
+    </div>
+  </div>
+
+</div>

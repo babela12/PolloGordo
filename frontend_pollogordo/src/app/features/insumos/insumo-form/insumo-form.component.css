@@ -1,0 +1,88 @@
+
+.container {
+  max-width: 900px;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.formulario-insumo {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #FFFFFF;
+}
+
+.encabezado-formulario {
+  background-color: #7B1E21;
+  color: #FFFFFF;
+  padding: 18px 24px;
+  border: none;
+}
+
+.encabezado-formulario h4 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 27px;
+  font-weight: 700;
+}
+
+.form-label {
+  color: #7B1E21;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-control,
+.form-select {
+  border: 1px solid #DCCBC5;
+  border-radius: 7px;
+  padding: 10px 12px;
+  background-color: #FFFFFF;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #7B1E21;
+  box-shadow: 0 0 0 3px rgba(123, 30, 33, 0.12);
+}
+
+.btn-guardar {
+  background-color: #D97706;
+  border: 1px solid #D97706;
+  color: #FFFFFF;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.btn-guardar:hover:not(:disabled) {
+  background-color: #B85F05;
+  color: #FFFFFF;
+}
+
+.btn-guardar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-cancelar {
+  background-color: #7B1E21;
+  border: 1px solid #7B1E21;
+  color: #FFFFFF;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.btn-cancelar:hover {
+  background-color: #5E1518;
+  color: #FFFFFF;
+}
+
+@media (max-width: 768px) {
+  .encabezado-formulario h4 {
+    font-size: 23px;
+  }
+
+  .card-body {
+    padding: 20px !important;
+  }
+}

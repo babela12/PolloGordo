@@ -1,0 +1,14 @@
+h1 {
+  font-family: Georgia, serif;
+  font-size: 38px;
+  font-weight: bold;
+  color: var(--color-primario);
+  margin-bottom: 8px;
+}
+
+p {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: var(--color-texto-oscuro);
+  margin-bottom: 14px;
+}

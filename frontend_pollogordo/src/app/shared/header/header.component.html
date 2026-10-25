@@ -1,0 +1,160 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-pollo-gordo sticky-top">
+  <div class="container-fluid">
+
+    <!-- LOGO Y NOMBRE -->
+    <a class="navbar-brand d-flex align-items-center" routerLink="/home">
+      <img src="/logo-pollogordo.png" alt="Logo Pollo Gordo" class="logo-pollogordo">
+
+      <span>Pollo Gordo</span>
+    </a>
+
+    <!-- BOTÓN RESPONSIVE -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Mostrar menú">
+
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+      <!-- MENÚ PRINCIPAL -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+        <!-- INICIO -->
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home" routerLinkActive="active">
+
+            <i class="bi bi-house-door me-1"></i>
+            Inicio
+          </a>
+        </li>
+
+        <!-- GESTIÓN -->
+        <li class="nav-item dropdown">
+
+          <a class="nav-link dropdown-toggle" href="#" id="gestionDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+
+            <i class="bi bi-grid me-1"></i>
+            Gestión
+          </a>
+
+          <ul class="dropdown-menu menu-gestion" aria-labelledby="gestionDropdown">
+
+            <li>
+              <a class="dropdown-item" routerLink="/productos">
+
+                <i class="bi bi-box-seam me-2"></i>
+                Productos
+              </a>
+            </li>
+
+            <li>
+              <a class="dropdown-item" routerLink="/insumos">
+
+                <i class="bi bi-basket2 me-2"></i>
+                Insumos
+              </a>
+            </li>
+
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            <!-- CLIENTES -->
+            <li>
+              <a class="dropdown-item" routerLink="/clientes">
+                <i class="bi bi-people me-2"></i>
+                Clientes
+              </a>
+            </li>
+
+            <!-- TRABAJADORES -->
+            <li>
+              <a class="dropdown-item" routerLink="/trabajadores">
+                <i class="bi bi-person-badge me-2"></i>
+                Trabajadores
+              </a>
+            </li>
+
+          </ul>
+        </li>
+
+        <!-- OPERACIONES -->
+        <li class="nav-item dropdown">
+
+          <a class="nav-link dropdown-toggle" href="#" id="operacionesDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+
+            <i class="bi bi-clipboard-check me-1"></i>
+            Operaciones
+          </a>
+
+          <ul class="dropdown-menu menu-gestion" aria-labelledby="operacionesDropdown">
+
+            <li>
+              <span class="dropdown-item item-pendiente">
+                <i class="bi bi-receipt me-2"></i>
+                Pedidos
+                <small>Próximamente</small>
+              </span>
+            </li>
+
+            <li>
+              <span class="dropdown-item item-pendiente">
+                <i class="bi bi-clock-history me-2"></i>
+                Historial de pedidos
+                <small>Próximamente</small>
+              </span>
+            </li>
+
+          </ul>
+        </li>
+
+      </ul>
+
+      <!-- BUSCADOR -->
+      <form class="d-flex buscador-header me-3" role="search" (submit)="$event.preventDefault()">
+
+        <input class="form-control me-2" type="search" placeholder="Buscar..." aria-label="Buscar">
+
+        <button class="btn btn-outline-pollo" type="submit">
+
+          Buscar
+        </button>
+      </form>
+
+      <!-- CARRITO -->
+      <a class="carrito-header me-3 position-relative" routerLink="/carrito" aria-label="Ver carrito">
+
+        <i class="bi bi-cart3 text-white fs-4"></i>
+
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+
+          0
+        </span>
+      </a>
+
+      <!-- USUARIO -->
+      <div class="usuario-header d-flex align-items-center">
+
+        <button type="button" class="btn btn-outline-light btn-ingresar">
+
+          Ingresar
+        </button>
+
+        <span class="saludo-usuario text-white mx-3">
+          Hola, <strong>Patrick Ortiz</strong>
+        </span>
+
+        <button type="button" class="btn btn-sm btn-cerrar">
+
+          Cerrar Sesión
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+</nav>

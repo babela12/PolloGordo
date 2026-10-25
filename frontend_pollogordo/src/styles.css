@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap');
+:root {
+  --color-primario: #7B1E21;
+  --color-acento: #D97706;
+  --color-texto-claro: #FFFFFF;
+  --color-texto-oscuro: #333333;
+  --color-fondo-claro: #FFF8F0;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: var(--color-fondo-claro);
+  color: var(--color-texto-oscuro);
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex-grow: 1;
+  padding: 20px 40px;
+}
+
+.bg-pollo-gordo {
+  background-color: var(--color-primario) !important;
+}
+
+.text-pollo-gordo {
+  color: var(--color-primario) !important;
+}
+
+.btn-outline-pollo {
+  --bs-btn-color: var(--color-acento);
+  --bs-btn-border-color: var(--color-acento);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--color-acento);
+  --bs-btn-hover-border-color: var(--color-acento);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--color-acento);
+  --bs-btn-active-border-color: var(--color-acento);
+  --bs-btn-disabled-color: var(--color-acento);
+  --bs-btn-disabled-bg: transparent;
+}

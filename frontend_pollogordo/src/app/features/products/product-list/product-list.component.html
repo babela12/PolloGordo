@@ -1,0 +1,113 @@
+
+<div class="container mt-4">
+
+  <!-- ENCABEZADO -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2 class="titulo-productos">
+      Gestión de Productos
+    </h2>
+
+    <a routerLink="/productos/nuevo" class="btn btn-pollogordo">
+      + Nuevo Producto
+    </a>
+
+  </div>
+
+  <!-- BUSCADOR -->
+  <input
+    type="text"
+    class="form-control buscador mb-4"
+    placeholder="Buscar producto..."
+    [(ngModel)]="busqueda"
+  >
+
+  <!-- LISTADO DE PRODUCTOS -->
+  <div class="row g-4">
+
+    @for (p of productosFiltrados; track p.idProducto) {
+
+      <div class="col-md-4">
+
+        <div class="card h-100 shadow-sm">
+
+          <!-- IMAGEN -->
+          <img
+            [src]="getImagen(p)"
+            class="card-img-top"
+            [alt]="p.nombre"
+          >
+
+          <!-- INFORMACIÓN -->
+          <div class="card-body d-flex flex-column">
+
+            <h5 class="nombre-producto">
+              {{ p.nombre }}
+            </h5>
+
+            <p class="descripcion-producto">
+              {{ p.descripcion }}
+            </p>
+
+            <!-- PRECIO Y ESTADO -->
+            <div class="mt-auto">
+
+              <h4 class="precio-producto">
+                S/ {{ p.precio | number:'1.2-2' }}
+              </h4>
+
+              <p class="estado-producto">
+                Estado:
+
+                <span
+                  [class.activo]="p.estado === 'A'"
+                  [class.inactivo]="p.estado !== 'A'"
+                >
+                  {{ p.estado === 'A' ? 'Activo' : 'Inactivo' }}
+                </span>
+              </p>
+
+              <!-- BOTONES -->
+              <div class="d-flex align-items-center gap-2">
+
+                <a
+                  [routerLink]="['/productos/editar', p.idProducto]"
+                  class="btn btn-editar btn-sm"
+                >
+                  Editar
+                </a>
+
+                <button
+                  type="button"
+                  class="btn btn-sm"
+                  [class.btn-desactivar]="p.estado === 'A'"
+                  [class.btn-activar]="p.estado !== 'A'"
+                  [disabled]="procesandoId !== null"
+                  (click)="cambiarEstado(p)"
+                >
+                  @if (procesandoId === p.idProducto) {
+                    Procesando...
+                  } @else {
+                    {{ p.estado === 'A' ? 'Desactivar' : 'Activar' }}
+                  }
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    } @empty {
+
+      <p>No hay productos para mostrar.</p>
+
+    }
+
+  </div>
+
+</div>

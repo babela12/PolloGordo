@@ -1,0 +1,155 @@
+<div class="container clientes-container mt-4 mb-5">
+
+    <!-- ENCABEZADO -->
+    <div class="encabezado-clientes">
+        <h2 class="titulo-clientes">Gestión de Clientes</h2>
+
+        <a routerLink="/clientes/nuevo" class="btn btn-nuevo">
+            <i class="bi bi-plus-circle me-2"></i>
+            Nuevo Cliente
+        </a>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="barra-herramientas">
+        <div class="buscador-contenedor">
+            <i class="bi bi-search icono-buscar"></i>
+
+            <input
+                type="text"
+                class="form-control buscador"
+                placeholder="Buscar por nombre, apellido, DNI o celular..."
+                [(ngModel)]="busqueda">
+        </div>
+
+        <div class="contador-clientes">
+            <i class="bi bi-people me-2"></i>
+            {{ clientesFiltrados.length }}
+            {{ clientesFiltrados.length === 1 ? 'cliente' : 'clientes' }}
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="tabla-clientes">
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>DNI</th>
+                        <th>Celular</th>
+                        <th>Dirección</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @for (cliente of clientesFiltrados; track cliente.idCliente) {
+
+                        <tr>
+
+                            <!-- NOMBRE COMPLETO -->
+                            <td>
+                                <div class="cliente-info">
+
+                                    <div class="cliente-avatar">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+
+                                    <div class="cliente-datos">
+                                        <span class="cliente-nombre">
+                                            {{ cliente.persona.nombre }}
+                                            {{ cliente.persona.apellidos }}
+                                        </span>
+
+                                        <span class="cliente-codigo">
+                                            Cliente #{{ cliente.idCliente }}
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </td>
+
+                            <!-- DNI -->
+                            <td>
+                                <span class="texto-dni">
+                                    {{ cliente.persona.dni }}
+                                </span>
+                            </td>
+
+                            <!-- CELULAR -->
+                            <td>
+                                <span class="texto-celular">
+                                    <i class="bi bi-telephone me-2"></i>
+                                    {{ cliente.persona.numTelef }}
+                                </span>
+                            </td>
+
+                            <!-- DIRECCIÓN -->
+                            <td>
+                                <div class="direccion-cliente">
+                                    <i class="bi bi-geo-alt me-2"></i>
+
+                                    <span>
+                                        {{ cliente.direccion || 'No registrada' }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <!-- ACCIONES -->
+                            <td class="text-center">
+                                <a
+                                    [routerLink]="['/clientes/editar', cliente.idCliente]"
+                                    class="btn btn-editar">
+
+                                    <i class="bi bi-pencil-square me-1"></i>
+                                    Editar
+                                </a>
+                            </td>
+
+                        </tr>
+
+                    } @empty {
+
+                        <tr>
+                            <td colspan="5" class="estado-vacio">
+
+                                <i class="bi bi-people icono-vacio"></i>
+
+                                <h5>No se encontraron clientes</h5>
+
+                                <p>
+                                    No hay clientes que coincidan con tu búsqueda.
+                                </p>
+
+                            </td>
+                        </tr>
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+    <!-- ESTADO DE CARGA -->
+    @if (cargando) {
+        <div class="text-center mt-4">
+
+            <div class="spinner-border spinner-cliente" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+
+            <p class="mt-2 text-muted">
+                Cargando clientes...
+            </p>
+
+        </div>
+    }
+
+</div>

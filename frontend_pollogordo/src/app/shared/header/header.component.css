@@ -1,0 +1,346 @@
+/* =========================================
+   NAVBAR PRINCIPAL - POLLO GORDO
+========================================= */
+
+:host {
+  display: block;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.bg-pollo-gordo {
+  background-color: #7B1E21 !important;
+}
+
+.navbar {
+  min-height: 65px;
+  padding: 8px 15px;
+  box-shadow: 0 2px 8px rgba(80, 30, 20, 0.12);
+}
+
+.navbar .container-fluid {
+  align-items: center;
+}
+
+/* =========================================
+   LOGO Y NOMBRE
+========================================= */
+
+.navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 25px;
+  padding: 0;
+  color: #FFFFFF !important;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 21px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* TAMAÑO CORREGIDO DEL LOGO */
+.navbar-brand .logo-pollogordo {
+  display: block;
+
+  width: 42px !important;
+  height: 42px !important;
+
+  min-width: 42px;
+  max-width: 42px;
+  min-height: 42px;
+  max-height: 42px;
+
+  object-fit: contain;
+  object-position: center;
+
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.navbar-brand:hover {
+  color: #FFF1E7 !important;
+}
+
+/* =========================================
+   ENLACES DE NAVEGACIÓN
+========================================= */
+
+.navbar-nav {
+  align-items: center;
+}
+
+.navbar-nav .nav-link {
+  color: #F4DDDA !important;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 12px;
+  transition: color 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #FFFFFF !important;
+}
+
+.navbar-nav .nav-link.active {
+  color: #FFFFFF !important;
+  font-weight: 700;
+}
+
+.navbar-nav .nav-link i {
+  font-size: 14px;
+}
+
+/* =========================================
+   MENÚS DESPLEGABLES
+========================================= */
+
+.menu-gestion {
+  min-width: 250px;
+  padding: 8px;
+  margin-top: 8px;
+
+  background-color: #FFFFFF;
+  border: 1px solid #E8DED5;
+  border-radius: 9px;
+
+  box-shadow: 0 6px 18px rgba(80, 30, 20, 0.15);
+}
+
+.menu-gestion .dropdown-item {
+  display: flex;
+  align-items: center;
+
+  padding: 10px 12px;
+  border-radius: 6px;
+
+  font-size: 14px;
+  color: #4A3434;
+
+  transition: background-color 0.2s ease;
+}
+
+.menu-gestion a.dropdown-item:hover {
+  background-color: #FFF1E7;
+  color: #7B1E21;
+}
+
+.menu-gestion .dropdown-item i {
+  color: #7B1E21;
+  font-size: 16px;
+}
+
+.dropdown-divider {
+  border-color: #E8DED5;
+  margin: 7px 0;
+}
+
+/* =========================================
+   OPCIONES PRÓXIMAMENTE
+========================================= */
+
+.item-pendiente {
+  color: #999999 !important;
+  cursor: default;
+}
+
+.item-pendiente i {
+  color: #999999 !important;
+}
+
+.item-pendiente small {
+  margin-left: auto;
+  font-size: 10px;
+  color: #999999;
+}
+
+.item-pendiente:hover {
+  background-color: transparent !important;
+}
+
+/* =========================================
+   BUSCADOR
+========================================= */
+
+.buscador-header {
+  align-items: center;
+}
+
+.buscador-header .form-control {
+  width: 160px;
+  height: 36px;
+
+  font-size: 13px;
+  border: 1px solid #E8DED5;
+  border-radius: 6px;
+}
+
+.buscador-header .form-control:focus {
+  border-color: #D97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+
+.btn-outline-pollo {
+  height: 36px;
+  padding: 6px 12px;
+
+  color: #FFFFFF;
+  border: 1px solid #FFFFFF;
+  border-radius: 6px;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.btn-outline-pollo:hover {
+  background-color: #FFFFFF;
+  color: #7B1E21;
+}
+
+/* =========================================
+   CARRITO
+========================================= */
+
+.carrito-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #FFFFFF;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.carrito-header:hover {
+  color: #FFFFFF;
+}
+
+.carrito-header .badge {
+  font-size: 10px;
+}
+
+/* =========================================
+   USUARIO
+========================================= */
+
+.usuario-header {
+  white-space: nowrap;
+}
+
+.btn-ingresar {
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 6px;
+}
+
+.saludo-usuario {
+  font-size: 13px;
+}
+
+.btn-cerrar {
+  background-color: #D97706;
+  color: #FFFFFF;
+
+  border: none;
+  border-radius: 6px;
+
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+}
+
+.btn-cerrar:hover {
+  background-color: #B85F05;
+  color: #FFFFFF;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1199px) {
+
+  .navbar-brand {
+    font-size: 19px;
+    margin-right: 15px;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 9px 8px;
+  }
+
+  .buscador-header .form-control {
+    width: 130px;
+  }
+
+  .saludo-usuario {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+  }
+}
+
+@media (max-width: 991px) {
+
+  .navbar {
+    padding: 8px 12px;
+  }
+
+  .navbar-nav {
+    align-items: stretch;
+    margin-top: 12px;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 10px 8px;
+  }
+
+  .menu-gestion {
+    margin-top: 0;
+    box-shadow: none;
+  }
+
+  .buscador-header {
+    margin: 15px 0;
+  }
+
+  .buscador-header .form-control {
+    width: 100%;
+  }
+
+  .usuario-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+  }
+
+  .saludo-usuario {
+    margin: 0 !important;
+  }
+
+  .carrito-header {
+    margin: 10px 0;
+  }
+}
+
+@media (max-width: 576px) {
+
+  .navbar-brand {
+    font-size: 18px;
+  }
+
+  .navbar-brand .logo-pollogordo {
+    width: 38px !important;
+    height: 38px !important;
+
+    min-width: 38px;
+    max-width: 38px;
+    min-height: 38px;
+    max-height: 38px;
+  }
+
+  .navbar {
+    min-height: 60px;
+  }
+}

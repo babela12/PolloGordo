@@ -1,0 +1,154 @@
+<div class="container trabajadores-container mt-4 mb-5">
+
+  <div class="encabezado-trabajadores">
+    <h2 class="titulo-trabajadores">Gestión de Trabajadores</h2>
+
+    <a routerLink="/trabajadores/nuevo" class="btn btn-nuevo">
+      <i class="bi bi-plus-circle me-2"></i>
+      Nuevo Trabajador
+    </a>
+  </div>
+
+  <div class="barra-herramientas">
+    <div class="buscador-contenedor">
+      <i class="bi bi-search icono-buscar"></i>
+
+      <input
+        type="text"
+        class="form-control buscador"
+        placeholder="Buscar por nombre, DNI, celular o cargo..."
+        [(ngModel)]="busqueda">
+    </div>
+
+    <div class="contador-trabajadores">
+      <i class="bi bi-people me-2"></i>
+      {{ trabajadoresFiltrados.length }}
+      {{ trabajadoresFiltrados.length === 1 ? 'trabajador' : 'trabajadores' }}
+    </div>
+  </div>
+
+  <div class="tabla-trabajadores">
+    <div class="table-responsive">
+
+      <table class="table align-middle mb-0">
+
+        <thead>
+          <tr>
+            <th>Trabajador</th>
+            <th>DNI</th>
+            <th>Cargo</th>
+            <th class="text-center">Preparación</th>
+            <th class="text-center">Asado</th>
+            <th class="text-center">Reparto</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (trabajador of trabajadoresFiltrados; track trabajador.idTrabajador) {
+            <tr>
+
+              <td>
+                <div class="trabajador-info">
+                  <div class="trabajador-avatar">
+                    <i class="bi bi-person-fill"></i>
+                  </div>
+
+                  <div class="trabajador-datos">
+                    <span class="trabajador-nombre">
+                      {{ trabajador.persona.nombre }}
+                      {{ trabajador.persona.apellidos }}
+                    </span>
+
+                    <span class="trabajador-celular">
+                      <i class="bi bi-telephone me-1"></i>
+                      {{ trabajador.persona.numTelef }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+
+              <td>{{ trabajador.persona.dni }}</td>
+
+              <td>
+                <span class="cargo-texto">
+                  {{ getNombreCargo(trabajador.idCargo) }}
+                </span>
+              </td>
+
+              <td class="text-center">
+                {{ trabajador.capacidadPreparacion ?? '—' }}
+              </td>
+
+              <td class="text-center">
+                {{ trabajador.capacidadAsado ?? '—' }}
+              </td>
+
+              <td class="text-center">
+                <span
+                  class="estado-reparto"
+                  [class.reparto-si]="trabajador.puedeRepartir"
+                  [class.reparto-no]="!trabajador.puedeRepartir">
+                  {{ trabajador.puedeRepartir ? 'Sí' : 'No' }}
+                </span>
+              </td>
+
+              <td class="text-center">
+                <span
+                  class="estado-trabajador"
+                  [class.estado-activo]="trabajador.estado === 'A'"
+                  [class.estado-inactivo]="trabajador.estado !== 'A'">
+                  {{ trabajador.estado === 'A' ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+
+              <td>
+                <div class="acciones-trabajador">
+                  <a
+                    [routerLink]="['/trabajadores/editar', trabajador.idTrabajador]"
+                    class="btn btn-editar">
+                    <i class="bi bi-pencil-square me-1"></i>
+                    Editar
+                  </a>
+
+                  <button
+                    type="button"
+                    class="btn"
+                    [class.btn-desactivar]="trabajador.estado === 'A'"
+                    [class.btn-activar]="trabajador.estado !== 'A'"
+                    [disabled]="procesandoId !== null"
+                    (click)="cambiarEstado(trabajador)">
+
+                    <i
+                      class="bi me-1"
+                      [class.bi-person-x]="trabajador.estado === 'A'"
+                      [class.bi-person-check]="trabajador.estado !== 'A'">
+                    </i>
+
+                    {{ trabajador.estado === 'A' ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="estado-vacio">
+                <i class="bi bi-people icono-vacio"></i>
+                <h5>No se encontraron trabajadores</h5>
+                <p>No hay registros que coincidan con tu búsqueda.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+  @if (cargando) {
+    <p class="text-center mt-4">Cargando trabajadores...</p>
+  }
+
+</div>

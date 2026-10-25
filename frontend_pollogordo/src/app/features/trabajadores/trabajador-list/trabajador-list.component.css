@@ -1,0 +1,264 @@
+.trabajadores-container {
+  max-width: 1350px;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.encabezado-trabajadores {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.titulo-trabajadores {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 42px;
+  font-weight: 700;
+  color: #7B1E21;
+  margin: 0;
+}
+
+.btn-nuevo {
+  background: #7B1E21;
+  color: #FFFFFF;
+  border-radius: 7px;
+  padding: 11px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.btn-nuevo:hover {
+  background: #60171A;
+  color: #FFFFFF;
+}
+
+.barra-herramientas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.buscador-contenedor {
+  position: relative;
+  flex: 1;
+  max-width: 750px;
+}
+
+.icono-buscar {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: #9D8B85;
+}
+
+.buscador {
+  height: 44px;
+  padding-left: 44px;
+  border: 1px solid #E4DAD3;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.buscador:focus {
+  border-color: #7B1E21;
+  box-shadow: 0 0 0 3px rgba(123, 30, 33, 0.1);
+}
+
+.contador-trabajadores {
+  background: #F5E9E5;
+  color: #7B1E21;
+  padding: 9px 15px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tabla-trabajadores {
+  background: #FFFFFF;
+  border: 1px solid #E9DED7;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(80, 30, 20, 0.07);
+}
+
+.tabla-trabajadores thead th {
+  background: #7B1E21;
+  color: #FFFFFF;
+  padding: 16px 13px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tabla-trabajadores tbody td {
+  padding: 16px 13px;
+  border-bottom: 1px solid #F0E8E3;
+  font-size: 13px;
+  color: #4A3434;
+  vertical-align: middle;
+}
+
+.tabla-trabajadores tbody tr:hover td {
+  background: #FFFAF6;
+}
+
+.trabajador-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 190px;
+}
+
+.trabajador-avatar {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F5E6E2;
+  color: #7B1E21;
+  border-radius: 50%;
+  font-size: 18px;
+}
+
+.trabajador-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trabajador-nombre {
+  color: #482A2A;
+  font-weight: 700;
+}
+
+.trabajador-celular {
+  color: #A0928C;
+  font-size: 11px;
+}
+
+.cargo-texto {
+  font-weight: 600;
+  color: #7B1E21;
+}
+
+.estado-reparto,
+.estado-trabajador {
+  display: inline-block;
+  min-width: 58px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.reparto-si,
+.estado-activo {
+  background: #EDF2E6;
+  color: #687A45;
+}
+
+.reparto-no {
+  background: #F1EEEE;
+  color: #888888;
+}
+
+.estado-inactivo {
+  background: #F7E5E5;
+  color: #7B1E21;
+}
+
+.acciones-trabajador {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.acciones-trabajador .btn {
+  min-width: 95px;
+  height: 36px;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.btn-editar {
+  background: #D97706;
+}
+
+.btn-editar:hover {
+  background: #B85F05;
+  color: #FFFFFF;
+}
+
+.btn-desactivar {
+  background: #7B1E21;
+}
+
+.btn-desactivar:hover {
+  background: #60171A;
+  color: #FFFFFF;
+}
+
+.btn-activar {
+  background: #687A45;
+}
+
+.btn-activar:hover {
+  background: #526236;
+  color: #FFFFFF;
+}
+
+.acciones-trabajador .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tabla-trabajadores tbody td.estado-vacio {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.icono-vacio {
+  display: block;
+  font-size: 40px;
+  color: #BBA5A0;
+  margin-bottom: 12px;
+}
+
+.estado-vacio h5 {
+  color: #7B1E21;
+}
+
+.estado-vacio p {
+  color: #998B85;
+}
+
+@media (max-width: 991px) {
+  .titulo-trabajadores {
+    font-size: 32px;
+  }
+
+  .encabezado-trabajadores,
+  .barra-herramientas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .contador-trabajadores {
+    align-self: flex-start;
+  }
+}

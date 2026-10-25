@@ -1,0 +1,209 @@
+<div class="container formulario-contenedor mt-4 mb-5">
+
+  <div class="card formulario-trabajador shadow-sm">
+
+    <div class="card-header encabezado-formulario">
+      <h4 class="mb-0">
+        {{ idTrabajador !== null ? 'Editar Trabajador' : 'Nuevo Trabajador' }}
+      </h4>
+    </div>
+
+    <div class="card-body p-4">
+
+      @if (cargando) {
+        <p>Cargando trabajador...</p>
+      } @else {
+
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+
+          <h5 class="subtitulo">Datos personales</h5>
+
+          <div class="row">
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nombres</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="nombre"
+                placeholder="Ingrese los nombres">
+
+              @if (form.get('nombre')?.invalid && form.get('nombre')?.touched) {
+                <small class="text-danger">El nombre es obligatorio.</small>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Apellidos</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="apellidos"
+                placeholder="Ingrese los apellidos">
+
+              @if (form.get('apellidos')?.invalid && form.get('apellidos')?.touched) {
+                <small class="text-danger">Los apellidos son obligatorios.</small>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">DNI</label>
+              <input
+                type="text"
+                inputmode="numeric"
+                maxlength="8"
+                class="form-control"
+                formControlName="dni"
+                placeholder="8 dígitos">
+
+              @if (form.get('dni')?.invalid && form.get('dni')?.touched) {
+                <small class="text-danger">Ingresa un DNI válido de 8 dígitos.</small>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Celular</label>
+              <input
+                type="text"
+                inputmode="numeric"
+                maxlength="9"
+                class="form-control"
+                formControlName="numTelef"
+                placeholder="9 dígitos">
+
+              @if (form.get('numTelef')?.invalid && form.get('numTelef')?.touched) {
+                <small class="text-danger">
+                  Debe tener 9 dígitos y comenzar con 9.
+                </small>
+              }
+            </div>
+
+          </div>
+
+          <h5 class="subtitulo mt-3">Información laboral</h5>
+
+          <div class="row">
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Cargo</label>
+
+              <select class="form-select" formControlName="idCargo">
+                <option [ngValue]="null">Seleccione un cargo</option>
+
+                @for (cargo of cargos; track cargo.idCargo) {
+                  <option [ngValue]="cargo.idCargo">
+                    {{ cargo.nombre }}
+                  </option>
+                }
+              </select>
+
+              @if (form.get('idCargo')?.invalid && form.get('idCargo')?.touched) {
+                <small class="text-danger">Selecciona un cargo.</small>
+              }
+
+              @if (cargandoCargos) {
+                <small class="text-muted">Cargando cargos...</small>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Dirección</label>
+              <input
+                type="text"
+                maxlength="200"
+                class="form-control"
+                formControlName="direccion"
+                placeholder="Ingrese la dirección">
+
+              @if (form.get('direccion')?.invalid && form.get('direccion')?.touched) {
+                <small class="text-danger">
+                  La dirección es obligatoria (máximo 200 caracteres).
+                </small>
+              }
+            </div>
+
+          </div>
+
+          <h5 class="subtitulo mt-3">Funciones del trabajador</h5>
+
+          <div class="row">
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Capacidad de preparación</label>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                class="form-control"
+                formControlName="capacidadPreparacion"
+                placeholder="Dejar vacío si no aplica">
+
+              @if (
+                form.get('capacidadPreparacion')?.invalid &&
+                form.get('capacidadPreparacion')?.touched
+              ) {
+                <small class="text-danger">
+                  La capacidad debe ser mayor que cero.
+                </small>
+              }
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Capacidad de asado</label>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                class="form-control"
+                formControlName="capacidadAsado"
+                placeholder="Dejar vacío si no aplica">
+
+              @if (
+                form.get('capacidadAsado')?.invalid &&
+                form.get('capacidadAsado')?.touched
+              ) {
+                <small class="text-danger">
+                  La capacidad debe ser mayor que cero.
+                </small>
+              }
+            </div>
+
+          </div>
+
+          <div class="opcion-reparto mb-4">
+            <div>
+              <label class="form-label mb-1">¿Puede realizar repartos?</label>
+              <p class="texto-ayuda mb-0">
+                Indica si el trabajador está habilitado para repartir pedidos.
+              </p>
+            </div>
+
+            <select class="form-select selector-reparto"
+                    formControlName="puedeRepartir">
+              <option [ngValue]="true">Sí</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+
+            <a routerLink="/trabajadores" class="btn btn-cancelar">
+              Cancelar
+            </a>
+
+            <button
+              type="submit"
+              class="btn btn-guardar"
+              [disabled]="form.invalid || guardando || cargandoCargos">
+
+              {{ guardando ? 'Guardando...' : 'Guardar Trabajador' }}
+            </button>
+
+          </div>
+
+        </form>
+      }
+
+    </div>
+  </div>
+</div>

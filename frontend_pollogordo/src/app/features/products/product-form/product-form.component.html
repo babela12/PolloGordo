@@ -1,0 +1,127 @@
+
+<div class="container mt-4 mb-5">
+
+  <div class="card formulario-producto shadow-sm">
+
+    <div class="card-header encabezado-formulario">
+      <h4 class="mb-0">
+        {{ idProducto !== null ? 'Editar Producto' : 'Nuevo Producto' }}
+      </h4>
+    </div>
+
+    <div class="card-body p-4">
+
+      <form [formGroup]="form" (ngSubmit)="guardar()">
+
+        <div class="mb-3">
+          <label class="form-label">Nombre del producto</label>
+
+          <input
+            type="text"
+            formControlName="nombre"
+            class="form-control"
+            placeholder="Ingrese el nombre del producto">
+
+          @if (form.get('nombre')?.invalid && form.get('nombre')?.touched) {
+            <small class="text-danger">El nombre es obligatorio.</small>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Descripción</label>
+
+          <textarea
+            formControlName="descripcion"
+            class="form-control"
+            rows="3"
+            placeholder="Ingrese una descripción"></textarea>
+        </div>
+
+        <div class="row">
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Tipo</label>
+
+            <input
+              type="text"
+              formControlName="tipo"
+              class="form-control"
+              placeholder="Ingrese el tipo de producto">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Precio (S/)</label>
+
+            <input
+              type="number"
+              formControlName="precio"
+              class="form-control"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00">
+
+            @if (form.get('precio')?.invalid && form.get('precio')?.touched) {
+              <small class="text-danger">
+                Ingrese un precio mayor que cero.
+              </small>
+            }
+          </div>
+
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Estado</label>
+
+          <select formControlName="estado" class="form-select">
+            <option value="A">Activo</option>
+            <option value="I">Inactivo</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Imagen del producto</label>
+
+          @if (idProducto !== null) {
+            <div class="mb-3">
+              <img
+                [src]="getImagenActual()"
+                alt="Imagen actual del producto"
+                class="imagen-actual">
+            </div>
+          }
+
+          <input
+            type="file"
+            accept="image/*"
+            class="form-control"
+            (change)="seleccionarImagen($event)">
+
+          @if (idProducto !== null) {
+            <small class="text-muted">
+              Si no seleccionas una nueva imagen, se conservará la actual.
+            </small>
+          }
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+
+          <a routerLink="/productos" class="btn btn-cancelar">
+            Cancelar
+          </a>
+
+          <button
+            type="submit"
+            class="btn btn-guardar"
+            [disabled]="form.invalid || guardando">
+            {{ guardando ? 'Guardando...' : 'Guardar' }}
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
