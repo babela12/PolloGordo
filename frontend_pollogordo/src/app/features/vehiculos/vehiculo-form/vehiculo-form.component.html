@@ -1,0 +1,151 @@
+
+<div class="form-container">
+
+  <div class="page-header">
+    <a routerLink="/vehiculos" class="volver">
+      <i class="bi bi-arrow-left"></i>
+      Volver a vehículos
+    </a>
+
+    <h2>
+      <i class="bi bi-truck"></i>
+      {{ esEdicion ? 'Editar vehículo' : 'Registrar vehículo' }}
+    </h2>
+
+    <p>
+      {{ esEdicion
+        ? 'Actualiza la información del vehículo.'
+        : 'Completa los datos para registrar un nuevo vehículo.' }}
+    </p>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+
+      @if (error) {
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          {{ error }}
+        </div>
+      }
+
+      @if (cargando) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-success"></div>
+          <p class="mt-3 text-muted">
+            Cargando información del vehículo...
+          </p>
+        </div>
+      } @else {
+
+        <form #vehiculoForm="ngForm" (ngSubmit)="guardar()">
+
+          <div class="section-title">
+            <i class="bi bi-info-circle"></i>
+            Información del vehículo
+          </div>
+
+          <div class="row g-4">
+
+            <div class="col-md-6">
+              <label for="tipo" class="form-label">
+                Tipo de vehículo <span class="required">*</span>
+              </label>
+
+              <input
+                id="tipo"
+                type="text"
+                name="tipo"
+                class="form-control"
+                [(ngModel)]="vehiculo.tipo"
+                placeholder="Ej. Camioneta, motocarro, furgoneta"
+                required
+                maxlength="100"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label for="placa" class="form-label">
+                Placa <span class="required">*</span>
+              </label>
+
+              <input
+                id="placa"
+                type="text"
+                name="placa"
+                class="form-control placa-input"
+                [(ngModel)]="vehiculo.placa"
+                placeholder="Ej. ABC-123"
+                required
+                maxlength="20"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label for="capacidad" class="form-label">
+                Capacidad <span class="required">*</span>
+              </label>
+
+              <input
+                id="capacidad"
+                type="number"
+                name="capacidad"
+                class="form-control"
+                [(ngModel)]="vehiculo.capacidad"
+                placeholder="Ingrese la capacidad"
+                min="0.01"
+                step="0.01"
+                required
+              />
+
+              <small class="form-text">
+                Ingresa la capacidad de acuerdo con la unidad utilizada por tu negocio.
+              </small>
+            </div>
+
+            <div class="col-md-6">
+              <label for="estado" class="form-label">
+                Estado
+              </label>
+
+              <select
+                id="estado"
+                name="estado"
+                class="form-select"
+                [(ngModel)]="vehiculo.estado"
+              >
+                <option value="ACTIVO">Activo</option>
+                <option value="INACTIVO">Inactivo</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="form-actions">
+            <a routerLink="/vehiculos" class="btn btn-cancelar">
+              <i class="bi bi-x-circle"></i>
+              Cancelar
+            </a>
+
+            <button
+              type="submit"
+              class="btn btn-guardar"
+              [disabled]="vehiculoForm.invalid || guardando || cargando"
+            >
+              @if (guardando) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Guardando...
+              } @else {
+                <i class="bi bi-check-circle"></i>
+                {{ esEdicion ? 'Guardar cambios' : 'Registrar vehículo' }}
+              }
+            </button>
+          </div>
+
+        </form>
+      }
+
+    </div>
+  </div>
+
+</div>

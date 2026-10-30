@@ -1,6 +1,6 @@
+
 <div class="container clientes-container mt-4 mb-5">
 
-    <!-- ENCABEZADO -->
     <div class="encabezado-clientes">
         <h2 class="titulo-clientes">Gestión de Clientes</h2>
 
@@ -10,7 +10,6 @@
         </a>
     </div>
 
-    <!-- BUSCADOR -->
     <div class="barra-herramientas">
         <div class="buscador-contenedor">
             <i class="bi bi-search icono-buscar"></i>
@@ -29,32 +28,24 @@
         </div>
     </div>
 
-    <!-- TABLA -->
     <div class="tabla-clientes">
         <div class="table-responsive">
-
             <table class="table align-middle mb-0">
 
                 <thead>
                     <tr>
                         <th>Cliente</th>
-                        <th>DNI</th>
                         <th>Celular</th>
-                        <th>Dirección</th>
+                        <th class="text-center">Pedidos</th>
                         <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
 
                 <tbody>
-
                     @for (cliente of clientesFiltrados; track cliente.idCliente) {
-
                         <tr>
-
-                            <!-- NOMBRE COMPLETO -->
                             <td>
                                 <div class="cliente-info">
-
                                     <div class="cliente-avatar">
                                         <i class="bi bi-person-fill"></i>
                                     </div>
@@ -64,23 +55,10 @@
                                             {{ cliente.persona.nombre }}
                                             {{ cliente.persona.apellidos }}
                                         </span>
-
-                                        <span class="cliente-codigo">
-                                            Cliente #{{ cliente.idCliente }}
-                                        </span>
                                     </div>
-
                                 </div>
                             </td>
 
-                            <!-- DNI -->
-                            <td>
-                                <span class="texto-dni">
-                                    {{ cliente.persona.dni }}
-                                </span>
-                            </td>
-
-                            <!-- CELULAR -->
                             <td>
                                 <span class="texto-celular">
                                     <i class="bi bi-telephone me-2"></i>
@@ -88,68 +66,156 @@
                                 </span>
                             </td>
 
-                            <!-- DIRECCIÓN -->
-                            <td>
-                                <div class="direccion-cliente">
-                                    <i class="bi bi-geo-alt me-2"></i>
+                            <td class="text-center">
+                                <span class="cantidad-pedidos"
+                                      title="Pendiente de conectar el historial">
+                                    —
+                                </span>
+                            </td>
 
-                                    <span>
-                                        {{ cliente.direccion || 'No registrada' }}
-                                    </span>
+                            <td>
+                                <div class="acciones-cliente">
+
+                                    <button
+                                        type="button" class="btn btn-ver" (click)="verDetalles(cliente)"
+                                        title="Ver detalles del cliente">
+                                        <i class="bi bi-eye me-1"></i>
+                                        Ver
+                                    </button>
+
+                                    <a
+                                        [routerLink]="['/clientes/editar', cliente.idCliente]"
+                                        class="btn btn-editar" title="Editar cliente">
+                                        <i class="bi bi-pencil-square me-1"></i>
+                                        Editar
+                                    </a>
+
+                                    <button type="button" class="btn btn-pedido"
+                                        [attr.data-cliente-id]="cliente.idCliente"
+                                        title="Registrar nuevo pedido">
+                                        <i class="bi bi-plus-circle me-1"></i>
+                                        Pedido
+                                    </button>
+
                                 </div>
                             </td>
-
-                            <!-- ACCIONES -->
-                            <td class="text-center">
-                                <a
-                                    [routerLink]="['/clientes/editar', cliente.idCliente]"
-                                    class="btn btn-editar">
-
-                                    <i class="bi bi-pencil-square me-1"></i>
-                                    Editar
-                                </a>
-                            </td>
-
                         </tr>
-
                     } @empty {
-
                         <tr>
-                            <td colspan="5" class="estado-vacio">
-
+                            <td colspan="4" class="estado-vacio">
                                 <i class="bi bi-people icono-vacio"></i>
-
                                 <h5>No se encontraron clientes</h5>
-
-                                <p>
-                                    No hay clientes que coincidan con tu búsqueda.
-                                </p>
-
+                                <p> No hay clientes que coincidan con tu búsqueda. </p>
                             </td>
                         </tr>
-
                     }
-
                 </tbody>
 
             </table>
-
         </div>
     </div>
 
-    <!-- ESTADO DE CARGA -->
     @if (cargando) {
         <div class="text-center mt-4">
-
             <div class="spinner-border spinner-cliente" role="status">
                 <span class="visually-hidden">Cargando...</span>
             </div>
 
-            <p class="mt-2 text-muted">
-                Cargando clientes...
-            </p>
-
+            <p class="mt-2 text-muted"> Cargando clientes... </p>
         </div>
     }
 
 </div>
+
+@if (mostrarDetalles && clienteSeleccionado) {
+
+    <div class="modal-cliente-fondo"
+         (click)="cerrarDetalles()">
+
+        <div class="modal-cliente" role="dialog" aria-modal="true"
+             aria-labelledby="titulo-detalle-cliente"
+             (click)="$event.stopPropagation()">
+
+            <div class="modal-cliente-header">
+                <h3 id="titulo-detalle-cliente"> <i class="bi bi-person-vcard me-2"></i>
+                    Detalles del cliente
+                </h3>
+
+                <button type="button" class="btn-cerrar-modal" aria-label="Cerrar detalles"
+                    (click)="cerrarDetalles()"> <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="modal-cliente-body">
+
+                <div class="detalle-cliente-perfil">
+                    <div class="detalle-cliente-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+
+                    <div>
+                        <h4>
+                            {{ clienteSeleccionado.persona.nombre }}
+                            {{ clienteSeleccionado.persona.apellidos }}
+                        </h4>
+                        <span>Información del cliente</span>
+                    </div>
+                </div>
+
+                <h5 class="detalle-seccion-titulo">
+                    <i class="bi bi-person-lines-fill me-2"></i>
+                    Información personal
+                </h5>
+
+                <div class="detalle-cliente-grid">
+                    <div class="detalle-campo">
+                        <label>DNI</label>
+                        <p>{{ clienteSeleccionado.persona.dni }}</p>
+                    </div>
+
+                    <div class="detalle-campo">
+                        <label>Celular</label>
+                        <p>{{ clienteSeleccionado.persona.numTelef }}</p>
+                    </div>
+
+                    <div class="detalle-campo detalle-direccion">
+                        <label>Dirección</label>
+                        <p>{{ clienteSeleccionado.direccion || 'No registrada' }}</p>
+                    </div>
+                </div>
+
+                <h5 class="detalle-seccion-titulo"> <i class="bi bi-bag-check me-2"></i>
+                    Historial de pedidos
+                </h5>
+
+                <div class="detalle-pedidos-vacio">
+                    <i class="bi bi-receipt"></i>
+                    <p>No disponible</p>
+                </div>
+
+            </div>
+
+            
+<div class="modal-cliente-footer">
+
+    <button
+        type="button"
+        class="btn btn-cerrar-detalles"
+        (click)="cerrarDetalles()">
+        Cerrar
+    </button>
+
+    <button
+        type="button"
+        class="btn btn-nuevo-pedido-modal"
+        (click)="cerrarDetalles()">
+        <i class="bi bi-plus-circle me-2"></i>
+        Nuevo pedido
+    </button>
+
+</div>
+
+
+        </div>
+    </div>
+}

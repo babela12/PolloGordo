@@ -15,6 +15,10 @@ import { ClienteFormComponent } from './features/clientes/cliente-form/cliente-f
 import { TrabajadorListComponent } from './features/trabajadores/trabajador-list/trabajador-list.component';
 import { TrabajadorFormComponent } from './features/trabajadores/trabajador-form/trabajador-form.component';
 
+
+import { VehiculoListComponent } from './features/vehiculos/vehiculo-list/vehiculo-list.component';
+import { VehiculoFormComponent } from './features/vehiculos/vehiculo-form/vehiculo-form.component';
+
 export const routes: Routes = [
   {
     path: '',
@@ -36,7 +40,13 @@ export const routes: Routes = [
 
       { path: 'trabajadores', component: TrabajadorListComponent },
       { path: 'trabajadores/nuevo', component: TrabajadorFormComponent },
-      { path: 'trabajadores/editar/:id', component: TrabajadorFormComponent }
+      { path: 'trabajadores/editar/:id', component: TrabajadorFormComponent },
+
+
+      { path: 'vehiculos', component: VehiculoListComponent },
+      { path: 'vehiculos/nuevo', component: VehiculoFormComponent },
+      { path: 'vehiculos/editar/:id', component: VehiculoFormComponent }
+
     ]
   },
   {

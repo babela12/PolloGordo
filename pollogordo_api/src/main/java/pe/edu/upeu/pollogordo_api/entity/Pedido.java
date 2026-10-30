@@ -24,10 +24,12 @@ public class Pedido {
     @Column(name = "fecha_evento")
     private LocalDate fechaEvento;
 
+    @Column(name = "tipo_evento", length = 20)
+    private String tipoEvento;
+
     @Convert(converter = LocalTimeConverter.class)
     @Column(name = "hora_entrega", length = 5)
     private LocalTime horaEntrega;
-
 
     @Column(name = "direccion_evento", length = 250)
     private String direccionEvento;
@@ -50,9 +52,15 @@ public class Pedido {
     public Pedido() {
     }
 
-    public Pedido(Long idPedido, Cliente cliente, LocalDate fechaPedido,
-                  String confirmado, LocalDate fechaConfirmacion,
-                  String estado, String observacion) {
+    public Pedido(
+            Long idPedido,
+            Cliente cliente,
+            LocalDate fechaPedido,
+            String confirmado,
+            LocalDate fechaConfirmacion,
+            String estado,
+            String observacion) {
+
         this.idPedido = idPedido;
         this.cliente = cliente;
         this.fechaPedido = fechaPedido;
@@ -92,6 +100,14 @@ public class Pedido {
 
     public void setFechaEvento(LocalDate fechaEvento) {
         this.fechaEvento = fechaEvento;
+    }
+
+    public String getTipoEvento() {
+        return tipoEvento;
+    }
+
+    public void setTipoEvento(String tipoEvento) {
+        this.tipoEvento = tipoEvento;
     }
 
     public LocalTime getHoraEntrega() {

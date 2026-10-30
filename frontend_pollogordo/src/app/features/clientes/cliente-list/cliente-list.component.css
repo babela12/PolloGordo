@@ -1,15 +1,8 @@
-/* =========================================
-   CONTENEDOR GENERAL
-========================================= */
 
 .clientes-container {
   max-width: 1250px;
   font-family: "Segoe UI", Arial, sans-serif;
 }
-
-/* =========================================
-   ENCABEZADO
-========================================= */
 
 .encabezado-clientes {
   display: flex;
@@ -33,28 +26,19 @@
   margin-bottom: 0;
 }
 
-/* =========================================
-   BOTÓN NUEVO CLIENTE
-========================================= */
-
 .btn-nuevo {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   background-color: #7B1E21;
   color: #FFFFFF;
-
   border: none;
   border-radius: 7px;
-
   padding: 11px 18px;
-
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-
   transition: all 0.2s ease;
 }
 
@@ -63,10 +47,6 @@
   color: #FFFFFF;
   transform: translateY(-1px);
 }
-
-/* =========================================
-   BUSCADOR Y CONTADOR
-========================================= */
 
 .barra-herramientas {
   display: flex;
@@ -95,14 +75,11 @@
 .buscador {
   height: 44px;
   padding: 10px 15px 10px 44px;
-
   border: 1px solid #E4DAD3;
   border-radius: 8px;
-
   background-color: #FFFFFF;
   color: #4A3434;
   font-size: 13px;
-
   transition: all 0.2s ease;
 }
 
@@ -118,28 +95,20 @@
 .contador-clientes {
   display: inline-flex;
   align-items: center;
-
   padding: 9px 15px;
   border-radius: 7px;
-
   background-color: #F5E9E5;
   color: #7B1E21;
-
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
 }
-
-/* =========================================
-   CONTENEDOR DE TABLA
-========================================= */
 
 .tabla-clientes {
   background-color: #FFFFFF;
   border: 1px solid #E9DED7;
   border-radius: 12px;
   overflow: hidden;
-
   box-shadow: 0 4px 16px rgba(80, 30, 20, 0.07);
 }
 
@@ -149,36 +118,22 @@
   background-color: #FFFFFF;
 }
 
-/* =========================================
-   ENCABEZADO DE TABLA
-========================================= */
-
 .tabla-clientes thead th {
   background-color: #7B1E21;
   color: #FFFFFF;
-
   padding: 17px 20px;
-
   font-size: 13px;
   font-weight: 600;
-
   border-bottom: none;
   white-space: nowrap;
 }
 
-/* =========================================
-   FILAS
-========================================= */
-
 .tabla-clientes tbody td {
   padding: 17px 20px;
   vertical-align: middle;
-
   background-color: #FFFFFF;
   color: #4A3434;
-
   font-size: 13px;
-
   border-bottom: 1px solid #F0E8E3;
 }
 
@@ -189,10 +144,6 @@
 .tabla-clientes tbody tr:hover td {
   background-color: #FFFAF6;
 }
-
-/* =========================================
-   INFORMACIÓN DEL CLIENTE
-========================================= */
 
 .cliente-info {
   display: flex;
@@ -205,14 +156,11 @@
   width: 39px;
   height: 39px;
   min-width: 39px;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
   background-color: #F5E6E2;
   color: #7B1E21;
-
   border-radius: 50%;
   font-size: 18px;
 }
@@ -230,15 +178,6 @@
   line-height: 1.4;
 }
 
-.cliente-codigo {
-  color: #A0928C;
-  font-size: 11px;
-}
-
-/* =========================================
-   DNI Y CELULAR
-========================================= */
-
 .texto-dni {
   color: #4A3434;
   font-weight: 500;
@@ -248,7 +187,6 @@
 .texto-celular {
   display: inline-flex;
   align-items: center;
-
   color: #4A3434;
   white-space: nowrap;
 }
@@ -258,18 +196,12 @@
   font-size: 14px;
 }
 
-/* =========================================
-   DIRECCIÓN
-========================================= */
-
 .direccion-cliente {
   display: flex;
   align-items: flex-start;
   gap: 3px;
-
   min-width: 180px;
   max-width: 340px;
-
   color: #6A5752;
   line-height: 1.5;
 }
@@ -284,43 +216,77 @@
   overflow-wrap: anywhere;
 }
 
-/* =========================================
-   BOTÓN EDITAR
-========================================= */
-
-.btn-editar {
-  display: inline-flex;
-  justify-content: center;
+.acciones-cliente {
+  display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
 
-  min-width: 95px;
-  height: 35px;
-
-  padding: 7px 14px;
-
-  background-color: #D97706;
-  color: #FFFFFF;
-
-  border: none;
+.acciones-cliente .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: auto;
+  height: 31px;
+  padding: 5px 10px;
+  border: 1px solid transparent;
   border-radius: 6px;
-
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-
+  line-height: 1;
   text-decoration: none;
   white-space: nowrap;
-
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.btn-editar:hover {
-  background-color: #B85F05;
-  color: #FFFFFF;
+.acciones-cliente .btn i {
+  font-size: 12px;
 }
 
-/* =========================================
-   TABLA VACÍA
-========================================= */
+.acciones-cliente .btn-ver {
+  background-color: #E3EDFC;
+  color: #1D4ED8;
+  border-color: #D5E4FC;
+}
+
+.acciones-cliente .btn-ver:hover {
+  background-color: #C9DDFC;
+  color: #1E40AF;
+}
+
+.acciones-cliente .btn-editar {
+  background-color: #FCE9D5;
+  color: #B85F05;
+  border-color: #F9DFC2;
+}
+
+.acciones-cliente .btn-editar:hover {
+  background-color: #F8D7B0;
+  color: #92400E;
+}
+
+.acciones-cliente .btn-pedido {
+  background-color: #DDF5E7;
+  color: #15803D;
+  border-color: #C7EBD5;
+}
+
+.acciones-cliente .btn-pedido:hover {
+  background-color: #BCE9CE;
+  color: #166534;
+}
+
+.acciones-cliente .btn:hover {
+  transform: translateY(-1px);
+}
+
+.acciones-cliente .btn:focus-visible {
+  outline: 2px solid #7B1E21;
+  outline-offset: 2px;
+}
 
 .tabla-clientes tbody td.estado-vacio {
   padding: 55px 20px;
@@ -350,12 +316,7 @@
   color: #7B1E21;
 }
 
-/* =========================================
-   RESPONSIVE
-========================================= */
-
 @media (max-width: 768px) {
-
   .titulo-clientes {
     font-size: 32px;
   }
@@ -383,10 +344,18 @@
   .tabla-clientes tbody td {
     padding: 14px 12px;
   }
+
+  .acciones-cliente {
+    gap: 5px;
+  }
+
+  .acciones-cliente .btn {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
 }
 
 @media (max-width: 480px) {
-
   .titulo-clientes {
     font-size: 28px;
   }
@@ -398,4 +367,192 @@
   .cliente-info {
     min-width: 160px;
   }
+}
+
+.modal-cliente-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: rgba(25, 15, 15, 0.6);
+}
+
+.modal-cliente {
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.25);
+}
+
+.modal-cliente-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  background-color: #7B1E21;
+  color: #FFFFFF;
+}
+
+.modal-cliente-header h3 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.btn-cerrar-modal {
+  border: none;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-cliente-body {
+  padding: 25px;
+}
+
+.detalle-cliente-perfil {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #EEE5E0;
+}
+
+.detalle-cliente-avatar {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #F5E6E2;
+  color: #7B1E21;
+  font-size: 28px;
+}
+
+.detalle-cliente-perfil h4 {
+  margin: 0 0 5px;
+  color: #482A2A;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.detalle-cliente-perfil span {
+  color: #998B85;
+  font-size: 12px;
+}
+
+.detalle-seccion-titulo {
+  margin: 25px 0 18px;
+  color: #7B1E21;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.detalle-cliente-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.detalle-campo label {
+  display: block;
+  margin-bottom: 6px;
+  color: #998B85;
+  font-size: 12px;
+}
+
+.detalle-campo p {
+  margin: 0;
+  color: #482A2A;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.detalle-direccion {
+  grid-column: 1 / -1;
+}
+
+.detalle-pedidos-vacio {
+  padding: 30px 20px;
+  border: 1px dashed #E4DAD3;
+  border-radius: 9px;
+  background-color: #FFFAF6;
+  text-align: center;
+}
+
+.detalle-pedidos-vacio i {
+  color: #BBA5A0;
+  font-size: 32px;
+}
+
+.detalle-pedidos-vacio p {
+  margin: 10px 0 0;
+  color: #998B85;
+  font-size: 13px;
+}
+
+.modal-cliente-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 15px 25px;
+  border-top: 1px solid #EEE5E0;
+}
+
+.btn-cerrar-detalles {
+  padding: 8px 20px;
+  background-color: #7B1E21;
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.btn-cerrar-detalles:hover {
+  background-color: #60171A;
+  color: #FFFFFF;
+}
+
+@media (max-width: 480px) {
+  .modal-cliente-body {
+    padding: 18px;
+  }
+
+  .detalle-cliente-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detalle-direccion {
+    grid-column: auto;
+  }
+}
+
+.modal-cliente-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-nuevo-pedido-modal {
+  background-color: #168447;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.btn-nuevo-pedido-modal:hover {
+  background-color: #116936;
+  color: #FFFFFF;
 }

@@ -361,23 +361,24 @@ public class PedidoServiceImpl implements IPedidoService {
         }
     }
 
+
     private double calcularPorciones(
             double cantidad,
             String unidad) {
-
         switch (unidad) {
             case "POLLO":
                 return cantidad * 4.0;
 
             case "CUARTO":
+                return cantidad;
             case "OCTAVO":
                 return cantidad;
-
             default:
                 throw new IllegalArgumentException(
                         "Unidad no válida: " + unidad);
         }
     }
+
 
     private double calcularPrecioAdicionales(
             String tipoArroz,

@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:oracle:thin:@localhost:1521/XEPDB1
     username: POLLOGORDO_BD
-    password: ${DB_PASSWORD}
+    password: admin1234
     driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:

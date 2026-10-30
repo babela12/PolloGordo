@@ -1,3 +1,4 @@
+
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +23,9 @@ export class ClienteListComponent implements OnInit {
   clientes: Cliente[] = [];
   busqueda = '';
   cargando = false;
+
+  clienteSeleccionado: Cliente | null = null;
+  mostrarDetalles = false;
 
   ngOnInit(): void {
     this.listarClientes();
@@ -56,5 +60,15 @@ export class ClienteListComponent implements OnInit {
         persona.numTelef.includes(texto)
       );
     });
+  }
+
+  verDetalles(cliente: Cliente): void {
+    this.clienteSeleccionado = cliente;
+    this.mostrarDetalles = true;
+  }
+
+  cerrarDetalles(): void {
+    this.mostrarDetalles = false;
+    this.clienteSeleccionado = null;
   }
 }
