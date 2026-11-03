@@ -29,7 +29,8 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
+public class AsigTrabajadorServiceImpl
+        implements IAsigTrabajadorService {
 
     private final AsigTrabajadorRepository asigTrabajadorRepository;
     private final PedidoRepository pedidoRepository;
@@ -85,7 +86,8 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
         asignarDatos(asignacion, dto, pedido, trabajador);
 
-        return convertirDTO(asigTrabajadorRepository.save(asignacion));
+        return convertirDTO(
+                asigTrabajadorRepository.save(asignacion));
     }
 
     @Override
@@ -93,29 +95,33 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
     public Optional<AsigTrabajadorDTO> actualizar(
             Long id, AsigTrabajadorDTO dto) {
 
-        return asigTrabajadorRepository.findById(id).map(asignacion -> {
+        return asigTrabajadorRepository.findById(id)
+                .map(asignacion -> {
 
-            Pedido pedido = obtenerPedido(dto.idPedido());
-            Trabajador trabajador = obtenerTrabajador(dto.idTrabajador());
+                    Pedido pedido = obtenerPedido(dto.idPedido());
+                    Trabajador trabajador =
+                            obtenerTrabajador(dto.idTrabajador());
 
-            validarAsignacion(dto, trabajador, id);
+                    validarAsignacion(dto, trabajador, id);
 
-            asignarDatos(asignacion, dto, pedido, trabajador);
+                    asignarDatos(
+                            asignacion, dto, pedido, trabajador);
 
-            return convertirDTO(asigTrabajadorRepository.save(asignacion));
-        });
+                    return convertirDTO(
+                            asigTrabajadorRepository.save(asignacion));
+                });
     }
 
     @Override
     @Transactional
     public boolean eliminar(Long id) {
 
-        if (asigTrabajadorRepository.existsById(id)) {
-            asigTrabajadorRepository.deleteById(id);
-            return true;
+        if (!asigTrabajadorRepository.existsById(id)) {
+            return false;
         }
 
-        return false;
+        asigTrabajadorRepository.deleteById(id);
+        return true;
     }
 
     @Override
@@ -180,14 +186,17 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
         Set<Long> repartidores = new HashSet<>();
         Set<Long> vehiculos = new HashSet<>();
 
-        // Validar todos los trabajadores antes de guardar
+        List<AsigTrabajadorDTO> revisados = new ArrayList<>();
+
+        // Validar trabajadores
         for (AsigTrabajadorDTO trabajadorDTO : dto.trabajadores()) {
 
             if (trabajadorDTO.idPedido() != null &&
-                    !trabajadorDTO.idPedido().equals(dto.idPedido())) {
+                    !trabajadorDTO.idPedido()
+                            .equals(dto.idPedido())) {
 
                 throw new IllegalArgumentException(
-                        "Todos los trabajadores deben pertenecer al mismo pedido");
+                        "Los trabajadores deben pertenecer al mismo pedido");
             }
 
             Trabajador trabajador =
@@ -195,9 +204,47 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
             validarAsignacion(trabajadorDTO, trabajador, null);
 
+            // Revisar trabajadores dentro de la misma solicitud
+            for (AsigTrabajadorDTO anterior : revisados) {
+
+                if (!anterior.idTrabajador()
+                        .equals(trabajadorDTO.idTrabajador())) {
+                    continue;
+                }
+
+                if (!anterior.fechaTrabajo()
+                        .equals(trabajadorDTO.fechaTrabajo())) {
+                    continue;
+                }
+
+                boolean mismaFuncion =
+                        anterior.funcion()
+                                .equals(trabajadorDTO.funcion());
+
+                if (mismaFuncion) {
+                    throw new IllegalArgumentException(
+                            "El trabajador está repetido "
+                                    + "en la misma función y fecha");
+                }
+
+                if (horariosSeCruzan(
+                        anterior.horaInicio(),
+                        anterior.horaFin(),
+                        trabajadorDTO.horaInicio(),
+                        trabajadorDTO.horaFin())) {
+
+                    throw new IllegalArgumentException(
+                            "El trabajador tiene funciones "
+                                    + "con horarios cruzados");
+                }
+            }
+
+            revisados.add(trabajadorDTO);
+
             if ("PREPARADOR".equals(trabajadorDTO.funcion())) {
 
-                pollosPreparadores += trabajadorDTO.cantidadAsignada();
+                pollosPreparadores +=
+                        trabajadorDTO.cantidadAsignada();
             }
 
             if ("ASADOR".equals(trabajadorDTO.funcion())) {
@@ -218,21 +265,21 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
         if (Math.abs(pollosPreparadores - totalPollos) > 0.0001) {
 
             throw new IllegalArgumentException(
-                    "Los preparadores deben cubrir los "
-                            + totalPollos + " pollos del pedido. "
-                            + "Asignados: " + pollosPreparadores);
+                    "Los preparadores deben cubrir "
+                            + totalPollos + " pollos. Asignados: "
+                            + pollosPreparadores);
         }
 
         if (cantidadAsadores == 0) {
-
             throw new IllegalArgumentException(
                     "Debe asignar al menos un asador");
         }
 
         int pollosVehiculos = 0;
+
         Set<Long> repartidoresConVehiculo = new HashSet<>();
 
-        // Validar vehículos y entregas
+        // Validar entregas y vehículos
         for (EntregaDTO entregaDTO : dto.entregas()) {
 
             if (!dto.idPedido().equals(entregaDTO.idPedido())) {
@@ -248,10 +295,17 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                         "Debe seleccionar vehículo y repartidor");
             }
 
+            if (entregaDTO.fechaEntrega() == null) {
+
+                throw new IllegalArgumentException(
+                        "La fecha de entrega es obligatoria");
+            }
+
             Vehiculo vehiculo = vehiculoRepository
                     .findById(entregaDTO.idVehiculo())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Vehículo no encontrado"));
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    "Vehículo no encontrado"));
 
             Trabajador trabajador =
                     obtenerTrabajador(entregaDTO.idTrabajador());
@@ -267,21 +321,21 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                     entregaDTO.idTrabajador())) {
 
                 throw new IllegalArgumentException(
-                        "El repartidor de la entrega debe estar "
-                                + "incluido en la lista de trabajadores");
+                        "El repartidor debe estar incluido "
+                                + "en los trabajadores asignados");
             }
 
             if (!vehiculos.add(entregaDTO.idVehiculo())) {
 
                 throw new IllegalArgumentException(
-                        "No puede repetir un vehículo en el mismo pedido");
+                        "El vehículo está repetido");
             }
 
             if (!repartidoresConVehiculo.add(
                     entregaDTO.idTrabajador())) {
 
                 throw new IllegalArgumentException(
-                        "No puede repetir un repartidor en las entregas");
+                        "El repartidor está repetido en las entregas");
             }
 
             if (entregaDTO.cantidadPollos() == null ||
@@ -296,8 +350,8 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                             vehiculo.getCapacidad()) {
 
                 throw new IllegalArgumentException(
-                        "La cantidad de pollos supera la capacidad "
-                                + "del vehículo " + vehiculo.getPlaca());
+                        "Se supera la capacidad del vehículo "
+                                + vehiculo.getPlaca());
             }
 
             for (Entrega existente : entregaRepository.findAll()) {
@@ -307,25 +361,25 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                     continue;
                 }
 
-                if (entregaDTO.fechaEntrega() != null &&
-                        entregaDTO.fechaEntrega().equals(
-                                existente.getFechaEntrega())) {
+                if (!entregaDTO.fechaEntrega()
+                        .equals(existente.getFechaEntrega())) {
+                    continue;
+                }
 
-                    if (existente.getVehiculo().getIdVehiculo()
-                            .equals(entregaDTO.idVehiculo())) {
+                if (existente.getVehiculo().getIdVehiculo()
+                        .equals(entregaDTO.idVehiculo())) {
 
-                        throw new IllegalArgumentException(
-                                "El vehículo ya tiene una entrega "
-                                        + "en esa fecha");
-                    }
+                    throw new IllegalArgumentException(
+                            "El vehículo ya tiene una entrega "
+                                    + "en esa fecha");
+                }
 
-                    if (existente.getTrabajador().getIdTrabajador()
-                            .equals(entregaDTO.idTrabajador())) {
+                if (existente.getTrabajador().getIdTrabajador()
+                        .equals(entregaDTO.idTrabajador())) {
 
-                        throw new IllegalArgumentException(
-                                "El repartidor ya tiene una entrega "
-                                        + "en esa fecha");
-                    }
+                    throw new IllegalArgumentException(
+                            "El repartidor ya tiene una entrega "
+                                    + "en esa fecha");
                 }
             }
 
@@ -336,14 +390,14 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
             throw new IllegalArgumentException(
                     "Los vehículos deben transportar "
-                            + totalPollos + " pollos. "
-                            + "Asignados: " + pollosVehiculos);
+                            + totalPollos + " pollos. Asignados: "
+                            + pollosVehiculos);
         }
 
         if (!repartidores.equals(repartidoresConVehiculo)) {
 
             throw new IllegalArgumentException(
-                    "Cada repartidor asignado debe tener un vehículo");
+                    "Cada repartidor debe tener un vehículo");
         }
 
         // Guardar trabajadores
@@ -366,9 +420,7 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
             trabajadoresGuardados.add(
                     convertirDTO(
-                            asigTrabajadorRepository.save(asignacion)
-                    )
-            );
+                            asigTrabajadorRepository.save(asignacion)));
         }
 
         // Guardar entregas
@@ -378,8 +430,9 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
             Vehiculo vehiculo = vehiculoRepository
                     .findById(entregaDTO.idVehiculo())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Vehículo no encontrado"));
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    "Vehículo no encontrado"));
 
             Trabajador trabajador =
                     obtenerTrabajador(entregaDTO.idTrabajador());
@@ -439,8 +492,9 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
         }
 
         return pedidoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Pedido ID: " + id + " no existe"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Pedido ID: " + id + " no existe"));
     }
 
     private Trabajador obtenerTrabajador(Long id) {
@@ -451,8 +505,9 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
         }
 
         return trabajadorRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Trabajador ID: " + id + " no existe"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Trabajador ID: " + id + " no existe"));
     }
 
     private void asignarDatos(
@@ -499,16 +554,20 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                     "La función es obligatoria");
         }
 
-        if (dto.horaFin() != null && dto.horaInicio() == null) {
+        // La hora final es opcional.
+        if (dto.horaFin() != null &&
+                dto.horaInicio() == null) {
+
             throw new IllegalArgumentException(
-                    "Debe registrar la hora de inicio antes de la hora de fin");
+                    "Debe registrar primero la hora de inicio");
         }
 
         if (dto.horaInicio() != null &&
+                dto.horaFin() != null &&
                 !dto.horaFin().isAfter(dto.horaInicio())) {
 
             throw new IllegalArgumentException(
-                    "La hora de fin debe ser posterior a la de inicio");
+                    "La hora final debe ser posterior a la inicial");
         }
 
         if (dto.cantidadRealizada() != null &&
@@ -539,10 +598,8 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                         trabajador.getPuedeRepartir())) {
 
                     throw new IllegalArgumentException(
-                            "El trabajador no está habilitado "
-                                    + "para realizar repartos");
+                            "El trabajador no puede repartir");
                 }
-
                 break;
 
             default:
@@ -550,7 +607,7 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                         "Función no válida");
         }
 
-        if (!dto.funcion().equals("REPARTIDOR")) {
+        if (!"REPARTIDOR".equals(dto.funcion())) {
 
             if (capacidad == null || capacidad <= 0) {
 
@@ -566,7 +623,8 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                         "Debe asignar una cantidad mayor que cero");
             }
 
-            validarCapacidad(dto, trabajador, capacidad, idExcluir);
+            validarCapacidad(
+                    dto, trabajador, capacidad, idExcluir);
         }
 
         validarHorarios(dto, trabajador, idExcluir);
@@ -599,22 +657,29 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                 continue;
             }
 
-            if (asignacion.getCantidadAsignada() != null) {
+            if ("ASADOR".equals(dto.funcion())) {
+                totalAsignado += 1;
+            } else if (asignacion.getCantidadAsignada() != null) {
                 totalAsignado += asignacion.getCantidadAsignada();
             }
         }
 
-        double nuevoTotal =
-                totalAsignado + dto.cantidadAsignada();
+        double nuevaCantidad;
 
-        if (nuevoTotal > capacidad) {
+        if ("ASADOR".equals(dto.funcion())) {
+            // La capacidad del asador se mide en pedidos.
+            nuevaCantidad = 1;
+        } else {
+            // La capacidad del preparador se mide en pollos.
+            nuevaCantidad = dto.cantidadAsignada();
+        }
+
+        if (totalAsignado + nuevaCantidad > capacidad) {
 
             throw new IllegalArgumentException(
                     "La asignación supera la capacidad diaria. "
                             + "Capacidad: " + capacidad
-                            + ", ya asignados: " + totalAsignado
-                            + ", nueva cantidad: "
-                            + dto.cantidadAsignada());
+                            + ", ya asignados: " + totalAsignado);
         }
     }
 
@@ -622,13 +687,6 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
             AsigTrabajadorDTO dto,
             Trabajador trabajador,
             Long idExcluir) {
-
-        LocalTime inicio = dto.horaInicio();
-        LocalTime fin = dto.horaFin();
-
-        if (inicio == null || fin == null) {
-            return;
-        }
 
         List<AsigTrabajador> asignaciones =
                 asigTrabajadorRepository
@@ -648,19 +706,6 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                 continue;
             }
 
-            if (asignacion.getHoraInicio() == null ||
-                    asignacion.getHoraFin() == null) {
-                continue;
-            }
-
-            boolean seCruzan =
-                    inicio.isBefore(asignacion.getHoraFin())
-                            && fin.isAfter(asignacion.getHoraInicio());
-
-            if (!seCruzan) {
-                continue;
-            }
-
             boolean mismaFuncion =
                     dto.funcion().equals(asignacion.getFuncion());
 
@@ -668,16 +713,46 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                     "PREPARADOR".equals(dto.funcion())
                             || "ASADOR".equals(dto.funcion());
 
+            // Permitir varios pedidos de la misma función
+            // respetando la capacidad diaria.
             if (mismaFuncion && funcionDeProduccion) {
                 continue;
             }
 
-            throw new IllegalArgumentException(
-                    "El trabajador tiene otra asignación "
-                            + "en el mismo horario. "
-                            + "Función existente: "
-                            + asignacion.getFuncion());
+            if (horariosSeCruzan(
+                    dto.horaInicio(),
+                    dto.horaFin(),
+                    asignacion.getHoraInicio(),
+                    asignacion.getHoraFin())) {
+
+                throw new IllegalArgumentException(
+                        "El trabajador tiene otra asignación "
+                                + "en el mismo horario. Función: "
+                                + asignacion.getFuncion());
+            }
         }
+    }
+
+    private boolean horariosSeCruzan(
+            LocalTime inicio1,
+            LocalTime fin1,
+            LocalTime inicio2,
+            LocalTime fin2) {
+
+        // Si falta la hora de inicio, no se puede
+        // asegurar que los horarios sean compatibles.
+        if (inicio1 == null || inicio2 == null) {
+            return true;
+        }
+
+        // Hora final null significa horario abierto.
+        boolean primeraCondicion =
+                fin2 == null || inicio1.isBefore(fin2);
+
+        boolean segundaCondicion =
+                fin1 == null || inicio2.isBefore(fin1);
+
+        return primeraCondicion && segundaCondicion;
     }
 
     private AsigTrabajadorDTO convertirDTO(
