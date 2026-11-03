@@ -64,6 +64,8 @@ public class EntregaServiceImpl implements IEntregaService {
         Vehiculo vehiculo = buscarVehiculo(dto.idVehiculo());
         Trabajador trabajador = buscarTrabajador(dto.idTrabajador());
 
+        validarEntrega(dto, vehiculo, trabajador, null);
+
         Entrega entrega = new Entrega();
 
         asignarDatos(entrega, dto, pedido, vehiculo, trabajador);
@@ -80,6 +82,8 @@ public class EntregaServiceImpl implements IEntregaService {
             Pedido pedido = buscarPedido(dto.idPedido());
             Vehiculo vehiculo = buscarVehiculo(dto.idVehiculo());
             Trabajador trabajador = buscarTrabajador(dto.idTrabajador());
+
+            validarEntrega(dto, vehiculo, trabajador, id);
 
             asignarDatos(entrega, dto, pedido, vehiculo, trabajador);
 
@@ -120,6 +124,74 @@ public class EntregaServiceImpl implements IEntregaService {
                         "Trabajador ID: " + id + " no existe"));
     }
 
+    private void validarEntrega(
+            EntregaDTO dto,
+            Vehiculo vehiculo,
+            Trabajador trabajador,
+            Long idEntregaActual) {
+
+        if (dto.cantidadPollos() == null ||
+                dto.cantidadPollos() <= 0) {
+
+            throw new IllegalArgumentException(
+                    "La cantidad de pollos debe ser mayor a cero");
+        }
+
+        if (vehiculo.getCapacidad() == null ||
+                dto.cantidadPollos() > vehiculo.getCapacidad()) {
+
+            throw new IllegalArgumentException(
+                    "La cantidad de pollos supera la capacidad del vehículo");
+        }
+
+        if (!Boolean.TRUE.equals(trabajador.getPuedeRepartir())) {
+
+            throw new IllegalArgumentException(
+                    "El trabajador seleccionado no puede repartir");
+        }
+
+        List<Entrega> entregas = entregaRepository.findAll();
+
+        int totalAsignado = 0;
+
+        for (Entrega entrega : entregas) {
+
+            if (idEntregaActual != null &&
+                    idEntregaActual.equals(entrega.getIdEntrega())) {
+                continue;
+            }
+
+            if (entrega.getPedido().getIdPedido().equals(dto.idPedido())) {
+
+                if (entrega.getCantidadPollos() != null) {
+                    totalAsignado += entrega.getCantidadPollos();
+                }
+            }
+
+            if (dto.fechaEntrega() != null &&
+                    dto.fechaEntrega().equals(entrega.getFechaEntrega()) &&
+                    !"CANCELADO".equalsIgnoreCase(entrega.getEstado())) {
+
+                if (entrega.getVehiculo().getIdVehiculo()
+                        .equals(dto.idVehiculo())) {
+
+                    throw new IllegalArgumentException(
+                            "El vehículo ya tiene una entrega en esa fecha");
+                }
+
+                if (entrega.getTrabajador().getIdTrabajador()
+                        .equals(dto.idTrabajador())) {
+
+                    throw new IllegalArgumentException(
+                            "El repartidor ya tiene una entrega en esa fecha");
+                }
+            }
+        }
+
+        // La cantidad total del pedido se validará
+        // al registrar todas las asignaciones juntas.
+    }
+
     private void asignarDatos(
             Entrega entrega,
             EntregaDTO dto,
@@ -131,6 +203,7 @@ public class EntregaServiceImpl implements IEntregaService {
         entrega.setVehiculo(vehiculo);
         entrega.setTrabajador(trabajador);
         entrega.setFechaEntrega(dto.fechaEntrega());
+        entrega.setCantidadPollos(dto.cantidadPollos());
         entrega.setEstado(dto.estado());
         entrega.setObservacion(dto.observacion());
     }
@@ -143,6 +216,7 @@ public class EntregaServiceImpl implements IEntregaService {
                 entrega.getVehiculo().getIdVehiculo(),
                 entrega.getTrabajador().getIdTrabajador(),
                 entrega.getFechaEntrega(),
+                entrega.getCantidadPollos(),
                 entrega.getEstado(),
                 entrega.getObservacion()
         );

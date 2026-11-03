@@ -1,3 +1,4 @@
+
 package pe.edu.upeu.pollogordo_api.entity;
 
 import jakarta.persistence.*;
@@ -27,6 +28,9 @@ public class Entrega {
     @Column(name = "fecha_entrega")
     private LocalDate fechaEntrega;
 
+    @Column(name = "cantidad_pollos")
+    private Integer cantidadPollos;
+
     @Column(name = "estado")
     private String estado;
 
@@ -36,7 +40,11 @@ public class Entrega {
     public Entrega() {
     }
 
-    public Entrega(Long idEntrega, Pedido pedido, Vehiculo vehiculo, Trabajador trabajador, LocalDate fechaEntrega, String estado, String observacion) {
+    public Entrega(Long idEntrega, Pedido pedido,
+                   Vehiculo vehiculo, Trabajador trabajador,
+                   LocalDate fechaEntrega, String estado,
+                   String observacion) {
+
         this.idEntrega = idEntrega;
         this.pedido = pedido;
         this.vehiculo = vehiculo;
@@ -84,6 +92,14 @@ public class Entrega {
 
     public void setFechaEntrega(LocalDate fechaEntrega) {
         this.fechaEntrega = fechaEntrega;
+    }
+
+    public Integer getCantidadPollos() {
+        return cantidadPollos;
+    }
+
+    public void setCantidadPollos(Integer cantidadPollos) {
+        this.cantidadPollos = cantidadPollos;
     }
 
     public String getEstado() {

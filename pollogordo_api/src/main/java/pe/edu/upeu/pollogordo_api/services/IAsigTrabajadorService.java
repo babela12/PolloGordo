@@ -1,3 +1,4 @@
+
 package pe.edu.upeu.pollogordo_api.services;
 
 import pe.edu.upeu.pollogordo_api.dto.AsigTrabajadorDTO;
@@ -19,4 +20,9 @@ public interface IAsigTrabajadorService {
     );
 
     boolean eliminar(Long id);
+
+    AsigTrabajadorDTO crearAsignacionCompleta(
+            AsigTrabajadorDTO asignacion
+    );
+
 }

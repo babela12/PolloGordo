@@ -4,11 +4,13 @@ package pe.edu.upeu.pollogordo_api.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public record AsigTrabajadorDTO(
 
@@ -18,17 +20,14 @@ public record AsigTrabajadorDTO(
         @NotNull(message = "El pedido es obligatorio")
         Long idPedido,
 
-        @NotNull(message = "El trabajador es obligatorio")
         Long idTrabajador,
 
-        @NotBlank(message = "La función es obligatoria")
         @Pattern(
                 regexp = "PREPARADOR|ASADOR|REPARTIDOR",
                 message = "La función debe ser PREPARADOR, ASADOR o REPARTIDOR"
         )
         String funcion,
 
-        @NotNull(message = "La fecha de trabajo es obligatoria")
         @Schema(
                 type = "string",
                 format = "date",
@@ -88,7 +87,13 @@ public record AsigTrabajadorDTO(
                 regexp = "PROGRAMADO|EN_PROCESO|COMPLETADO|CANCELADO",
                 message = "Estado no válido"
         )
-        String estado
+        String estado,
+
+        @Valid
+        List<AsigTrabajadorDTO> trabajadores,
+
+        @Valid
+        List<EntregaDTO> entregas
 
 ) {
 }

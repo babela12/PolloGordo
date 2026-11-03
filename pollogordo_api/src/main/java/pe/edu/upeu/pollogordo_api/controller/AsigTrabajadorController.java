@@ -27,7 +27,8 @@ public class AsigTrabajadorController {
     @GetMapping
     public ResponseEntity<List<AsigTrabajadorDTO>> listarTodo() {
 
-        List<AsigTrabajadorDTO> lista = asigTrabajadorService.listarTodo();
+        List<AsigTrabajadorDTO> lista =
+                asigTrabajadorService.listarTodo();
 
         return ResponseEntity.ok(lista);
     }
@@ -50,7 +51,8 @@ public class AsigTrabajadorController {
     public ResponseEntity<AsigTrabajadorDTO> crear(
             @Valid @RequestBody AsigTrabajadorDTO dto) {
 
-        AsigTrabajadorDTO asignacion = asigTrabajadorService.crear(dto);
+        AsigTrabajadorDTO asignacion =
+                asigTrabajadorService.crearAsignacionCompleta(dto);
 
         return ResponseEntity.ok(asignacion);
     }
@@ -71,16 +73,18 @@ public class AsigTrabajadorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
 
-        boolean eliminado = asigTrabajadorService.eliminar(id);
+        boolean eliminado =
+                asigTrabajadorService.eliminar(id);
 
         if (eliminado) {
             return ResponseEntity.noContent().build();
         }
 
         throw new ResourceNotFoundException(
-                "No se pudo eliminar: " + id
+                "No se pudo eliminar la asignación ID: " + id
         );
     }
 }
