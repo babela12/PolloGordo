@@ -15,7 +15,6 @@ import pe.edu.upeu.pollogordo_api.repository.TrabajadorRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,27 +39,18 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
     @Transactional(readOnly = true)
     public List<AsigTrabajadorDTO> listarTodo() {
 
-        List<AsigTrabajador> asignaciones = asigTrabajadorRepository.findAll();
-        List<AsigTrabajadorDTO> lista = new ArrayList<>();
-
-        for (AsigTrabajador asignacion : asignaciones) {
-            lista.add(convertirDTO(asignacion));
-        }
-
-        return lista;
+        return asigTrabajadorRepository.findAll()
+                .stream()
+                .map(this::convertirDTO)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<AsigTrabajadorDTO> buscarPorId(Long id) {
 
-        Optional<AsigTrabajador> resultado = asigTrabajadorRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return Optional.of(convertirDTO(resultado.get()));
-        }
-
-        return Optional.empty();
+        return asigTrabajadorRepository.findById(id)
+                .map(this::convertirDTO);
     }
 
     @Override
@@ -76,33 +66,25 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
         asignarDatos(asignacion, dto, pedido, trabajador);
 
-        AsigTrabajador guardado = asigTrabajadorRepository.save(asignacion);
-
-        return convertirDTO(guardado);
+        return convertirDTO(asigTrabajadorRepository.save(asignacion));
     }
 
     @Override
     @Transactional
-    public Optional<AsigTrabajadorDTO> actualizar(Long id, AsigTrabajadorDTO dto) {
+    public Optional<AsigTrabajadorDTO> actualizar(
+            Long id, AsigTrabajadorDTO dto) {
 
-        Optional<AsigTrabajador> resultado = asigTrabajadorRepository.findById(id);
+        return asigTrabajadorRepository.findById(id).map(asignacion -> {
 
-        if (resultado.isEmpty()) {
-            return Optional.empty();
-        }
+            Pedido pedido = obtenerPedido(dto.idPedido());
+            Trabajador trabajador = obtenerTrabajador(dto.idTrabajador());
 
-        AsigTrabajador asignacion = resultado.get();
+            validarAsignacion(dto, trabajador, id);
 
-        Pedido pedido = obtenerPedido(dto.idPedido());
-        Trabajador trabajador = obtenerTrabajador(dto.idTrabajador());
+            asignarDatos(asignacion, dto, pedido, trabajador);
 
-        validarAsignacion(dto, trabajador, id);
-
-        asignarDatos(asignacion, dto, pedido, trabajador);
-
-        AsigTrabajador guardado = asigTrabajadorRepository.save(asignacion);
-
-        return Optional.of(convertirDTO(guardado));
+            return convertirDTO(asigTrabajadorRepository.save(asignacion));
+        });
     }
 
     @Override
@@ -119,28 +101,16 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
     private Pedido obtenerPedido(Long id) {
 
-        Optional<Pedido> resultado = pedidoRepository.findById(id);
-
-        if (resultado.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Pedido ID: " + id + " no existe"
-            );
-        }
-
-        return resultado.get();
+        return pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Pedido ID: " + id + " no existe"));
     }
 
     private Trabajador obtenerTrabajador(Long id) {
 
-        Optional<Trabajador> resultado = trabajadorRepository.findById(id);
-
-        if (resultado.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Trabajador ID: " + id + " no existe"
-            );
-        }
-
-        return resultado.get();
+        return trabajadorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Trabajador ID: " + id + " no existe"));
     }
 
     private void asignarDatos(
@@ -179,37 +149,32 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
         if (dto.fechaTrabajo() == null) {
             throw new IllegalArgumentException(
-                    "La fecha de trabajo es obligatoria"
-            );
+                    "La fecha de trabajo es obligatoria");
         }
 
         if (dto.funcion() == null) {
             throw new IllegalArgumentException(
-                    "La función es obligatoria"
-            );
+                    "La función es obligatoria");
         }
 
         if ((dto.horaInicio() == null) != (dto.horaFin() == null)) {
             throw new IllegalArgumentException(
-                    "Debe registrar ambas horas o ninguna"
-            );
+                    "Debe registrar ambas horas o ninguna");
         }
 
-        if (dto.horaInicio() != null &&
-                !dto.horaFin().isAfter(dto.horaInicio())) {
+        if (dto.horaInicio() != null
+                && !dto.horaFin().isAfter(dto.horaInicio())) {
 
             throw new IllegalArgumentException(
-                    "La hora de fin debe ser posterior a la de inicio"
-            );
+                    "La hora de fin debe ser posterior a la de inicio");
         }
 
-        if (dto.cantidadRealizada() != null &&
-                dto.cantidadAsignada() != null &&
-                dto.cantidadRealizada() > dto.cantidadAsignada()) {
+        if (dto.cantidadRealizada() != null
+                && dto.cantidadAsignada() != null
+                && dto.cantidadRealizada() > dto.cantidadAsignada()) {
 
             throw new IllegalArgumentException(
-                    "La cantidad realizada no puede superar la cantidad asignada"
-            );
+                    "La cantidad realizada no puede superar la cantidad asignada");
         }
 
         Integer capacidad = null;
@@ -228,8 +193,7 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
                 if (!Boolean.TRUE.equals(trabajador.getPuedeRepartir())) {
                     throw new IllegalArgumentException(
-                            "El trabajador no está habilitado para realizar repartos"
-                    );
+                            "El trabajador no está habilitado para realizar repartos");
                 }
 
                 break;
@@ -242,16 +206,14 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
             if (capacidad == null || capacidad <= 0) {
                 throw new IllegalArgumentException(
-                        "El trabajador no tiene capacidad registrada para esta función"
-                );
+                        "El trabajador no tiene capacidad registrada para esta función");
             }
 
-            if (dto.cantidadAsignada() == null ||
-                    dto.cantidadAsignada() <= 0) {
+            if (dto.cantidadAsignada() == null
+                    || dto.cantidadAsignada() <= 0) {
 
                 throw new IllegalArgumentException(
-                        "Debe asignar una cantidad de pollos mayor que cero"
-                );
+                        "Debe asignar una cantidad de pollos mayor que cero");
             }
 
             validarCapacidad(dto, trabajador, capacidad, idExcluir);
@@ -278,8 +240,8 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
         for (AsigTrabajador asignacion : asignaciones) {
 
-            if (idExcluir != null &&
-                    idExcluir.equals(asignacion.getIdAsig())) {
+            if (idExcluir != null
+                    && idExcluir.equals(asignacion.getIdAsig())) {
                 continue;
             }
 
@@ -296,11 +258,10 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
         if (nuevoTotal > capacidad) {
             throw new IllegalArgumentException(
-                    "La asignación supera la capacidad diaria. " +
-                            "Capacidad: " + capacidad +
-                            ", ya asignados: " + totalAsignado +
-                            ", nueva cantidad: " + dto.cantidadAsignada()
-            );
+                    "La asignación supera la capacidad diaria. "
+                            + "Capacidad: " + capacidad
+                            + ", ya asignados: " + totalAsignado
+                            + ", nueva cantidad: " + dto.cantidadAsignada());
         }
     }
 
@@ -325,8 +286,8 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
 
         for (AsigTrabajador asignacion : asignaciones) {
 
-            if (idExcluir != null &&
-                    idExcluir.equals(asignacion.getIdAsig())) {
+            if (idExcluir != null
+                    && idExcluir.equals(asignacion.getIdAsig())) {
                 continue;
             }
 
@@ -334,14 +295,14 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                 continue;
             }
 
-            if (asignacion.getHoraInicio() == null ||
-                    asignacion.getHoraFin() == null) {
+            if (asignacion.getHoraInicio() == null
+                    || asignacion.getHoraFin() == null) {
                 continue;
             }
 
             boolean seCruzan =
-                    inicio.isBefore(asignacion.getHoraFin()) &&
-                            fin.isAfter(asignacion.getHoraInicio());
+                    inicio.isBefore(asignacion.getHoraFin())
+                            && fin.isAfter(asignacion.getHoraInicio());
 
             if (!seCruzan) {
                 continue;
@@ -351,17 +312,16 @@ public class AsigTrabajadorServiceImpl implements IAsigTrabajadorService {
                     dto.funcion().equals(asignacion.getFuncion());
 
             boolean funcionDeProduccion =
-                    "PREPARADOR".equals(dto.funcion()) ||
-                            "ASADOR".equals(dto.funcion());
+                    "PREPARADOR".equals(dto.funcion())
+                            || "ASADOR".equals(dto.funcion());
 
             if (mismaFuncion && funcionDeProduccion) {
                 continue;
             }
 
             throw new IllegalArgumentException(
-                    "El trabajador tiene otra asignación en el mismo horario. " +
-                            "Función existente: " + asignacion.getFuncion()
-            );
+                    "El trabajador tiene otra asignación en el mismo horario. "
+                            + "Función existente: " + asignacion.getFuncion());
         }
     }
 

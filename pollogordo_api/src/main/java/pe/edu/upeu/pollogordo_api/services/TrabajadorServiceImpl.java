@@ -15,7 +15,6 @@ import pe.edu.upeu.pollogordo_api.repository.PersonaRepository;
 import pe.edu.upeu.pollogordo_api.repository.TrabajadorRepository;
 import pe.edu.upeu.pollogordo_api.repository.AsigTrabajadorRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,26 +42,18 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
     @Transactional(readOnly = true)
     public List<TrabajadorDTO> listarTodo() {
 
-        List<TrabajadorDTO> lista = new ArrayList<>();
-
-        for (Trabajador trabajador : trabajadorRepository.findAll()) {
-            lista.add(converTODTO(trabajador));
-        }
-
-        return lista;
+        return trabajadorRepository.findAll()
+                .stream()
+                .map(this::converTODTO)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<TrabajadorDTO> buscarPorId(Long id) {
 
-        Optional<Trabajador> resultado = trabajadorRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return Optional.of(converTODTO(resultado.get()));
-        }
-
-        return Optional.empty();
+        return trabajadorRepository.findById(id)
+                .map(this::converTODTO);
     }
 
     @Override
@@ -73,14 +64,12 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
 
         if (personaRepository.existsByDni(dto.persona().dni())) {
             throw new IllegalArgumentException(
-                    "El DNI ya está registrado"
-            );
+                    "El DNI ya está registrado");
         }
 
         Cargo cargo = buscarCargo(dto.idCargo());
 
         Persona persona = new Persona();
-
         persona.setNombre(dto.persona().nombre().trim());
         persona.setApellidos(dto.persona().apellidos().trim());
         persona.setDni(dto.persona().dni());
@@ -89,7 +78,6 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
         persona = personaRepository.save(persona);
 
         Trabajador trabajador = new Trabajador();
-
         trabajador.setPersona(persona);
         trabajador.setCargo(cargo);
         trabajador.setDireccion(dto.direccion());
@@ -98,52 +86,43 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
         trabajador.setPuedeRepartir(dto.puedeRepartir());
         trabajador.setEstado("A");
 
-        trabajadorRepository.save(trabajador);
-
-        return converTODTO(trabajador);
+        return converTODTO(trabajadorRepository.save(trabajador));
     }
 
     @Override
     @Transactional
     public Optional<TrabajadorDTO> actualizar(Long id, TrabajadorDTO dto) {
 
-        Optional<Trabajador> resultado = trabajadorRepository.findById(id);
-
-        if (resultado.isEmpty()) {
-            return Optional.empty();
-        }
-
         validarFunciones(dto);
 
-        Trabajador trabajador = resultado.get();
-        Persona persona = trabajador.getPersona();
+        return trabajadorRepository.findById(id).map(trabajador -> {
 
-        if (!persona.getDni().equals(dto.persona().dni())
-                && personaRepository.existsByDni(dto.persona().dni())) {
+            Persona persona = trabajador.getPersona();
 
-            throw new IllegalArgumentException(
-                    "El DNI ya está registrado"
-            );
-        }
+            if (!persona.getDni().equals(dto.persona().dni())
+                    && personaRepository.existsByDni(dto.persona().dni())) {
 
-        Cargo cargo = buscarCargo(dto.idCargo());
+                throw new IllegalArgumentException(
+                        "El DNI ya está registrado");
+            }
 
-        persona.setNombre(dto.persona().nombre().trim());
-        persona.setApellidos(dto.persona().apellidos().trim());
-        persona.setDni(dto.persona().dni());
-        persona.setNumTelef(dto.persona().numTelef());
+            Cargo cargo = buscarCargo(dto.idCargo());
 
-        personaRepository.save(persona);
+            persona.setNombre(dto.persona().nombre().trim());
+            persona.setApellidos(dto.persona().apellidos().trim());
+            persona.setDni(dto.persona().dni());
+            persona.setNumTelef(dto.persona().numTelef());
 
-        trabajador.setCargo(cargo);
-        trabajador.setDireccion(dto.direccion());
-        trabajador.setCapacidadPreparacion(dto.capacidadPreparacion());
-        trabajador.setCapacidadAsado(dto.capacidadAsado());
-        trabajador.setPuedeRepartir(dto.puedeRepartir());
+            personaRepository.save(persona);
 
-        trabajadorRepository.save(trabajador);
+            trabajador.setCargo(cargo);
+            trabajador.setDireccion(dto.direccion());
+            trabajador.setCapacidadPreparacion(dto.capacidadPreparacion());
+            trabajador.setCapacidadAsado(dto.capacidadAsado());
+            trabajador.setPuedeRepartir(dto.puedeRepartir());
 
-        return Optional.of(converTODTO(trabajador));
+            return converTODTO(trabajadorRepository.save(trabajador));
+        });
     }
 
     @Override
@@ -152,22 +131,15 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
 
         if (!"A".equals(estado) && !"I".equals(estado)) {
             throw new IllegalArgumentException(
-                    "El estado debe ser A o I"
-            );
+                    "El estado debe ser A o I");
         }
 
-        Optional<Trabajador> resultado = trabajadorRepository.findById(id);
+        return trabajadorRepository.findById(id).map(trabajador -> {
 
-        if (resultado.isEmpty()) {
-            return Optional.empty();
-        }
+            trabajador.setEstado(estado);
 
-        Trabajador trabajador = resultado.get();
-
-        trabajador.setEstado(estado);
-        trabajadorRepository.save(trabajador);
-
-        return Optional.of(converTODTO(trabajador));
+            return converTODTO(trabajadorRepository.save(trabajador));
+        });
     }
 
     @Override
@@ -182,8 +154,7 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
                 .findByTrabajador_IdTrabajador(id).isEmpty()) {
 
             throw new IllegalArgumentException(
-                    "No se puede eliminar un trabajador con asignaciones registradas"
-            );
+                    "No se puede eliminar un trabajador con asignaciones registradas");
         }
 
         trabajadorRepository.deleteById(id);
@@ -193,23 +164,16 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
 
     private Cargo buscarCargo(Long idCargo) {
 
-        Optional<Cargo> resultado = cargoRepository.findById(idCargo);
-
-        if (resultado.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Cargo ID: " + idCargo + " no existe"
-            );
-        }
-
-        return resultado.get();
+        return cargoRepository.findById(idCargo)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Cargo ID: " + idCargo + " no existe"));
     }
 
     private void validarFunciones(TrabajadorDTO dto) {
 
         if (dto.puedeRepartir() == null) {
             throw new IllegalArgumentException(
-                    "Debe indicar si el trabajador puede repartir"
-            );
+                    "Debe indicar si el trabajador puede repartir");
         }
 
         Cargo cargo = buscarCargo(dto.idCargo());
@@ -223,8 +187,7 @@ public class TrabajadorServiceImpl implements ITrabajadorService {
                 && !dto.puedeRepartir()) {
 
             throw new IllegalArgumentException(
-                    "El trabajador debe tener al menos una función habilitada"
-            );
+                    "El trabajador debe tener al menos una función habilitada");
         }
     }
 

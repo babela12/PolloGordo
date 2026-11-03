@@ -3,6 +3,7 @@ package pe.edu.upeu.pollogordo_api.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import pe.edu.upeu.pollogordo_api.dto.ClienteDTO;
 import pe.edu.upeu.pollogordo_api.dto.PersonaDTO;
 import pe.edu.upeu.pollogordo_api.entity.Cliente;
@@ -55,8 +56,7 @@ public class ClienteServiceImpl implements IClienteService {
 
         if (personaRepository.existsByDni(dto.persona().dni())) {
             throw new IllegalArgumentException(
-                    "El DNI ya está registrado"
-            );
+                    "El DNI ya está registrado");
         }
 
         Persona persona = new Persona();
@@ -88,8 +88,7 @@ public class ClienteServiceImpl implements IClienteService {
                     && personaRepository.existsByDni(dto.persona().dni())) {
 
                 throw new IllegalArgumentException(
-                        "El DNI ya está registrado"
-                );
+                        "El DNI ya está registrado");
             }
 
             persona.setNombre(dto.persona().nombre().trim());
@@ -115,8 +114,7 @@ public class ClienteServiceImpl implements IClienteService {
 
         if (!pedidoRepository.findByClienteIdCliente(id).isEmpty()) {
             throw new IllegalArgumentException(
-                    "No se puede eliminar un cliente con pedidos registrados"
-            );
+                    "No se puede eliminar un cliente con pedidos registrados");
         }
 
         clienteRepository.deleteById(id);
@@ -124,9 +122,9 @@ public class ClienteServiceImpl implements IClienteService {
         return true;
     }
 
-    private ClienteDTO converTODTO(Cliente c) {
+    private ClienteDTO converTODTO(Cliente cliente) {
 
-        Persona persona = c.getPersona();
+        Persona persona = cliente.getPersona();
 
         PersonaDTO personaDTO = new PersonaDTO(
                 persona.getIdPersona(),
@@ -137,9 +135,9 @@ public class ClienteServiceImpl implements IClienteService {
         );
 
         return new ClienteDTO(
-                c.getIdCliente(),
+                cliente.getIdCliente(),
                 personaDTO,
-                c.getDireccion()
+                cliente.getDireccion()
         );
     }
 }

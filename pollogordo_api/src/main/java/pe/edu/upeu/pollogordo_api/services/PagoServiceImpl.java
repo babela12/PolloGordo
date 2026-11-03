@@ -11,7 +11,6 @@ import pe.edu.upeu.pollogordo_api.exception.ResourceNotFoundException;
 import pe.edu.upeu.pollogordo_api.repository.PagoRepository;
 import pe.edu.upeu.pollogordo_api.repository.PedidoRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,27 +32,18 @@ public class PagoServiceImpl implements IPagoService {
     @Transactional(readOnly = true)
     public List<PagoDTO> listarTodo() {
 
-        List<Pago> pagos = pagoRepository.findAll();
-        List<PagoDTO> lista = new ArrayList<>();
-
-        for (Pago pago : pagos) {
-            lista.add(convertirDTO(pago));
-        }
-
-        return lista;
+        return pagoRepository.findAll()
+                .stream()
+                .map(this::convertirDTO)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<PagoDTO> buscarPorId(Long id) {
 
-        Optional<Pago> resultado = pagoRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return Optional.of(convertirDTO(resultado.get()));
-        }
-
-        return Optional.empty();
+        return pagoRepository.findById(id)
+                .map(this::convertirDTO);
     }
 
     @Override
@@ -66,29 +56,21 @@ public class PagoServiceImpl implements IPagoService {
 
         asignarDatos(pago, dto, pedido);
 
-        Pago guardado = pagoRepository.save(pago);
-
-        return convertirDTO(guardado);
+        return convertirDTO(pagoRepository.save(pago));
     }
 
     @Override
     @Transactional
     public Optional<PagoDTO> actualizar(Long id, PagoDTO dto) {
 
-        Optional<Pago> resultado = pagoRepository.findById(id);
+        return pagoRepository.findById(id).map(pago -> {
 
-        if (resultado.isEmpty()) {
-            return Optional.empty();
-        }
+            Pedido pedido = buscarPedido(dto.idPedido());
 
-        Pago pago = resultado.get();
-        Pedido pedido = buscarPedido(dto.idPedido());
+            asignarDatos(pago, dto, pedido);
 
-        asignarDatos(pago, dto, pedido);
-
-        Pago guardado = pagoRepository.save(pago);
-
-        return Optional.of(convertirDTO(guardado));
+            return convertirDTO(pagoRepository.save(pago));
+        });
     }
 
     @Override
@@ -105,15 +87,9 @@ public class PagoServiceImpl implements IPagoService {
 
     private Pedido buscarPedido(Long id) {
 
-        Optional<Pedido> resultado = pedidoRepository.findById(id);
-
-        if (resultado.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Pedido ID: " + id + " no existe"
-            );
-        }
-
-        return resultado.get();
+        return pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Pedido ID: " + id + " no existe"));
     }
 
     private void asignarDatos(

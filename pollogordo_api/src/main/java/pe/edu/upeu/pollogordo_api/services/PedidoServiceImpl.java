@@ -1,4 +1,3 @@
-
 package pe.edu.upeu.pollogordo_api.services;
 
 import org.springframework.stereotype.Service;
@@ -25,7 +24,6 @@ import pe.edu.upeu.pollogordo_api.repository.ProductoRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PedidoServiceImpl implements IPedidoService {
@@ -106,18 +104,15 @@ public class PedidoServiceImpl implements IPedidoService {
     @Transactional(readOnly = true)
     public List<PedidoResponseDTO> listarTodo() {
 
-        List<PedidoResponseDTO> lista = new ArrayList<>();
-
-        for (Pedido pedido : pedidoRepository.findAll()) {
-
-            List<DetallePedido> detalles =
-                    detallePedidoRepository.findByPedidoIdPedido(
-                            pedido.getIdPedido());
-
-            lista.add(convertirAResponse(pedido, detalles));
-        }
-
-        return lista;
+        return pedidoRepository.findAll()
+                .stream()
+                .map(pedido -> {
+                    List<DetallePedido> detalles =
+                            detallePedidoRepository.findByPedidoIdPedido(
+                                    pedido.getIdPedido());
+                    return convertirAResponse(pedido, detalles);
+                })
+                .toList();
     }
 
     @Override
@@ -216,28 +211,16 @@ public class PedidoServiceImpl implements IPedidoService {
 
     private Cliente buscarCliente(Long idCliente) {
 
-        Optional<Cliente> resultado =
-                clienteRepository.findById(idCliente);
-
-        if (resultado.isPresent()) {
-            return resultado.get();
-        }
-
-        throw new ResourceNotFoundException(
-                "Cliente no encontrado");
+        return clienteRepository.findById(idCliente)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Cliente no encontrado"));
     }
 
     private Pedido buscarPedido(Long idPedido) {
 
-        Optional<Pedido> resultado =
-                pedidoRepository.findById(idPedido);
-
-        if (resultado.isPresent()) {
-            return resultado.get();
-        }
-
-        throw new ResourceNotFoundException(
-                "Pedido ID: " + idPedido + " no encontrado");
+        return pedidoRepository.findById(idPedido)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Pedido ID: " + idPedido + " no encontrado"));
     }
 
     private List<DetallePedido> guardarDetalles(
@@ -248,15 +231,9 @@ public class PedidoServiceImpl implements IPedidoService {
 
         for (ItemPedidoDTO item : items) {
 
-            Optional<Producto> resultado =
-                    productoRepository.findById(item.idProducto());
-
-            if (resultado.isEmpty()) {
-                throw new ResourceNotFoundException(
-                        "Producto ID: " + item.idProducto() + " no existe");
-            }
-
-            Producto producto = resultado.get();
+            Producto producto = productoRepository.findById(item.idProducto())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Producto ID: " + item.idProducto() + " no existe"));
 
             String unidad = item.unidad().trim().toUpperCase();
             validarUnidad(unidad);

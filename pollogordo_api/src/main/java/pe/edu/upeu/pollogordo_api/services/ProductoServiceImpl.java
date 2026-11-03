@@ -3,13 +3,11 @@ package pe.edu.upeu.pollogordo_api.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import pe.edu.upeu.pollogordo_api.dto.ProductoDTO;
 import pe.edu.upeu.pollogordo_api.entity.Producto;
 import pe.edu.upeu.pollogordo_api.repository.ProductoRepository;
 import pe.edu.upeu.pollogordo_api.repository.DetallePedidoRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,27 +28,17 @@ public class ProductoServiceImpl implements IProductoService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductoDTO> listarTodo() {
-
-        List<ProductoDTO> lista = new ArrayList<>();
-
-        for (Producto producto : productoRepository.findAll()) {
-            lista.add(converTODTO(producto));
-        }
-
-        return lista;
+        return productoRepository.findAll()
+                .stream()
+                .map(this::converTODTO)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<ProductoDTO> buscarPorId(Long id) {
-
-        Optional<Producto> resultado = productoRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return Optional.of(converTODTO(resultado.get()));
-        }
-
-        return Optional.empty();
+        return productoRepository.findById(id)
+                .map(this::converTODTO);
     }
 
     @Override
@@ -66,20 +54,14 @@ public class ProductoServiceImpl implements IProductoService {
         producto.setEstado(dto.estado());
         producto.setImagen(dto.imagen());
 
-        productoRepository.save(producto);
-
-        return converTODTO(producto);
+        return converTODTO(productoRepository.save(producto));
     }
 
     @Override
     @Transactional
     public Optional<ProductoDTO> actualizar(Long id, ProductoDTO dto) {
 
-        Optional<Producto> resultado = productoRepository.findById(id);
-
-        if (resultado.isPresent()) {
-
-            Producto producto = resultado.get();
+        return productoRepository.findById(id).map(producto -> {
 
             producto.setNombre(dto.nombre());
             producto.setDescripcion(dto.descripcion());
@@ -88,31 +70,27 @@ public class ProductoServiceImpl implements IProductoService {
             producto.setEstado(dto.estado());
             producto.setImagen(dto.imagen());
 
-            productoRepository.save(producto);
-
-            return Optional.of(converTODTO(producto));
-        }
-
-        return Optional.empty();
+            return converTODTO(productoRepository.save(producto));
+        });
     }
 
     @Override
     @Transactional
     public boolean eliminar(Long id) {
 
-        if (!productoRepository.existsById(id)) {
-            return false;
-        }
+        return productoRepository.findById(id).map(producto -> {
 
-        if (detallePedidoRepository.existsByProductoIdProducto(id)) {
-            throw new IllegalArgumentException(
-                    "No se puede eliminar un producto que tiene pedidos registrados"
-            );
-        }
+            if (detallePedidoRepository.existsByProductoIdProducto(id)) {
+                throw new IllegalArgumentException(
+                        "No se puede eliminar un producto que tiene pedidos registrados"
+                );
+            }
 
-        productoRepository.deleteById(id);
+            productoRepository.delete(producto);
 
-        return true;
+            return true;
+
+        }).orElse(false);
     }
 
     private ProductoDTO converTODTO(Producto producto) {

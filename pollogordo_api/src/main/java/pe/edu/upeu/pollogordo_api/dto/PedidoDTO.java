@@ -1,6 +1,9 @@
 
 package pe.edu.upeu.pollogordo_api.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -23,9 +26,13 @@ public record PedidoDTO(
 
         @NotNull(message = "La fecha del evento es obligatoria")
         @FutureOrPresent(message = "La fecha del evento no puede ser anterior a hoy")
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        @Schema(type = "string", example = "2026-11-08")
         LocalDate fechaEvento,
 
         @NotNull(message = "La hora de entrega es obligatoria")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
+        @Schema(type = "string", example = "12:30")
         LocalTime horaEntrega,
 
         @NotBlank(message = "La dirección del evento es obligatoria")

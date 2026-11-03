@@ -15,7 +15,6 @@ import pe.edu.upeu.pollogordo_api.repository.PedidoRepository;
 import pe.edu.upeu.pollogordo_api.repository.TrabajadorRepository;
 import pe.edu.upeu.pollogordo_api.repository.VehiculoRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,27 +42,18 @@ public class EntregaServiceImpl implements IEntregaService {
     @Transactional(readOnly = true)
     public List<EntregaDTO> listarTodo() {
 
-        List<Entrega> entregas = entregaRepository.findAll();
-        List<EntregaDTO> lista = new ArrayList<>();
-
-        for (Entrega entrega : entregas) {
-            lista.add(convertirDTO(entrega));
-        }
-
-        return lista;
+        return entregaRepository.findAll()
+                .stream()
+                .map(this::convertirDTO)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<EntregaDTO> buscarPorId(Long id) {
 
-        Optional<Entrega> resultado = entregaRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return Optional.of(convertirDTO(resultado.get()));
-        }
-
-        return Optional.empty();
+        return entregaRepository.findById(id)
+                .map(this::convertirDTO);
     }
 
     @Override
@@ -78,32 +68,23 @@ public class EntregaServiceImpl implements IEntregaService {
 
         asignarDatos(entrega, dto, pedido, vehiculo, trabajador);
 
-        Entrega guardada = entregaRepository.save(entrega);
-
-        return convertirDTO(guardada);
+        return convertirDTO(entregaRepository.save(entrega));
     }
 
     @Override
     @Transactional
     public Optional<EntregaDTO> actualizar(Long id, EntregaDTO dto) {
 
-        Optional<Entrega> resultado = entregaRepository.findById(id);
+        return entregaRepository.findById(id).map(entrega -> {
 
-        if (resultado.isEmpty()) {
-            return Optional.empty();
-        }
+            Pedido pedido = buscarPedido(dto.idPedido());
+            Vehiculo vehiculo = buscarVehiculo(dto.idVehiculo());
+            Trabajador trabajador = buscarTrabajador(dto.idTrabajador());
 
-        Entrega entrega = resultado.get();
+            asignarDatos(entrega, dto, pedido, vehiculo, trabajador);
 
-        Pedido pedido = buscarPedido(dto.idPedido());
-        Vehiculo vehiculo = buscarVehiculo(dto.idVehiculo());
-        Trabajador trabajador = buscarTrabajador(dto.idTrabajador());
-
-        asignarDatos(entrega, dto, pedido, vehiculo, trabajador);
-
-        Entrega guardada = entregaRepository.save(entrega);
-
-        return Optional.of(convertirDTO(guardada));
+            return convertirDTO(entregaRepository.save(entrega));
+        });
     }
 
     @Override
@@ -120,41 +101,23 @@ public class EntregaServiceImpl implements IEntregaService {
 
     private Pedido buscarPedido(Long id) {
 
-        Optional<Pedido> resultado = pedidoRepository.findById(id);
-
-        if (resultado.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Pedido ID: " + id + " no existe"
-            );
-        }
-
-        return resultado.get();
+        return pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Pedido ID: " + id + " no existe"));
     }
 
     private Vehiculo buscarVehiculo(Long id) {
 
-        Optional<Vehiculo> resultado = vehiculoRepository.findById(id);
-
-        if (resultado.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Vehículo ID: " + id + " no existe"
-            );
-        }
-
-        return resultado.get();
+        return vehiculoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Vehículo ID: " + id + " no existe"));
     }
 
     private Trabajador buscarTrabajador(Long id) {
 
-        Optional<Trabajador> resultado = trabajadorRepository.findById(id);
-
-        if (resultado.isEmpty()) {
-            throw new ResourceNotFoundException(
-                    "Trabajador ID: " + id + " no existe"
-            );
-        }
-
-        return resultado.get();
+        return trabajadorRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Trabajador ID: " + id + " no existe"));
     }
 
     private void asignarDatos(

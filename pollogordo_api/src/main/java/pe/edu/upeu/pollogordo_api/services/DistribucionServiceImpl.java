@@ -3,6 +3,7 @@ package pe.edu.upeu.pollogordo_api.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import pe.edu.upeu.pollogordo_api.dto.DistribucionDTO;
 import pe.edu.upeu.pollogordo_api.dto.ItemPedidoDTO;
 import pe.edu.upeu.pollogordo_api.entity.Distribucion;
@@ -16,7 +17,6 @@ import pe.edu.upeu.pollogordo_api.repository.InsumoRepository;
 import pe.edu.upeu.pollogordo_api.repository.PedidoRepository;
 import pe.edu.upeu.pollogordo_api.repository.ProductoRepository;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,27 +46,18 @@ public class DistribucionServiceImpl implements IDistribucionService {
     @Transactional(readOnly = true)
     public List<DistribucionDTO> listarTodo() {
 
-        List<DistribucionDTO> lista = new ArrayList<>();
-
-        for (Distribucion distribucion : distribucionRepository.findAll()) {
-            lista.add(convertirDTO(distribucion));
-        }
-
-        return lista;
+        return distribucionRepository.findAll()
+                .stream()
+                .map(this::convertirDTO)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<DistribucionDTO> buscarPorId(Long id) {
 
-        Optional<Distribucion> resultado =
-                distribucionRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return Optional.of(convertirDTO(resultado.get()));
-        }
-
-        return Optional.empty();
+        return distribucionRepository.findById(id)
+                .map(this::convertirDTO);
     }
 
     @Override
@@ -90,9 +81,7 @@ public class DistribucionServiceImpl implements IDistribucionService {
             distribucion.setEstado(dto.estado());
         }
 
-        distribucionRepository.save(distribucion);
-
-        return convertirDTO(distribucion);
+        return convertirDTO(distribucionRepository.save(distribucion));
     }
 
     @Override
@@ -237,15 +226,12 @@ public class DistribucionServiceImpl implements IDistribucionService {
 
         for (Map.Entry<String, Double> entrada : distribuciones.entrySet()) {
 
-            Optional<Insumo> resultado =
-                    insumoRepository.findByNombreIgnoreCase(entrada.getKey());
+            Insumo insumo = insumoRepository
+                    .findByNombreIgnoreCase(entrada.getKey())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "El insumo " + entrada.getKey()
+                                    + " no está registrado"));
 
-            if (resultado.isEmpty()) {
-                throw new ResourceNotFoundException(
-                        "El insumo " + entrada.getKey() + " no está registrado");
-            }
-
-            Insumo insumo = resultado.get();
             double cantidadNecesaria = entrada.getValue();
 
             descontarStock(insumo, cantidadNecesaria);
@@ -266,93 +252,64 @@ public class DistribucionServiceImpl implements IDistribucionService {
             Long id,
             DistribucionDTO dto) {
 
-        Optional<Distribucion> resultado =
-                distribucionRepository.findById(id);
+        return distribucionRepository.findById(id).map(distribucion -> {
 
-        if (resultado.isEmpty()) {
-            return Optional.empty();
-        }
+            Pedido pedido = buscarPedido(dto.idPedido());
+            Insumo nuevoInsumo = buscarInsumo(dto.idInsumo());
 
-        Distribucion distribucion = resultado.get();
+            validarCantidad(dto.cantidad());
 
-        Pedido pedido = buscarPedido(dto.idPedido());
-        Insumo nuevoInsumo = buscarInsumo(dto.idInsumo());
+            Insumo anteriorInsumo = distribucion.getInsumo();
+            double cantidadAnterior = distribucion.getCantidad();
 
-        validarCantidad(dto.cantidad());
+            restaurarStock(anteriorInsumo, cantidadAnterior);
+            descontarStock(nuevoInsumo, dto.cantidad());
 
-        Insumo anteriorInsumo = distribucion.getInsumo();
-        double cantidadAnterior = distribucion.getCantidad();
+            distribucion.setPedido(pedido);
+            distribucion.setInsumo(nuevoInsumo);
+            distribucion.setCantidad(dto.cantidad());
+            distribucion.setEstado(dto.estado());
 
-        restaurarStock(anteriorInsumo, cantidadAnterior);
-        descontarStock(nuevoInsumo, dto.cantidad());
-
-        distribucion.setPedido(pedido);
-        distribucion.setInsumo(nuevoInsumo);
-        distribucion.setCantidad(dto.cantidad());
-        distribucion.setEstado(dto.estado());
-
-        distribucionRepository.save(distribucion);
-
-        return Optional.of(convertirDTO(distribucion));
+            return convertirDTO(distribucionRepository.save(distribucion));
+        });
     }
 
     @Override
     @Transactional
     public boolean eliminar(Long id) {
 
-        Optional<Distribucion> resultado =
-                distribucionRepository.findById(id);
+        return distribucionRepository.findById(id).map(distribucion -> {
 
-        if (resultado.isEmpty()) {
-            return false;
-        }
+            restaurarStock(
+                    distribucion.getInsumo(),
+                    distribucion.getCantidad()
+            );
 
-        Distribucion distribucion = resultado.get();
+            distribucionRepository.delete(distribucion);
 
-        restaurarStock(
-                distribucion.getInsumo(),
-                distribucion.getCantidad()
-        );
-
-        distribucionRepository.delete(distribucion);
-
-        return true;
+            return true;
+        }).orElse(false);
     }
 
     private Pedido buscarPedido(Long id) {
 
-        Optional<Pedido> resultado = pedidoRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return resultado.get();
-        }
-
-        throw new ResourceNotFoundException(
-                "Pedido ID: " + id + " no existe");
+        return pedidoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Pedido ID: " + id + " no existe"));
     }
 
     private Insumo buscarInsumo(Long id) {
 
-        Optional<Insumo> resultado = insumoRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return resultado.get();
-        }
-
-        throw new ResourceNotFoundException(
-                "Insumo ID: " + id + " no existe");
+        return insumoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Insumo ID: " + id + " no existe"));
     }
 
     private Producto buscarProducto(Long id) {
 
-        Optional<Producto> resultado = productoRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return resultado.get();
-        }
-
-        throw new ResourceNotFoundException(
-                "Producto ID: " + id + " no existe");
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Producto ID: " + id + " no existe"));
     }
 
     private boolean controlaStock(Insumo insumo) {
@@ -369,7 +326,8 @@ public class DistribucionServiceImpl implements IDistribucionService {
 
         if (stock == null || stock < cantidad) {
             throw new InsufficientStockException(
-                    "Stock insuficiente para el insumo: " + insumo.getNombre());
+                    "Stock insuficiente para el insumo: "
+                            + insumo.getNombre());
         }
 
         insumo.setCantidadStock(stock - cantidad);

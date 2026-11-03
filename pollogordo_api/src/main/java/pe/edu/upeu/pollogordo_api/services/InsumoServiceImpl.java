@@ -7,7 +7,7 @@ import pe.edu.upeu.pollogordo_api.dto.InsumoDTO;
 import pe.edu.upeu.pollogordo_api.entity.Insumo;
 import pe.edu.upeu.pollogordo_api.repository.InsumoRepository;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,31 +24,21 @@ public class InsumoServiceImpl implements IInsumoService {
     @Transactional(readOnly = true)
     public List<InsumoDTO> listarTodo() {
 
-        List<Insumo> insumos = insumoRepository.findAll();
-
-        insumos.sort((a, b) ->
-                a.getNombre().compareToIgnoreCase(b.getNombre()));
-
-        List<InsumoDTO> lista = new ArrayList<>();
-
-        for (Insumo insumo : insumos) {
-            lista.add(converTODTO(insumo));
-        }
-
-        return lista;
+        return insumoRepository.findAll()
+                .stream()
+                .sorted(Comparator.comparing(
+                        Insumo::getNombre,
+                        String.CASE_INSENSITIVE_ORDER))
+                .map(this::converTODTO)
+                .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<InsumoDTO> buscarPorId(Long id) {
 
-        Optional<Insumo> resultado = insumoRepository.findById(id);
-
-        if (resultado.isPresent()) {
-            return Optional.of(converTODTO(resultado.get()));
-        }
-
-        return Optional.empty();
+        return insumoRepository.findById(id)
+                .map(this::converTODTO);
     }
 
     @Override
@@ -67,9 +57,7 @@ public class InsumoServiceImpl implements IInsumoService {
         insumo.setEstado(dto.estado());
         insumo.setImagen(dto.imagen());
 
-        insumoRepository.save(insumo);
-
-        return converTODTO(insumo);
+        return converTODTO(insumoRepository.save(insumo));
     }
 
     @Override
@@ -78,11 +66,7 @@ public class InsumoServiceImpl implements IInsumoService {
 
         validarStock(dto);
 
-        Optional<Insumo> resultado = insumoRepository.findById(id);
-
-        if (resultado.isPresent()) {
-
-            Insumo insumo = resultado.get();
+        return insumoRepository.findById(id).map(insumo -> {
 
             insumo.setNombre(dto.nombre());
             insumo.setUnidad(dto.unidad());
@@ -92,12 +76,8 @@ public class InsumoServiceImpl implements IInsumoService {
             insumo.setEstado(dto.estado());
             insumo.setImagen(dto.imagen());
 
-            insumoRepository.save(insumo);
-
-            return Optional.of(converTODTO(insumo));
-        }
-
-        return Optional.empty();
+            return converTODTO(insumoRepository.save(insumo));
+        });
     }
 
     @Override
@@ -118,16 +98,14 @@ public class InsumoServiceImpl implements IInsumoService {
                 && !"N".equals(dto.controlaStock())) {
 
             throw new IllegalArgumentException(
-                    "Controla stock debe ser S o N"
-            );
+                    "Controla stock debe ser S o N");
         }
 
         if ("S".equals(dto.controlaStock())
                 && dto.cantidadStock() == null) {
 
             throw new IllegalArgumentException(
-                    "La cantidad de stock es obligatoria"
-            );
+                    "La cantidad de stock es obligatoria");
         }
     }
 
