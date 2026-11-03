@@ -1,13 +1,16 @@
+
 package pe.edu.upeu.pollogordo_api.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import pe.edu.upeu.pollogordo_api.dto.VehiculoDTO;
 import pe.edu.upeu.pollogordo_api.exception.ResourceNotFoundException;
 import pe.edu.upeu.pollogordo_api.services.IVehiculoService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/vehiculos")
@@ -21,20 +24,33 @@ public class VehiculoController {
 
     @GetMapping
     public ResponseEntity<List<VehiculoDTO>> listarTodo() {
-        return ResponseEntity.ok(vehiculoService.listarTodo());
+
+        List<VehiculoDTO> lista = vehiculoService.listarTodo();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<VehiculoDTO> buscarPorId(@PathVariable Long id) {
-        return vehiculoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<VehiculoDTO> buscarPorId(
+            @PathVariable Long id) {
+
+        Optional<VehiculoDTO> resultado =
+                vehiculoService.buscarPorId(id);
+
+        if (resultado.isPresent()) {
+            return ResponseEntity.ok(resultado.get());
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
     public ResponseEntity<VehiculoDTO> crear(
             @Valid @RequestBody VehiculoDTO dto) {
-        return ResponseEntity.ok(vehiculoService.crear(dto));
+
+        VehiculoDTO nuevo = vehiculoService.crear(dto);
+
+        return ResponseEntity.ok(nuevo);
     }
 
     @PutMapping("/{id}")
@@ -42,19 +58,28 @@ public class VehiculoController {
             @PathVariable Long id,
             @Valid @RequestBody VehiculoDTO dto) {
 
-        return vehiculoService.actualizar(id, dto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<VehiculoDTO> resultado =
+                vehiculoService.actualizar(id, dto);
+
+        if (resultado.isPresent()) {
+            return ResponseEntity.ok(resultado.get());
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id) {
 
-        if (vehiculoService.eliminar(id)) {
+        boolean eliminado = vehiculoService.eliminar(id);
+
+        if (eliminado) {
             return ResponseEntity.noContent().build();
         }
 
         throw new ResourceNotFoundException(
-                "No se pudo eliminar: " + id);
+                "No se pudo eliminar: " + id
+        );
     }
 }

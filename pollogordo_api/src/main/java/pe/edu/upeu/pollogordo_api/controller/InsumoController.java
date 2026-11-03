@@ -7,13 +7,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import pe.edu.upeu.pollogordo_api.dto.InsumoDTO;
-import pe.edu.upeu.pollogordo_api.exception.ResourceNotFoundException;
 import pe.edu.upeu.pollogordo_api.services.IFileStorageService;
 import pe.edu.upeu.pollogordo_api.services.IInsumoService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/insumos")
@@ -25,43 +26,43 @@ public class InsumoController {
     public InsumoController(
             IInsumoService insumoService,
             IFileStorageService storageService) {
+
         this.insumoService = insumoService;
         this.storageService = storageService;
     }
 
     @GetMapping
     public ResponseEntity<List<InsumoDTO>> listarTodo() {
-        return ResponseEntity.ok(insumoService.listarTodo());
+
+        List<InsumoDTO> lista = insumoService.listarTodo();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<InsumoDTO> buscarPorId(
-            @PathVariable Long id) {
+    public ResponseEntity<InsumoDTO> buscarPorId(@PathVariable Long id) {
 
-        return insumoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+        Optional<InsumoDTO> insumo = insumoService.buscarPorId(id);
 
-    // CREAR INSUMO CON IMAGEN
-    @PostMapping(
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ResponseEntity<InsumoDTO> crear(
-            @ModelAttribute
-            @org.springdoc.core.annotations.ParameterObject
-            @Valid InsumoDTO dto,
-
-            @RequestPart(value = "file", required = false)
-            MultipartFile file) {
-
-        String nombreImagen = null;
-
-        if (file != null && !file.isEmpty()) {
-            nombreImagen = storageService.store(file);
+        if (insumo.isPresent()) {
+            return ResponseEntity.ok(insumo.get());
         }
 
-        InsumoDTO dtoParaCrear = new InsumoDTO(
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<InsumoDTO> crear(
+            @Valid @ModelAttribute InsumoDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        String imagen = null;
+
+        if (file != null && !file.isEmpty()) {
+            imagen = storageService.store(file);
+        }
+
+        InsumoDTO insumo = new InsumoDTO(
                 null,
                 dto.nombre(),
                 dto.unidad(),
@@ -69,41 +70,38 @@ public class InsumoController {
                 dto.controlaStock(),
                 dto.cantidadStock(),
                 dto.estado(),
-                nombreImagen
+                imagen
         );
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(insumoService.crear(dtoParaCrear));
+        InsumoDTO nuevo = insumoService.crear(insumo);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
-    // ACTUALIZAR INSUMO CON IMAGEN
     @PutMapping(
             value = "/{id}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<InsumoDTO> actualizar(
             @PathVariable Long id,
+            @Valid @ModelAttribute InsumoDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
 
-            @ModelAttribute
-            @org.springdoc.core.annotations.ParameterObject
-            @Valid InsumoDTO dto,
+        Optional<InsumoDTO> resultado = insumoService.buscarPorId(id);
 
-            @RequestPart(value = "file", required = false)
-            MultipartFile file) {
-
-        InsumoDTO insumoActual = insumoService.buscarPorId(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Insumo no encontrado"));
-
-        String nombreImagen = insumoActual.imagen();
-
-        if (file != null && !file.isEmpty()) {
-            nombreImagen = storageService.store(file);
+        if (resultado.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
 
-        InsumoDTO dtoParaActualizar = new InsumoDTO(
+        InsumoDTO actual = resultado.get();
+
+        String imagen = actual.imagen();
+
+        if (file != null && !file.isEmpty()) {
+            imagen = storageService.store(file);
+        }
+
+        InsumoDTO insumo = new InsumoDTO(
                 id,
                 dto.nombre(),
                 dto.unidad(),
@@ -111,24 +109,29 @@ public class InsumoController {
                 dto.controlaStock(),
                 dto.cantidadStock(),
                 dto.estado(),
-                nombreImagen
+                imagen
         );
 
-        return insumoService.actualizar(id, dtoParaActualizar)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<InsumoDTO> actualizado =
+                insumoService.actualizar(id, insumo);
+
+        if (actualizado.isPresent()) {
+            return ResponseEntity.ok(actualizado.get());
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(
-            @PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
 
-        if (insumoService.eliminar(id)) {
+        boolean eliminado = insumoService.eliminar(id);
+
+        if (eliminado) {
             return ResponseEntity.noContent().build();
         }
 
-        throw new ResourceNotFoundException(
-                "No se pudo eliminar: " + id);
+        return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

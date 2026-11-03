@@ -1,8 +1,10 @@
+
 package pe.edu.upeu.pollogordo_api.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import pe.edu.upeu.pollogordo_api.dto.ConsolidadoDTO;
 import pe.edu.upeu.pollogordo_api.dto.PedidoDTO;
 import pe.edu.upeu.pollogordo_api.dto.PedidoResponseDTO;
@@ -17,46 +19,43 @@ public class PedidoController {
 
     private final IPedidoService pedidoService;
 
-    public PedidoController(
-            IPedidoService pedidoService) {
-
+    public PedidoController(IPedidoService pedidoService) {
         this.pedidoService = pedidoService;
     }
-
 
     @PostMapping
     public ResponseEntity<PedidoResponseDTO> realizarPedido(
             @Valid @RequestBody PedidoDTO dto) {
 
-        return ResponseEntity.ok(
-                pedidoService.realizarPedido(dto)
-        );
+        PedidoResponseDTO pedido = pedidoService.realizarPedido(dto);
+
+        return ResponseEntity.ok(pedido);
     }
 
     @GetMapping
     public ResponseEntity<List<PedidoResponseDTO>> listarTodo() {
 
-        return ResponseEntity.ok(
-                pedidoService.listarTodo()
-        );
+        List<PedidoResponseDTO> lista = pedidoService.listarTodo();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{idPedido}")
     public ResponseEntity<PedidoResponseDTO> buscarPorId(
             @PathVariable Long idPedido) {
 
-        return ResponseEntity.ok(
-                pedidoService.buscarPorId(idPedido)
-        );
+        PedidoResponseDTO pedido = pedidoService.buscarPorId(idPedido);
+
+        return ResponseEntity.ok(pedido);
     }
 
     @PutMapping("/{idPedido}/confirmar")
     public ResponseEntity<PedidoResponseDTO> confirmarPedido(
             @PathVariable Long idPedido) {
 
-        return ResponseEntity.ok(
-                pedidoService.confirmarPedido(idPedido)
-        );
+        PedidoResponseDTO pedido = pedidoService.confirmarPedido(idPedido);
+
+        return ResponseEntity.ok(pedido);
     }
 
     @PutMapping("/{idPedido}")
@@ -64,12 +63,10 @@ public class PedidoController {
             @PathVariable Long idPedido,
             @Valid @RequestBody PedidoDTO dto) {
 
-        return ResponseEntity.ok(
-                pedidoService.modificarPedido(
-                        idPedido,
-                        dto
-                )
-        );
+        PedidoResponseDTO pedido =
+                pedidoService.modificarPedido(idPedido, dto);
+
+        return ResponseEntity.ok(pedido);
     }
 
     @GetMapping("/consolidado")
@@ -77,11 +74,9 @@ public class PedidoController {
             @RequestParam LocalDate fechaInicio,
             @RequestParam LocalDate fechaFin) {
 
-        return ResponseEntity.ok(
-                pedidoService.obtenerConsolidado(
-                        fechaInicio,
-                        fechaFin
-                )
-        );
+        List<ConsolidadoDTO> consolidado =
+                pedidoService.obtenerConsolidado(fechaInicio, fechaFin);
+
+        return ResponseEntity.ok(consolidado);
     }
 }

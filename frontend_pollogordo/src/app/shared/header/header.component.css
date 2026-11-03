@@ -1,9 +1,9 @@
-/* =========================================
-   NAVBAR PRINCIPAL - POLLO GORDO
-========================================= */
 
 :host {
   display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
@@ -12,6 +12,8 @@
 }
 
 .navbar {
+  position: relative;
+  z-index: 1000;
   min-height: 65px;
   padding: 8px 15px;
   box-shadow: 0 2px 8px rgba(80, 30, 20, 0.12);
@@ -21,10 +23,7 @@
   align-items: center;
 }
 
-/* =========================================
-   LOGO Y NOMBRE
-========================================= */
-
+/* Logo */
 .navbar-brand {
   display: inline-flex;
   align-items: center;
@@ -32,28 +31,22 @@
   margin-right: 25px;
   padding: 0;
   color: #FFFFFF !important;
-
   font-family: Georgia, "Times New Roman", serif;
   font-size: 21px;
   font-weight: 700;
   white-space: nowrap;
 }
 
-/* TAMAÑO CORREGIDO DEL LOGO */
 .navbar-brand .logo-pollogordo {
   display: block;
-
   width: 42px !important;
   height: 42px !important;
-
   min-width: 42px;
   max-width: 42px;
   min-height: 42px;
   max-height: 42px;
-
   object-fit: contain;
   object-position: center;
-
   margin: 0;
   padding: 0;
   flex-shrink: 0;
@@ -63,10 +56,7 @@
   color: #FFF1E7 !important;
 }
 
-/* =========================================
-   ENLACES DE NAVEGACIÓN
-========================================= */
-
+/* Navegación */
 .navbar-nav {
   align-items: center;
 }
@@ -79,12 +69,12 @@
   transition: color 0.2s ease;
 }
 
-.navbar-nav .nav-link:hover {
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
   color: #FFFFFF !important;
 }
 
 .navbar-nav .nav-link.active {
-  color: #FFFFFF !important;
   font-weight: 700;
 }
 
@@ -92,32 +82,24 @@
   font-size: 14px;
 }
 
-/* =========================================
-   MENÚS DESPLEGABLES
-========================================= */
-
+/* Menús */
 .menu-gestion {
   min-width: 250px;
   padding: 8px;
   margin-top: 8px;
-
   background-color: #FFFFFF;
   border: 1px solid #E8DED5;
   border-radius: 9px;
-
   box-shadow: 0 6px 18px rgba(80, 30, 20, 0.15);
 }
 
 .menu-gestion .dropdown-item {
   display: flex;
   align-items: center;
-
   padding: 10px 12px;
   border-radius: 6px;
-
   font-size: 14px;
   color: #4A3434;
-
   transition: background-color 0.2s ease;
 }
 
@@ -135,10 +117,6 @@
   border-color: #E8DED5;
   margin: 7px 0;
 }
-
-/* =========================================
-   OPCIONES PRÓXIMAMENTE
-========================================= */
 
 .item-pendiente {
   color: #999999 !important;
@@ -159,10 +137,7 @@
   background-color: transparent !important;
 }
 
-/* =========================================
-   BUSCADOR
-========================================= */
-
+/* Buscador */
 .buscador-header {
   align-items: center;
 }
@@ -170,7 +145,6 @@
 .buscador-header .form-control {
   width: 160px;
   height: 36px;
-
   font-size: 13px;
   border: 1px solid #E8DED5;
   border-radius: 6px;
@@ -184,11 +158,9 @@
 .btn-outline-pollo {
   height: 36px;
   padding: 6px 12px;
-
   color: #FFFFFF;
   border: 1px solid #FFFFFF;
   border-radius: 6px;
-
   font-size: 13px;
   font-weight: 600;
 }
@@ -198,15 +170,11 @@
   color: #7B1E21;
 }
 
-/* =========================================
-   CARRITO
-========================================= */
-
+/* Carrito y usuario */
 .carrito-header {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   color: #FFFFFF;
   text-decoration: none;
   cursor: pointer;
@@ -219,10 +187,6 @@
 .carrito-header .badge {
   font-size: 10px;
 }
-
-/* =========================================
-   USUARIO
-========================================= */
 
 .usuario-header {
   white-space: nowrap;
@@ -241,10 +205,8 @@
 .btn-cerrar {
   background-color: #D97706;
   color: #FFFFFF;
-
   border: none;
   border-radius: 6px;
-
   font-size: 13px;
   font-weight: 600;
   padding: 8px 12px;
@@ -255,12 +217,8 @@
   color: #FFFFFF;
 }
 
-/* =========================================
-   RESPONSIVE
-========================================= */
-
+/* Responsive */
 @media (max-width: 1199px) {
-
   .navbar-brand {
     font-size: 19px;
     margin-right: 15px;
@@ -281,7 +239,6 @@
 }
 
 @media (max-width: 991px) {
-
   .navbar {
     padding: 8px 12px;
   }
@@ -325,7 +282,6 @@
 }
 
 @media (max-width: 576px) {
-
   .navbar-brand {
     font-size: 18px;
   }
@@ -333,7 +289,6 @@
   .navbar-brand .logo-pollogordo {
     width: 38px !important;
     height: 38px !important;
-
     min-width: 38px;
     max-width: 38px;
     min-height: 38px;

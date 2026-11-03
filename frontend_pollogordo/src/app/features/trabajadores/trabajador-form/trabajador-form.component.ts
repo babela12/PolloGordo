@@ -93,20 +93,16 @@ export class TrabajadorFormComponent implements OnInit {
     this.cargarCargos();
   }
 
-  // IDENTIFICAR CARGO GERENTE GENERAL
   private esCargoGerente(cargo: Cargo): boolean {
     return cargo.nombre.trim().toLowerCase() === 'gerente general';
   }
 
-  // FILTRAR LOS CARGOS DISPONIBLES
   private actualizarCargosDisponibles(): void {
     this.cargos = this.todosLosCargos.filter(cargo => {
       if (!this.esCargoGerente(cargo)) {
         return true;
       }
 
-      // Solo conservar Gerente General cuando el
-      // trabajador que se está editando ya tiene ese cargo.
       return (
         this.idTrabajador !== null &&
         cargo.idCargo === this.idCargoOriginal
@@ -114,7 +110,6 @@ export class TrabajadorFormComponent implements OnInit {
     });
   }
 
-  // CARGAR CARGOS DESDE EL BACKEND
   cargarCargos(): void {
     this.cargandoCargos = true;
 
@@ -132,7 +127,6 @@ export class TrabajadorFormComponent implements OnInit {
     });
   }
 
-  // CARGAR DATOS DEL TRABAJADOR AL EDITAR
   cargarTrabajador(id: number): void {
     this.cargando = true;
 
@@ -153,8 +147,6 @@ export class TrabajadorFormComponent implements OnInit {
           puedeRepartir: trabajador.puedeRepartir
         });
 
-        // Actualiza el selector después de conocer
-        // el cargo original del trabajador.
         this.actualizarCargosDisponibles();
 
         this.cargando = false;
@@ -167,7 +159,6 @@ export class TrabajadorFormComponent implements OnInit {
     });
   }
 
-  // GUARDAR NUEVO TRABAJADOR O ACTUALIZAR
   guardar(): void {
     if (
       this.form.invalid ||
@@ -200,8 +191,6 @@ export class TrabajadorFormComponent implements OnInit {
 
     const esGerente = this.esCargoGerente(cargoSeleccionado);
 
-    // Validar que el trabajador operativo tenga
-    // al menos una función habilitada.
     if (
       !esGerente &&
       preparacion === null &&
@@ -214,7 +203,6 @@ export class TrabajadorFormComponent implements OnInit {
       return;
     }
 
-    // Evitar registrar un gerente nuevo.
     if (this.idTrabajador === null && esGerente) {
       this.alertService.error(
         'El cargo Gerente General no está disponible para nuevos trabajadores'
@@ -240,8 +228,6 @@ export class TrabajadorFormComponent implements OnInit {
 
       puedeRepartir: Boolean(valores.puedeRepartir),
 
-      // Al crear: A (Activo).
-      // Al editar: conservar el estado existente.
       estado: this.idTrabajador !== null
         ? this.estadoOriginal
         : 'A'
@@ -276,7 +262,9 @@ export class TrabajadorFormComponent implements OnInit {
         let mensaje =
           'No se pudo guardar el trabajador. Verifica los datos ingresados.';
 
-        if (typeof err.error?.message === 'string') {
+        if (typeof err.error?.mensaje === 'string') {
+          mensaje = err.error.mensaje;
+        } else if (typeof err.error?.message === 'string') {
           mensaje = err.error.message;
         } else if (typeof err.error === 'string') {
           mensaje = err.error;
@@ -287,7 +275,6 @@ export class TrabajadorFormComponent implements OnInit {
     });
   }
 
-  // CONVERTIR CAPACIDADES VACÍAS A NULL
   private convertirCapacidad(valor: unknown): number | null {
     if (
       valor === null ||

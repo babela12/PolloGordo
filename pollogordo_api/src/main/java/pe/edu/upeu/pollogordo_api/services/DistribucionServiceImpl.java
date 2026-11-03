@@ -16,6 +16,7 @@ import pe.edu.upeu.pollogordo_api.repository.InsumoRepository;
 import pe.edu.upeu.pollogordo_api.repository.PedidoRepository;
 import pe.edu.upeu.pollogordo_api.repository.ProductoRepository;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,32 +45,36 @@ public class DistribucionServiceImpl implements IDistribucionService {
     @Override
     @Transactional(readOnly = true)
     public List<DistribucionDTO> listarTodo() {
-        return distribucionRepository.findAll()
-                .stream()
-                .map(this::converTODTO)
-                .toList();
+
+        List<DistribucionDTO> lista = new ArrayList<>();
+
+        for (Distribucion distribucion : distribucionRepository.findAll()) {
+            lista.add(convertirDTO(distribucion));
+        }
+
+        return lista;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<DistribucionDTO> buscarPorId(Long id) {
-        return distribucionRepository.findById(id)
-                .map(this::converTODTO);
+
+        Optional<Distribucion> resultado =
+                distribucionRepository.findById(id);
+
+        if (resultado.isPresent()) {
+            return Optional.of(convertirDTO(resultado.get()));
+        }
+
+        return Optional.empty();
     }
 
     @Override
     @Transactional
     public DistribucionDTO crear(DistribucionDTO dto) {
 
-        Pedido pedido = pedidoRepository.findById(dto.idPedido())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Pedido ID: " + dto.idPedido() + " no existe"
-                ));
-
-        Insumo insumo = insumoRepository.findById(dto.idInsumo())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Insumo ID: " + dto.idInsumo() + " no existe"
-                ));
+        Pedido pedido = buscarPedido(dto.idPedido());
+        Insumo insumo = buscarInsumo(dto.idInsumo());
 
         validarCantidad(dto.cantidad());
         descontarStock(insumo, dto.cantidad());
@@ -78,13 +83,16 @@ public class DistribucionServiceImpl implements IDistribucionService {
         distribucion.setPedido(pedido);
         distribucion.setInsumo(insumo);
         distribucion.setCantidad(dto.cantidad());
-        distribucion.setEstado(
-                dto.estado() == null ? "GENERADO" : dto.estado()
-        );
 
-        return converTODTO(
-                distribucionRepository.save(distribucion)
-        );
+        if (dto.estado() == null) {
+            distribucion.setEstado("GENERADO");
+        } else {
+            distribucion.setEstado(dto.estado());
+        }
+
+        distribucionRepository.save(distribucion);
+
+        return convertirDTO(distribucion);
     }
 
     @Override
@@ -110,43 +118,27 @@ public class DistribucionServiceImpl implements IDistribucionService {
 
         for (ItemPedidoDTO item : items) {
 
-            Producto producto = productoRepository.findById(
-                    item.idProducto()
-            ).orElseThrow(() -> new ResourceNotFoundException(
-                    "Producto ID: " + item.idProducto() + " no existe"
-            ));
+            Producto producto = buscarProducto(item.idProducto());
 
-            // El pollo crudo no requiere preparación.
-            if ("POLLO CRUDO".equalsIgnoreCase(
-                    producto.getNombre())) {
+            if ("POLLO CRUDO".equalsIgnoreCase(producto.getNombre())) {
                 continue;
             }
 
-            // Solo los productos preparados generan insumos.
             if (!"POLLO".equalsIgnoreCase(producto.getTipo())
-                    && !"CHULETA".equalsIgnoreCase(
-                    producto.getTipo())) {
+                    && !"CHULETA".equalsIgnoreCase(producto.getTipo())) {
                 continue;
             }
 
-            String unidad = item.unidad()
-                    .trim()
-                    .toUpperCase();
+            String unidad = item.unidad().trim().toUpperCase();
 
             String acompanamientoActual =
-                    validarAcompanamiento(
-                            item.acompanamiento()
-                    );
+                    validarAcompanamiento(item.acompanamiento());
 
-            // Solo PAPA o YUCA por pedido.
             if (acompanamiento == null) {
                 acompanamiento = acompanamientoActual;
-            } else if (!acompanamiento.equals(
-                    acompanamientoActual)) {
-
+            } else if (!acompanamiento.equals(acompanamientoActual)) {
                 throw new IllegalArgumentException(
-                        "Un pedido solo puede tener PAPA o YUCA"
-                );
+                        "Un pedido solo puede tener PAPA o YUCA");
             }
 
             double cantidad = item.cantidad();
@@ -159,21 +151,12 @@ public class DistribucionServiceImpl implements IDistribucionService {
                     convertirAPorciones(cantidad, unidad);
 
             pollos += pollosEquivalentes;
-
-            // Papa: 0.25 kg por cuarto u octavo.
             papa += porciones * 0.25;
-
-            // Yuca: 0.005 sacos por porción.
             yuca += porciones * 0.005;
-
-            // Ají y platos: uno por porción.
             aji += porciones;
             platos += porciones;
 
-            // Arroz opcional.
-            String arrozActual = validarTipoArroz(
-                    item.tipoArroz()
-            );
+            String arrozActual = validarTipoArroz(item.tipoArroz());
 
             if (arrozActual != null) {
 
@@ -181,9 +164,7 @@ public class DistribucionServiceImpl implements IDistribucionService {
                     tipoArrozPedido = arrozActual;
                 } else if (!tipoArrozPedido.equals(arrozActual)) {
                     throw new IllegalArgumentException(
-                            "Un pedido no puede mezclar arroz árabe "
-                                    + "y arroz a la jardinera"
-                    );
+                            "Un pedido no puede mezclar arroz árabe y arroz a la jardinera");
                 }
 
                 if ("ARABE".equals(arrozActual)) {
@@ -193,22 +174,16 @@ public class DistribucionServiceImpl implements IDistribucionService {
                 }
             }
 
-            // Ensalada opcional.
-            String ensaladaActual = validarTipoEnsalada(
-                    item.tipoEnsalada()
-            );
+            String ensaladaActual =
+                    validarTipoEnsalada(item.tipoEnsalada());
 
             if (ensaladaActual != null) {
 
                 if (tipoEnsaladaPedido == null) {
                     tipoEnsaladaPedido = ensaladaActual;
-                } else if (!tipoEnsaladaPedido.equals(
-                        ensaladaActual)) {
-
+                } else if (!tipoEnsaladaPedido.equals(ensaladaActual)) {
                     throw new IllegalArgumentException(
-                            "Un pedido no puede mezclar "
-                                    + "ensalada blanca y ensalada fresca"
-                    );
+                            "Un pedido no puede mezclar ensalada blanca y ensalada fresca");
                 }
 
                 if ("BLANCA".equals(ensaladaActual)) {
@@ -223,8 +198,7 @@ public class DistribucionServiceImpl implements IDistribucionService {
             return;
         }
 
-        Map<String, Double> distribuciones =
-                new LinkedHashMap<>();
+        Map<String, Double> distribuciones = new LinkedHashMap<>();
 
         if ("PAPA".equals(acompanamiento) && papa > 0) {
             distribuciones.put("Papa", papa);
@@ -239,54 +213,39 @@ public class DistribucionServiceImpl implements IDistribucionService {
         }
 
         if (arrozArabe > 0) {
-            distribuciones.put("Arroz arabe", arrozArabe);
+            distribuciones.put("Arroz árabe", arrozArabe);
         }
 
         if (arrozJardinera > 0) {
-            distribuciones.put(
-                    "Arroz a la jardinera",
-                    arrozJardinera
-            );
+            distribuciones.put("Arroz a la jardinera", arrozJardinera);
         }
 
         if (ensaladaBlanca > 0) {
-            distribuciones.put(
-                    "Ensalada blanca",
-                    ensaladaBlanca
-            );
+            distribuciones.put("Ensalada blanca", ensaladaBlanca);
         }
 
         if (ensaladaFresca > 0) {
-            distribuciones.put(
-                    "Ensalada fresca",
-                    ensaladaFresca
-            );
+            distribuciones.put("Ensalada fresca", ensaladaFresca);
         }
 
         if (platos > 0) {
             distribuciones.put("Platos", platos);
         }
 
-        // Carbón: 30 kg por cada 100 pollos.
-        distribuciones.put("Carbon", pollos * 0.30);
-
-        // Condimento: 1 litro por cada 10 pollos.
+        distribuciones.put("Carbón", pollos * 0.30);
         distribuciones.put("Condimento", pollos * 0.10);
 
-        // Guardar la distribución automática.
-        for (Map.Entry<String, Double> entrada :
-                distribuciones.entrySet()) {
+        for (Map.Entry<String, Double> entrada : distribuciones.entrySet()) {
 
-            Insumo insumo = insumoRepository
-                    .findByNombreIgnoreCase(entrada.getKey())
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException(
-                                    "El insumo "
-                                            + entrada.getKey()
-                                            + " no está registrado"
-                            )
-                    );
+            Optional<Insumo> resultado =
+                    insumoRepository.findByNombreIgnoreCase(entrada.getKey());
 
+            if (resultado.isEmpty()) {
+                throw new ResourceNotFoundException(
+                        "El insumo " + entrada.getKey() + " no está registrado");
+            }
+
+            Insumo insumo = resultado.get();
             double cantidadNecesaria = entrada.getValue();
 
             descontarStock(insumo, cantidadNecesaria);
@@ -307,73 +266,48 @@ public class DistribucionServiceImpl implements IDistribucionService {
             Long id,
             DistribucionDTO dto) {
 
-        return distribucionRepository.findById(id)
-                .map(distribucion -> {
+        Optional<Distribucion> resultado =
+                distribucionRepository.findById(id);
 
-                    Pedido pedido = pedidoRepository.findById(
-                            dto.idPedido()
-                    ).orElseThrow(() ->
-                            new ResourceNotFoundException(
-                                    "Pedido ID: "
-                                            + dto.idPedido()
-                                            + " no existe"
-                            )
-                    );
+        if (resultado.isEmpty()) {
+            return Optional.empty();
+        }
 
-                    Insumo nuevoInsumo =
-                            insumoRepository.findById(
-                                    dto.idInsumo()
-                            ).orElseThrow(() ->
-                                    new ResourceNotFoundException(
-                                            "Insumo ID: "
-                                                    + dto.idInsumo()
-                                                    + " no existe"
-                                    )
-                            );
+        Distribucion distribucion = resultado.get();
 
-                    validarCantidad(dto.cantidad());
+        Pedido pedido = buscarPedido(dto.idPedido());
+        Insumo nuevoInsumo = buscarInsumo(dto.idInsumo());
 
-                    Insumo anteriorInsumo =
-                            distribucion.getInsumo();
+        validarCantidad(dto.cantidad());
 
-                    double cantidadAnterior =
-                            distribucion.getCantidad();
+        Insumo anteriorInsumo = distribucion.getInsumo();
+        double cantidadAnterior = distribucion.getCantidad();
 
-                    restaurarStock(
-                            anteriorInsumo,
-                            cantidadAnterior
-                    );
+        restaurarStock(anteriorInsumo, cantidadAnterior);
+        descontarStock(nuevoInsumo, dto.cantidad());
 
-                    descontarStock(
-                            nuevoInsumo,
-                            dto.cantidad()
-                    );
+        distribucion.setPedido(pedido);
+        distribucion.setInsumo(nuevoInsumo);
+        distribucion.setCantidad(dto.cantidad());
+        distribucion.setEstado(dto.estado());
 
-                    distribucion.setPedido(pedido);
-                    distribucion.setInsumo(nuevoInsumo);
-                    distribucion.setCantidad(dto.cantidad());
-                    distribucion.setEstado(dto.estado());
+        distribucionRepository.save(distribucion);
 
-                    return converTODTO(
-                            distribucionRepository.save(
-                                    distribucion
-                            )
-                    );
-                });
+        return Optional.of(convertirDTO(distribucion));
     }
 
     @Override
     @Transactional
     public boolean eliminar(Long id) {
 
-        Optional<Distribucion> encontrada =
+        Optional<Distribucion> resultado =
                 distribucionRepository.findById(id);
 
-        if (encontrada.isEmpty()) {
+        if (resultado.isEmpty()) {
             return false;
         }
 
-        Distribucion distribucion = encontrada.get();
+        Distribucion distribucion = resultado.get();
 
         restaurarStock(
                 distribucion.getInsumo(),
@@ -385,15 +319,47 @@ public class DistribucionServiceImpl implements IDistribucionService {
         return true;
     }
 
-    private boolean controlaStock(Insumo insumo) {
-        return "S".equalsIgnoreCase(
-                insumo.getControlaStock()
-        );
+    private Pedido buscarPedido(Long id) {
+
+        Optional<Pedido> resultado = pedidoRepository.findById(id);
+
+        if (resultado.isPresent()) {
+            return resultado.get();
+        }
+
+        throw new ResourceNotFoundException(
+                "Pedido ID: " + id + " no existe");
     }
 
-    private void descontarStock(
-            Insumo insumo,
-            double cantidad) {
+    private Insumo buscarInsumo(Long id) {
+
+        Optional<Insumo> resultado = insumoRepository.findById(id);
+
+        if (resultado.isPresent()) {
+            return resultado.get();
+        }
+
+        throw new ResourceNotFoundException(
+                "Insumo ID: " + id + " no existe");
+    }
+
+    private Producto buscarProducto(Long id) {
+
+        Optional<Producto> resultado = productoRepository.findById(id);
+
+        if (resultado.isPresent()) {
+            return resultado.get();
+        }
+
+        throw new ResourceNotFoundException(
+                "Producto ID: " + id + " no existe");
+    }
+
+    private boolean controlaStock(Insumo insumo) {
+        return "S".equalsIgnoreCase(insumo.getControlaStock());
+    }
+
+    private void descontarStock(Insumo insumo, double cantidad) {
 
         if (!controlaStock(insumo)) {
             return;
@@ -403,18 +369,14 @@ public class DistribucionServiceImpl implements IDistribucionService {
 
         if (stock == null || stock < cantidad) {
             throw new InsufficientStockException(
-                    "Stock insuficiente para el insumo: "
-                            + insumo.getNombre()
-            );
+                    "Stock insuficiente para el insumo: " + insumo.getNombre());
         }
 
         insumo.setCantidadStock(stock - cantidad);
         insumoRepository.save(insumo);
     }
 
-    private void restaurarStock(
-            Insumo insumo,
-            double cantidad) {
+    private void restaurarStock(Insumo insumo, double cantidad) {
 
         if (!controlaStock(insumo)) {
             return;
@@ -425,8 +387,7 @@ public class DistribucionServiceImpl implements IDistribucionService {
         if (stock == null) {
             throw new IllegalStateException(
                     "El insumo " + insumo.getNombre()
-                            + " no tiene stock registrado"
-            );
+                            + " no tiene stock registrado");
         }
 
         insumo.setCantidadStock(stock + cantidad);
@@ -440,32 +401,24 @@ public class DistribucionServiceImpl implements IDistribucionService {
                 || cantidad <= 0) {
 
             throw new IllegalArgumentException(
-                    "La cantidad debe ser mayor a cero"
-            );
+                    "La cantidad debe ser mayor a cero");
         }
     }
 
-    private String validarAcompanamiento(
-            String acompanamiento) {
+    private String validarAcompanamiento(String acompanamiento) {
 
         if (acompanamiento == null
                 || acompanamiento.trim().isEmpty()) {
 
             throw new IllegalArgumentException(
-                    "El acompañamiento es obligatorio: PAPA o YUCA"
-            );
+                    "El acompañamiento es obligatorio: PAPA o YUCA");
         }
 
-        String valor = acompanamiento
-                .trim()
-                .toUpperCase();
+        String valor = acompanamiento.trim().toUpperCase();
 
-        if (!valor.equals("PAPA")
-                && !valor.equals("YUCA")) {
-
+        if (!valor.equals("PAPA") && !valor.equals("YUCA")) {
             throw new IllegalArgumentException(
-                    "El acompañamiento debe ser PAPA o YUCA"
-            );
+                    "El acompañamiento debe ser PAPA o YUCA");
         }
 
         return valor;
@@ -473,51 +426,39 @@ public class DistribucionServiceImpl implements IDistribucionService {
 
     private String validarTipoArroz(String tipoArroz) {
 
-        if (tipoArroz == null
-                || tipoArroz.trim().isEmpty()) {
+        if (tipoArroz == null || tipoArroz.trim().isEmpty()) {
             return null;
         }
 
         String valor = tipoArroz.trim().toUpperCase();
 
-        if (!valor.equals("ARABE")
-                && !valor.equals("JARDINERA")) {
-
+        if (!valor.equals("ARABE") && !valor.equals("JARDINERA")) {
             throw new IllegalArgumentException(
-                    "El arroz debe ser ARABE o JARDINERA"
-            );
+                    "El arroz debe ser ARABE o JARDINERA");
         }
 
         return valor;
     }
 
-    private String validarTipoEnsalada(
-            String tipoEnsalada) {
+    private String validarTipoEnsalada(String tipoEnsalada) {
 
-        if (tipoEnsalada == null
-                || tipoEnsalada.trim().isEmpty()) {
+        if (tipoEnsalada == null || tipoEnsalada.trim().isEmpty()) {
             return null;
         }
 
         String valor = tipoEnsalada.trim().toUpperCase();
 
-        if (!valor.equals("BLANCA")
-                && !valor.equals("FRESCA")) {
-
+        if (!valor.equals("BLANCA") && !valor.equals("FRESCA")) {
             throw new IllegalArgumentException(
-                    "La ensalada debe ser BLANCA o FRESCA"
-            );
+                    "La ensalada debe ser BLANCA o FRESCA");
         }
 
         return valor;
     }
 
-    private double convertirAPollos(
-            double cantidad,
-            String unidad) {
+    private double convertirAPollos(double cantidad, String unidad) {
 
         switch (unidad) {
-
             case "POLLO":
                 return cantidad;
 
@@ -529,19 +470,14 @@ public class DistribucionServiceImpl implements IDistribucionService {
 
             default:
                 throw new IllegalArgumentException(
-                        "Unidad no válida: " + unidad
-                );
+                        "Unidad no válida: " + unidad);
         }
     }
 
-    private double convertirAPorciones(
-            double cantidad,
-            String unidad) {
+    private double convertirAPorciones(double cantidad, String unidad) {
 
         switch (unidad) {
-
             case "POLLO":
-                // Por defecto, un pollo representa 4 cuartos.
                 return cantidad * 4.0;
 
             case "CUARTO":
@@ -550,20 +486,18 @@ public class DistribucionServiceImpl implements IDistribucionService {
 
             default:
                 throw new IllegalArgumentException(
-                        "Unidad no válida: " + unidad
-                );
+                        "Unidad no válida: " + unidad);
         }
     }
 
-    private DistribucionDTO converTODTO(
-            Distribucion d) {
+    private DistribucionDTO convertirDTO(Distribucion distribucion) {
 
         return new DistribucionDTO(
-                d.getIdDistribucion(),
-                d.getPedido().getIdPedido(),
-                d.getInsumo().getIdInsumo(),
-                d.getCantidad(),
-                d.getEstado()
+                distribucion.getIdDistribucion(),
+                distribucion.getPedido().getIdPedido(),
+                distribucion.getInsumo().getIdInsumo(),
+                distribucion.getCantidad(),
+                distribucion.getEstado()
         );
     }
 }

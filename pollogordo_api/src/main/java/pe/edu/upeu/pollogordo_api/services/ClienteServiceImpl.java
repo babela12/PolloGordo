@@ -1,3 +1,4 @@
+
 package pe.edu.upeu.pollogordo_api.services;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import pe.edu.upeu.pollogordo_api.entity.Cliente;
 import pe.edu.upeu.pollogordo_api.entity.Persona;
 import pe.edu.upeu.pollogordo_api.repository.ClienteRepository;
 import pe.edu.upeu.pollogordo_api.repository.PersonaRepository;
+import pe.edu.upeu.pollogordo_api.repository.PedidoRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,13 +19,16 @@ public class ClienteServiceImpl implements IClienteService {
 
     private final ClienteRepository clienteRepository;
     private final PersonaRepository personaRepository;
+    private final PedidoRepository pedidoRepository;
 
     public ClienteServiceImpl(
             ClienteRepository clienteRepository,
-            PersonaRepository personaRepository) {
+            PersonaRepository personaRepository,
+            PedidoRepository pedidoRepository) {
 
         this.clienteRepository = clienteRepository;
         this.personaRepository = personaRepository;
+        this.pedidoRepository = pedidoRepository;
     }
 
     @Override
@@ -50,14 +55,14 @@ public class ClienteServiceImpl implements IClienteService {
 
         if (personaRepository.existsByDni(dto.persona().dni())) {
             throw new IllegalArgumentException(
-                    "El DNI " + dto.persona().dni() + " ya está registrado"
+                    "El DNI ya está registrado"
             );
         }
 
         Persona persona = new Persona();
 
-        persona.setNombre(dto.persona().nombre());
-        persona.setApellidos(dto.persona().apellidos());
+        persona.setNombre(dto.persona().nombre().trim());
+        persona.setApellidos(dto.persona().apellidos().trim());
         persona.setDni(dto.persona().dni());
         persona.setNumTelef(dto.persona().numTelef());
 
@@ -68,53 +73,55 @@ public class ClienteServiceImpl implements IClienteService {
         cliente.setPersona(persona);
         cliente.setDireccion(dto.direccion());
 
-        return converTODTO(
-                clienteRepository.save(cliente)
-        );
+        return converTODTO(clienteRepository.save(cliente));
     }
 
     @Override
     @Transactional
     public Optional<ClienteDTO> actualizar(Long id, ClienteDTO dto) {
 
-        return clienteRepository.findById(id)
-                .map(cliente -> {
+        return clienteRepository.findById(id).map(cliente -> {
 
-                    Persona persona = cliente.getPersona();
+            Persona persona = cliente.getPersona();
 
-                    if (!persona.getDni().equals(dto.persona().dni())
-                            && personaRepository.existsByDni(dto.persona().dni())) {
+            if (!persona.getDni().equals(dto.persona().dni())
+                    && personaRepository.existsByDni(dto.persona().dni())) {
 
-                        throw new IllegalArgumentException(
-                                "El DNI " + dto.persona().dni() + " ya está registrado"
-                        );
-                    }
+                throw new IllegalArgumentException(
+                        "El DNI ya está registrado"
+                );
+            }
 
-                    persona.setNombre(dto.persona().nombre());
-                    persona.setApellidos(dto.persona().apellidos());
-                    persona.setDni(dto.persona().dni());
-                    persona.setNumTelef(dto.persona().numTelef());
+            persona.setNombre(dto.persona().nombre().trim());
+            persona.setApellidos(dto.persona().apellidos().trim());
+            persona.setDni(dto.persona().dni());
+            persona.setNumTelef(dto.persona().numTelef());
 
-                    personaRepository.save(persona);
+            personaRepository.save(persona);
 
-                    cliente.setDireccion(dto.direccion());
+            cliente.setDireccion(dto.direccion());
 
-                    return converTODTO(
-                            clienteRepository.save(cliente)
-                    );
-                });
+            return converTODTO(clienteRepository.save(cliente));
+        });
     }
 
     @Override
     @Transactional
     public boolean eliminar(Long id) {
 
-        if (clienteRepository.existsById(id)) {
-            clienteRepository.deleteById(id);
-            return true;
+        if (!clienteRepository.existsById(id)) {
+            return false;
         }
 
-        return false;
+        if (!pedidoRepository.findByClienteIdCliente(id).isEmpty()) {
+            throw new IllegalArgumentException(
+                    "No se puede eliminar un cliente con pedidos registrados"
+            );
+        }
+
+        clienteRepository.deleteById(id);
+
+        return true;
     }
 
     private ClienteDTO converTODTO(Cliente c) {

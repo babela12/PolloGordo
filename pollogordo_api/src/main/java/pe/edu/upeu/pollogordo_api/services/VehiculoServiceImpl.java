@@ -1,11 +1,14 @@
+
 package pe.edu.upeu.pollogordo_api.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import pe.edu.upeu.pollogordo_api.dto.VehiculoDTO;
 import pe.edu.upeu.pollogordo_api.entity.Vehiculo;
 import pe.edu.upeu.pollogordo_api.repository.VehiculoRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,18 +25,26 @@ public class VehiculoServiceImpl implements IVehiculoService {
     @Transactional(readOnly = true)
     public List<VehiculoDTO> listarTodo() {
 
-        return vehiculoRepository.findAll()
-                .stream()
-                .map(this::converTODTO)
-                .toList();
+        List<VehiculoDTO> lista = new ArrayList<>();
+
+        for (Vehiculo vehiculo : vehiculoRepository.findAll()) {
+            lista.add(converTODTO(vehiculo));
+        }
+
+        return lista;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<VehiculoDTO> buscarPorId(Long id) {
 
-        return vehiculoRepository.findById(id)
-                .map(this::converTODTO);
+        Optional<Vehiculo> resultado = vehiculoRepository.findById(id);
+
+        if (resultado.isPresent()) {
+            return Optional.of(converTODTO(resultado.get()));
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -47,27 +58,32 @@ public class VehiculoServiceImpl implements IVehiculoService {
         vehiculo.setCapacidad(dto.capacidad());
         vehiculo.setEstado(dto.estado());
 
-        return converTODTO(
-                vehiculoRepository.save(vehiculo)
-        );
+        vehiculoRepository.save(vehiculo);
+
+        return converTODTO(vehiculo);
     }
 
     @Override
     @Transactional
     public Optional<VehiculoDTO> actualizar(Long id, VehiculoDTO dto) {
 
-        return vehiculoRepository.findById(id)
-                .map(vehiculo -> {
+        Optional<Vehiculo> resultado = vehiculoRepository.findById(id);
 
-                    vehiculo.setTipo(dto.tipo());
-                    vehiculo.setPlaca(dto.placa());
-                    vehiculo.setCapacidad(dto.capacidad());
-                    vehiculo.setEstado(dto.estado());
+        if (resultado.isPresent()) {
 
-                    return converTODTO(
-                            vehiculoRepository.save(vehiculo)
-                    );
-                });
+            Vehiculo vehiculo = resultado.get();
+
+            vehiculo.setTipo(dto.tipo());
+            vehiculo.setPlaca(dto.placa());
+            vehiculo.setCapacidad(dto.capacidad());
+            vehiculo.setEstado(dto.estado());
+
+            vehiculoRepository.save(vehiculo);
+
+            return Optional.of(converTODTO(vehiculo));
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -82,14 +98,14 @@ public class VehiculoServiceImpl implements IVehiculoService {
         return false;
     }
 
-    private VehiculoDTO converTODTO(Vehiculo v) {
+    private VehiculoDTO converTODTO(Vehiculo vehiculo) {
 
         return new VehiculoDTO(
-                v.getIdVehiculo(),
-                v.getTipo(),
-                v.getPlaca(),
-                v.getCapacidad(),
-                v.getEstado()
+                vehiculo.getIdVehiculo(),
+                vehiculo.getTipo(),
+                vehiculo.getPlaca(),
+                vehiculo.getCapacidad(),
+                vehiculo.getEstado()
         );
     }
 }

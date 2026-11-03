@@ -1,3 +1,4 @@
+
 package pe.edu.upeu.pollogordo_api.controller;
 
 import jakarta.validation.Valid;
@@ -6,12 +7,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import pe.edu.upeu.pollogordo_api.dto.ProductoDTO;
-import pe.edu.upeu.pollogordo_api.exception.ResourceNotFoundException;
 import pe.edu.upeu.pollogordo_api.services.IFileStorageService;
 import pe.edu.upeu.pollogordo_api.services.IProductoService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/productos")
@@ -23,96 +25,109 @@ public class ProductoController {
     public ProductoController(
             IProductoService productoService,
             IFileStorageService storageService) {
+
         this.productoService = productoService;
         this.storageService = storageService;
     }
 
     @GetMapping
     public ResponseEntity<List<ProductoDTO>> listarTodo() {
-        return ResponseEntity.ok(productoService.listarTodo());
+
+        List<ProductoDTO> lista = productoService.listarTodo();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductoDTO> buscarPorId(@PathVariable Long id) {
-        return productoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<ProductoDTO> crear(
-            @ModelAttribute
-            @org.springdoc.core.annotations.ParameterObject
-            @Valid ProductoDTO dto,
-            @RequestPart(value = "file", required = false) MultipartFile file) {
+        Optional<ProductoDTO> producto = productoService.buscarPorId(id);
 
-        String nombreImagen = "no-image.png";
-
-        if (file != null && !file.isEmpty()) {
-            nombreImagen = storageService.store(file);
+        if (producto.isPresent()) {
+            return ResponseEntity.ok(producto.get());
         }
 
-        ProductoDTO productoConImagen = new ProductoDTO(
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductoDTO> crear(
+            @Valid @ModelAttribute ProductoDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        String imagen = "no-image.png";
+
+        if (file != null && !file.isEmpty()) {
+            imagen = storageService.store(file);
+        }
+
+        ProductoDTO producto = new ProductoDTO(
                 null,
                 dto.nombre(),
                 dto.descripcion(),
                 dto.tipo(),
                 dto.precio(),
                 dto.estado(),
-                nombreImagen
+                imagen
         );
 
-        return new ResponseEntity<>(
-                productoService.crear(productoConImagen),
-                HttpStatus.CREATED
-        );
+        ProductoDTO nuevo = productoService.crear(producto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
     @PutMapping(
             value = "/{id}",
-            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<ProductoDTO> actualizar(
             @PathVariable Long id,
-            @ModelAttribute
-            @org.springdoc.core.annotations.ParameterObject
-            @Valid ProductoDTO dto,
+            @Valid @ModelAttribute ProductoDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile file) {
 
-        ProductoDTO productoActual = productoService.buscarPorId(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Producto no encontrado"));
+        Optional<ProductoDTO> resultado = productoService.buscarPorId(id);
 
-        String nombreImagen = productoActual.imagen();
-
-        if (file != null && !file.isEmpty()) {
-            nombreImagen = storageService.store(file);
+        if (resultado.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
 
-        ProductoDTO dtoParaActualizar = new ProductoDTO(
+        ProductoDTO actual = resultado.get();
+
+        String imagen = actual.imagen();
+
+        if (file != null && !file.isEmpty()) {
+            imagen = storageService.store(file);
+        }
+
+        ProductoDTO producto = new ProductoDTO(
                 id,
                 dto.nombre(),
                 dto.descripcion(),
                 dto.tipo(),
                 dto.precio(),
                 dto.estado(),
-                nombreImagen
+                imagen
         );
 
-        return productoService.actualizar(id, dtoParaActualizar)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<ProductoDTO> actualizado =
+                productoService.actualizar(id, producto);
+
+        if (actualizado.isPresent()) {
+            return ResponseEntity.ok(actualizado.get());
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
 
-        if (productoService.eliminar(id)) {
+        boolean eliminado = productoService.eliminar(id);
+
+        if (eliminado) {
             return ResponseEntity.noContent().build();
         }
 
-        throw new ResourceNotFoundException(
-                "No se pudo eliminar: " + id);
+        return ResponseEntity.notFound().build();
     }
 }

@@ -1,11 +1,15 @@
+
 package pe.edu.upeu.pollogordo_api.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import pe.edu.upeu.pollogordo_api.dto.ProductoDTO;
 import pe.edu.upeu.pollogordo_api.entity.Producto;
 import pe.edu.upeu.pollogordo_api.repository.ProductoRepository;
+import pe.edu.upeu.pollogordo_api.repository.DetallePedidoRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,84 +17,114 @@ import java.util.Optional;
 public class ProductoServiceImpl implements IProductoService {
 
     private final ProductoRepository productoRepository;
+    private final DetallePedidoRepository detallePedidoRepository;
 
-    public ProductoServiceImpl(ProductoRepository productoRepository) {
+    public ProductoServiceImpl(
+            ProductoRepository productoRepository,
+            DetallePedidoRepository detallePedidoRepository) {
+
         this.productoRepository = productoRepository;
+        this.detallePedidoRepository = detallePedidoRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ProductoDTO> listarTodo() {
 
-        return productoRepository.findAll()
-                .stream()
-                .map(this::converTODTO)
-                .toList();
+        List<ProductoDTO> lista = new ArrayList<>();
+
+        for (Producto producto : productoRepository.findAll()) {
+            lista.add(converTODTO(producto));
+        }
+
+        return lista;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<ProductoDTO> buscarPorId(Long id) {
 
-        return productoRepository.findById(id)
-                .map(this::converTODTO);
+        Optional<Producto> resultado = productoRepository.findById(id);
+
+        if (resultado.isPresent()) {
+            return Optional.of(converTODTO(resultado.get()));
+        }
+
+        return Optional.empty();
     }
 
     @Override
     @Transactional
     public ProductoDTO crear(ProductoDTO dto) {
 
-        Producto pro = new Producto();
+        Producto producto = new Producto();
 
-        pro.setNombre(dto.nombre());
-        pro.setDescripcion(dto.descripcion());
-        pro.setTipo(dto.tipo());
-        pro.setPrecio(dto.precio());
-        pro.setEstado(dto.estado());
-        pro.setImagen(dto.imagen());
+        producto.setNombre(dto.nombre());
+        producto.setDescripcion(dto.descripcion());
+        producto.setTipo(dto.tipo());
+        producto.setPrecio(dto.precio());
+        producto.setEstado(dto.estado());
+        producto.setImagen(dto.imagen());
 
-        return converTODTO(productoRepository.save(pro));
+        productoRepository.save(producto);
+
+        return converTODTO(producto);
     }
 
     @Override
     @Transactional
     public Optional<ProductoDTO> actualizar(Long id, ProductoDTO dto) {
 
-        return productoRepository.findById(id).map(pro -> {
+        Optional<Producto> resultado = productoRepository.findById(id);
 
-            pro.setNombre(dto.nombre());
-            pro.setDescripcion(dto.descripcion());
-            pro.setTipo(dto.tipo());
-            pro.setPrecio(dto.precio());
-            pro.setEstado(dto.estado());
-            pro.setImagen(dto.imagen());
+        if (resultado.isPresent()) {
 
-            return converTODTO(productoRepository.save(pro));
-        });
+            Producto producto = resultado.get();
+
+            producto.setNombre(dto.nombre());
+            producto.setDescripcion(dto.descripcion());
+            producto.setTipo(dto.tipo());
+            producto.setPrecio(dto.precio());
+            producto.setEstado(dto.estado());
+            producto.setImagen(dto.imagen());
+
+            productoRepository.save(producto);
+
+            return Optional.of(converTODTO(producto));
+        }
+
+        return Optional.empty();
     }
 
     @Override
     @Transactional
     public boolean eliminar(Long id) {
 
-        if (productoRepository.existsById(id)) {
-            productoRepository.deleteById(id);
-            return true;
+        if (!productoRepository.existsById(id)) {
+            return false;
         }
 
-        return false;
+        if (detallePedidoRepository.existsByProductoIdProducto(id)) {
+            throw new IllegalArgumentException(
+                    "No se puede eliminar un producto que tiene pedidos registrados"
+            );
+        }
+
+        productoRepository.deleteById(id);
+
+        return true;
     }
 
-    private ProductoDTO converTODTO(Producto p) {
+    private ProductoDTO converTODTO(Producto producto) {
 
         return new ProductoDTO(
-                p.getIdProducto(),
-                p.getNombre(),
-                p.getDescripcion(),
-                p.getTipo(),
-                p.getPrecio(),
-                p.getEstado(),
-                p.getImagen()
+                producto.getIdProducto(),
+                producto.getNombre(),
+                producto.getDescripcion(),
+                producto.getTipo(),
+                producto.getPrecio(),
+                producto.getEstado(),
+                producto.getImagen()
         );
     }
 }

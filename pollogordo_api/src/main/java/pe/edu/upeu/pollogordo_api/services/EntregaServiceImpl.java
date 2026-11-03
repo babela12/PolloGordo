@@ -1,7 +1,9 @@
+
 package pe.edu.upeu.pollogordo_api.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import pe.edu.upeu.pollogordo_api.dto.EntregaDTO;
 import pe.edu.upeu.pollogordo_api.entity.Entrega;
 import pe.edu.upeu.pollogordo_api.entity.Pedido;
@@ -13,6 +15,7 @@ import pe.edu.upeu.pollogordo_api.repository.PedidoRepository;
 import pe.edu.upeu.pollogordo_api.repository.TrabajadorRepository;
 import pe.edu.upeu.pollogordo_api.repository.VehiculoRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,92 +43,67 @@ public class EntregaServiceImpl implements IEntregaService {
     @Transactional(readOnly = true)
     public List<EntregaDTO> listarTodo() {
 
-        return entregaRepository.findAll()
-                .stream()
-                .map(this::converTODTO)
-                .toList();
+        List<Entrega> entregas = entregaRepository.findAll();
+        List<EntregaDTO> lista = new ArrayList<>();
+
+        for (Entrega entrega : entregas) {
+            lista.add(convertirDTO(entrega));
+        }
+
+        return lista;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<EntregaDTO> buscarPorId(Long id) {
 
-        return entregaRepository.findById(id)
-                .map(this::converTODTO);
+        Optional<Entrega> resultado = entregaRepository.findById(id);
+
+        if (resultado.isPresent()) {
+            return Optional.of(convertirDTO(resultado.get()));
+        }
+
+        return Optional.empty();
     }
 
     @Override
     @Transactional
     public EntregaDTO crear(EntregaDTO dto) {
 
-        Pedido pedido = pedidoRepository.findById(dto.idPedido())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Pedido ID: " + dto.idPedido() + " no existe"
-                        ));
-
-        Vehiculo vehiculo = vehiculoRepository.findById(dto.idVehiculo())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Vehículo ID: " + dto.idVehiculo() + " no existe"
-                        ));
-
-        Trabajador trabajador = trabajadorRepository.findById(dto.idTrabajador())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Trabajador ID: " + dto.idTrabajador() + " no existe"
-                        ));
+        Pedido pedido = buscarPedido(dto.idPedido());
+        Vehiculo vehiculo = buscarVehiculo(dto.idVehiculo());
+        Trabajador trabajador = buscarTrabajador(dto.idTrabajador());
 
         Entrega entrega = new Entrega();
 
-        entrega.setPedido(pedido);
-        entrega.setVehiculo(vehiculo);
-        entrega.setTrabajador(trabajador);
-        entrega.setFechaEntrega(dto.fechaEntrega());
-        entrega.setEstado(dto.estado());
-        entrega.setObservacion(dto.observacion());
+        asignarDatos(entrega, dto, pedido, vehiculo, trabajador);
 
-        return converTODTO(
-                entregaRepository.save(entrega)
-        );
+        Entrega guardada = entregaRepository.save(entrega);
+
+        return convertirDTO(guardada);
     }
 
     @Override
     @Transactional
     public Optional<EntregaDTO> actualizar(Long id, EntregaDTO dto) {
 
-        return entregaRepository.findById(id)
-                .map(entrega -> {
+        Optional<Entrega> resultado = entregaRepository.findById(id);
 
-                    Pedido pedido = pedidoRepository.findById(dto.idPedido())
-                            .orElseThrow(() ->
-                                    new ResourceNotFoundException(
-                                            "Pedido ID: " + dto.idPedido() + " no existe"
-                                    ));
+        if (resultado.isEmpty()) {
+            return Optional.empty();
+        }
 
-                    Vehiculo vehiculo = vehiculoRepository.findById(dto.idVehiculo())
-                            .orElseThrow(() ->
-                                    new ResourceNotFoundException(
-                                            "Vehículo ID: " + dto.idVehiculo() + " no existe"
-                                    ));
+        Entrega entrega = resultado.get();
 
-                    Trabajador trabajador = trabajadorRepository.findById(dto.idTrabajador())
-                            .orElseThrow(() ->
-                                    new ResourceNotFoundException(
-                                            "Trabajador ID: " + dto.idTrabajador() + " no existe"
-                                    ));
+        Pedido pedido = buscarPedido(dto.idPedido());
+        Vehiculo vehiculo = buscarVehiculo(dto.idVehiculo());
+        Trabajador trabajador = buscarTrabajador(dto.idTrabajador());
 
-                    entrega.setPedido(pedido);
-                    entrega.setVehiculo(vehiculo);
-                    entrega.setTrabajador(trabajador);
-                    entrega.setFechaEntrega(dto.fechaEntrega());
-                    entrega.setEstado(dto.estado());
-                    entrega.setObservacion(dto.observacion());
+        asignarDatos(entrega, dto, pedido, vehiculo, trabajador);
 
-                    return converTODTO(
-                            entregaRepository.save(entrega)
-                    );
-                });
+        Entrega guardada = entregaRepository.save(entrega);
+
+        return Optional.of(convertirDTO(guardada));
     }
 
     @Override
@@ -140,16 +118,70 @@ public class EntregaServiceImpl implements IEntregaService {
         return false;
     }
 
-    private EntregaDTO converTODTO(Entrega e) {
+    private Pedido buscarPedido(Long id) {
+
+        Optional<Pedido> resultado = pedidoRepository.findById(id);
+
+        if (resultado.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "Pedido ID: " + id + " no existe"
+            );
+        }
+
+        return resultado.get();
+    }
+
+    private Vehiculo buscarVehiculo(Long id) {
+
+        Optional<Vehiculo> resultado = vehiculoRepository.findById(id);
+
+        if (resultado.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "Vehículo ID: " + id + " no existe"
+            );
+        }
+
+        return resultado.get();
+    }
+
+    private Trabajador buscarTrabajador(Long id) {
+
+        Optional<Trabajador> resultado = trabajadorRepository.findById(id);
+
+        if (resultado.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "Trabajador ID: " + id + " no existe"
+            );
+        }
+
+        return resultado.get();
+    }
+
+    private void asignarDatos(
+            Entrega entrega,
+            EntregaDTO dto,
+            Pedido pedido,
+            Vehiculo vehiculo,
+            Trabajador trabajador) {
+
+        entrega.setPedido(pedido);
+        entrega.setVehiculo(vehiculo);
+        entrega.setTrabajador(trabajador);
+        entrega.setFechaEntrega(dto.fechaEntrega());
+        entrega.setEstado(dto.estado());
+        entrega.setObservacion(dto.observacion());
+    }
+
+    private EntregaDTO convertirDTO(Entrega entrega) {
 
         return new EntregaDTO(
-                e.getIdEntrega(),
-                e.getPedido().getIdPedido(),
-                e.getVehiculo().getIdVehiculo(),
-                e.getTrabajador().getIdTrabajador(),
-                e.getFechaEntrega(),
-                e.getEstado(),
-                e.getObservacion()
+                entrega.getIdEntrega(),
+                entrega.getPedido().getIdPedido(),
+                entrega.getVehiculo().getIdVehiculo(),
+                entrega.getTrabajador().getIdTrabajador(),
+                entrega.getFechaEntrega(),
+                entrega.getEstado(),
+                entrega.getObservacion()
         );
     }
 }

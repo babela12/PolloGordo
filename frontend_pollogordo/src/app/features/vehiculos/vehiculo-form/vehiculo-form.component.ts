@@ -108,6 +108,7 @@ export class VehiculoFormComponent implements OnInit {
         this.guardando = false;
 
         this.error =
+          err.error?.mensaje ||
           err.error?.message ||
           'No se pudo guardar el vehículo. Verifica los datos e inténtalo nuevamente.';
       }

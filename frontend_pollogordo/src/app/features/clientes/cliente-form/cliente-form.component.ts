@@ -1,3 +1,4 @@
+
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import {
@@ -34,49 +35,68 @@ export class ClienteFormComponent implements OnInit {
 
   constructor() {
     this.form = this.fb.group({
-      nombre: ['', Validators.required],
-      apellidos: ['', Validators.required],
+
+      nombre: ['', [
+        Validators.required,
+        Validators.pattern(/.*\S.*/)
+      ]],
+
+      apellidos: ['', [
+        Validators.required,
+        Validators.pattern(/.*\S.*/)
+      ]],
+
       dni: ['', [
         Validators.required,
         Validators.pattern(/^\d{8}$/)
       ]],
+
       numTelef: ['', [
         Validators.required,
         Validators.pattern(/^9\d{8}$/)
       ]],
+
       direccion: ['']
     });
   }
 
   ngOnInit(): void {
+
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id !== null) {
+
       this.idCliente = Number(id);
       this.cargando = true;
 
-      this.clienteService.getClienteById(this.idCliente).subscribe({
-        next: (cliente) => {
-          this.form.patchValue({
-            nombre: cliente.persona.nombre,
-            apellidos: cliente.persona.apellidos,
-            dni: cliente.persona.dni,
-            numTelef: cliente.persona.numTelef,
-            direccion: cliente.direccion
-          });
+      this.clienteService.getClienteById(this.idCliente)
+        .subscribe({
+          next: (cliente) => {
 
-          this.cargando = false;
-        },
-        error: (err) => {
-          console.error(err);
-          this.cargando = false;
-          this.alertService.error('No se pudo cargar el cliente');
-        }
-      });
+            this.form.patchValue({
+              nombre: cliente.persona.nombre,
+              apellidos: cliente.persona.apellidos,
+              dni: cliente.persona.dni,
+              numTelef: cliente.persona.numTelef,
+              direccion: cliente.direccion
+            });
+
+            this.cargando = false;
+          },
+
+          error: (err) => {
+            console.error(err);
+            this.cargando = false;
+            this.alertService.error(
+              'No se pudo cargar el cliente'
+            );
+          }
+        });
     }
   }
 
   guardar(): void {
+
     if (this.form.invalid || this.guardando || this.cargando) {
       this.form.markAllAsTouched();
       return;
@@ -94,14 +114,16 @@ export class ClienteFormComponent implements OnInit {
       direccion: valores.direccion?.trim() ?? ''
     };
 
+    this.guardando = true;
+
     const request = this.idCliente !== null
       ? this.clienteService.actualizarCliente(this.idCliente, cliente)
       : this.clienteService.crearCliente(cliente);
 
-    this.guardando = true;
-
     request.subscribe({
+
       next: () => {
+
         this.guardando = false;
 
         this.alertService.success(
@@ -112,17 +134,24 @@ export class ClienteFormComponent implements OnInit {
 
         this.router.navigate(['/clientes']);
       },
+
       error: (err) => {
+
         this.guardando = false;
         console.error('Error al guardar cliente:', err);
 
         if (err.status === 400 || err.status === 409) {
+
           this.alertService.error(
             err.error?.message ||
-            'Verifica los datos. Es posible que el DNI ya esté registrado.'
+            'Verifica los datos. El DNI podría estar registrado.'
           );
+
         } else {
-          this.alertService.error('No se pudo guardar el cliente');
+
+          this.alertService.error(
+            'No se pudo guardar el cliente'
+          );
         }
       }
     });

@@ -25,6 +25,7 @@ import pe.edu.upeu.pollogordo_api.repository.ProductoRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PedidoServiceImpl implements IPedidoService {
@@ -55,14 +56,11 @@ public class PedidoServiceImpl implements IPedidoService {
         this.distribucionService = distribucionService;
     }
 
-    // REGISTRAR PEDIDO
     @Override
     @Transactional
     public PedidoResponseDTO realizarPedido(PedidoDTO dto) {
 
-        Cliente cliente = clienteRepository.findById(dto.idCliente())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Cliente no encontrado"));
+        Cliente cliente = buscarCliente(dto.idCliente());
 
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
@@ -75,69 +73,28 @@ public class PedidoServiceImpl implements IPedidoService {
         pedido.setEstado("P");
         pedido.setObservacion(dto.observacion());
 
-        Pedido pedidoGuardado = pedidoRepository.save(pedido);
+        pedidoRepository.save(pedido);
 
         List<DetallePedido> detalles =
-                guardarDetalles(pedidoGuardado, dto.items());
+                guardarDetalles(pedido, dto.items());
 
-        distribucionService.generarDistribucion(
-                pedidoGuardado,
-                dto.items()
-        );
+        distribucionService.generarDistribucion(pedido, dto.items());
 
-        return convertirAResponse(pedidoGuardado, detalles);
+        return convertirAResponse(pedido, detalles);
     }
 
-    // CONFIRMAR PEDIDO
     @Override
     @Transactional
     public PedidoResponseDTO confirmarPedido(Long idPedido) {
 
-        Pedido pedido = pedidoRepository.findById(idPedido)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Pedido ID: " + idPedido + " no encontrado"));
+        Pedido pedido = buscarPedido(idPedido);
 
         if (!"S".equalsIgnoreCase(pedido.getConfirmado())) {
             pedido.setConfirmado("S");
             pedido.setFechaConfirmacion(LocalDate.now());
         }
 
-        Pedido pedidoGuardado = pedidoRepository.save(pedido);
-
-        List<DetallePedido> detalles =
-                detallePedidoRepository.findByPedidoIdPedido(idPedido);
-
-        return convertirAResponse(pedidoGuardado, detalles);
-    }
-
-    // LISTAR PEDIDOS
-    @Override
-    @Transactional(readOnly = true)
-    public List<PedidoResponseDTO> listarTodo() {
-
-        return pedidoRepository.findAll()
-                .stream()
-                .map(pedido -> {
-
-                    List<DetallePedido> detalles =
-                            detallePedidoRepository.findByPedidoIdPedido(
-                                    pedido.getIdPedido());
-
-                    return convertirAResponse(pedido, detalles);
-                })
-                .toList();
-    }
-
-    // BUSCAR PEDIDO
-    @Override
-    @Transactional(readOnly = true)
-    public PedidoResponseDTO buscarPorId(Long idPedido) {
-
-        Pedido pedido = pedidoRepository.findById(idPedido)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Pedido ID: " + idPedido + " no encontrado"));
+        pedidoRepository.save(pedido);
 
         List<DetallePedido> detalles =
                 detallePedidoRepository.findByPedidoIdPedido(idPedido);
@@ -145,21 +102,42 @@ public class PedidoServiceImpl implements IPedidoService {
         return convertirAResponse(pedido, detalles);
     }
 
-    // MODIFICAR PEDIDO
+    @Override
+    @Transactional(readOnly = true)
+    public List<PedidoResponseDTO> listarTodo() {
+
+        List<PedidoResponseDTO> lista = new ArrayList<>();
+
+        for (Pedido pedido : pedidoRepository.findAll()) {
+
+            List<DetallePedido> detalles =
+                    detallePedidoRepository.findByPedidoIdPedido(
+                            pedido.getIdPedido());
+
+            lista.add(convertirAResponse(pedido, detalles));
+        }
+
+        return lista;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PedidoResponseDTO buscarPorId(Long idPedido) {
+
+        Pedido pedido = buscarPedido(idPedido);
+
+        List<DetallePedido> detalles =
+                detallePedidoRepository.findByPedidoIdPedido(idPedido);
+
+        return convertirAResponse(pedido, detalles);
+    }
+
     @Override
     @Transactional
-    public PedidoResponseDTO modificarPedido(
-            Long idPedido,
-            PedidoDTO dto) {
+    public PedidoResponseDTO modificarPedido(Long idPedido, PedidoDTO dto) {
 
-        Pedido pedido = pedidoRepository.findById(idPedido)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Pedido ID: " + idPedido + " no encontrado"));
-
-        Cliente cliente = clienteRepository.findById(dto.idCliente())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Cliente no encontrado"));
+        Pedido pedido = buscarPedido(idPedido);
+        Cliente cliente = buscarCliente(dto.idCliente());
 
         List<Distribucion> distribucionesAnteriores =
                 distribucionRepository.findByPedidoIdPedido(idPedido);
@@ -179,20 +157,16 @@ public class PedidoServiceImpl implements IPedidoService {
         pedido.setTelefonoContacto(dto.telefonoContacto());
         pedido.setObservacion(dto.observacion());
 
-        Pedido pedidoGuardado = pedidoRepository.save(pedido);
+        pedidoRepository.save(pedido);
 
         List<DetallePedido> detalles =
-                guardarDetalles(pedidoGuardado, dto.items());
+                guardarDetalles(pedido, dto.items());
 
-        distribucionService.generarDistribucion(
-                pedidoGuardado,
-                dto.items()
-        );
+        distribucionService.generarDistribucion(pedido, dto.items());
 
-        return convertirAResponse(pedidoGuardado, detalles);
+        return convertirAResponse(pedido, detalles);
     }
 
-    // CONSOLIDADO DE INSUMOS
     @Override
     @Transactional(readOnly = true)
     public List<ConsolidadoDTO> obtenerConsolidado(
@@ -201,7 +175,6 @@ public class PedidoServiceImpl implements IPedidoService {
 
         if (fechaInicio == null || fechaFin == null
                 || fechaInicio.isAfter(fechaFin)) {
-
             throw new IllegalArgumentException(
                     "El rango de fechas no es válido");
         }
@@ -220,8 +193,7 @@ public class PedidoServiceImpl implements IPedidoService {
                 LocalDate fecha =
                         distribucion.getPedido().getFechaPedido();
 
-                if (distribucion.getInsumo()
-                        .getIdInsumo()
+                if (distribucion.getInsumo().getIdInsumo()
                         .equals(insumo.getIdInsumo())
                         && !fecha.isBefore(fechaInicio)
                         && !fecha.isAfter(fechaFin)) {
@@ -231,20 +203,43 @@ public class PedidoServiceImpl implements IPedidoService {
             }
 
             if (total > 0) {
-                consolidado.add(
-                        new ConsolidadoDTO(
-                                insumo.getNombre(),
-                                total,
-                                insumo.getUnidad()
-                        )
-                );
+                consolidado.add(new ConsolidadoDTO(
+                        insumo.getNombre(),
+                        total,
+                        insumo.getUnidad()
+                ));
             }
         }
 
         return consolidado;
     }
 
-    // GUARDAR DETALLES
+    private Cliente buscarCliente(Long idCliente) {
+
+        Optional<Cliente> resultado =
+                clienteRepository.findById(idCliente);
+
+        if (resultado.isPresent()) {
+            return resultado.get();
+        }
+
+        throw new ResourceNotFoundException(
+                "Cliente no encontrado");
+    }
+
+    private Pedido buscarPedido(Long idPedido) {
+
+        Optional<Pedido> resultado =
+                pedidoRepository.findById(idPedido);
+
+        if (resultado.isPresent()) {
+            return resultado.get();
+        }
+
+        throw new ResourceNotFoundException(
+                "Pedido ID: " + idPedido + " no encontrado");
+    }
+
     private List<DetallePedido> guardarDetalles(
             Pedido pedido,
             List<ItemPedidoDTO> items) {
@@ -253,11 +248,15 @@ public class PedidoServiceImpl implements IPedidoService {
 
         for (ItemPedidoDTO item : items) {
 
-            Producto producto = productoRepository.findById(
-                    item.idProducto()
-            ).orElseThrow(() ->
-                    new ResourceNotFoundException(
-                            "Producto ID: " + item.idProducto() + " no existe"));
+            Optional<Producto> resultado =
+                    productoRepository.findById(item.idProducto());
+
+            if (resultado.isEmpty()) {
+                throw new ResourceNotFoundException(
+                        "Producto ID: " + item.idProducto() + " no existe");
+            }
+
+            Producto producto = resultado.get();
 
             String unidad = item.unidad().trim().toUpperCase();
             validarUnidad(unidad);
@@ -270,10 +269,7 @@ public class PedidoServiceImpl implements IPedidoService {
             }
 
             double pollos = calcularPollos(
-                    cantidad,
-                    unidad,
-                    producto
-            );
+                    cantidad, unidad, producto);
 
             String acompanamiento =
                     normalizarOpcional(item.acompanamiento());
@@ -296,13 +292,11 @@ public class PedidoServiceImpl implements IPedidoService {
 
             if (pollos > 0) {
 
-                double porciones = calcularPorciones(cantidad, unidad);
+                double porciones =
+                        calcularPorciones(cantidad, unidad);
 
                 subtotal += calcularPrecioAdicionales(
-                        tipoArroz,
-                        tipoEnsalada,
-                        porciones
-                );
+                        tipoArroz, tipoEnsalada, porciones);
 
             } else if (tipoArroz != null || tipoEnsalada != null) {
 
@@ -313,7 +307,6 @@ public class PedidoServiceImpl implements IPedidoService {
             subtotal = Math.round(subtotal * 100.0) / 100.0;
 
             DetallePedido detalle = new DetallePedido();
-
             detalle.setPedido(pedido);
             detalle.setProducto(producto);
             detalle.setCantidad(cantidad);
@@ -361,24 +354,25 @@ public class PedidoServiceImpl implements IPedidoService {
         }
     }
 
-
     private double calcularPorciones(
             double cantidad,
             String unidad) {
+
         switch (unidad) {
             case "POLLO":
                 return cantidad * 4.0;
 
             case "CUARTO":
                 return cantidad;
+
             case "OCTAVO":
                 return cantidad;
+
             default:
                 throw new IllegalArgumentException(
                         "Unidad no válida: " + unidad);
         }
     }
-
 
     private double calcularPrecioAdicionales(
             String tipoArroz,
@@ -402,7 +396,6 @@ public class PedidoServiceImpl implements IPedidoService {
         return precioPorPorcion * porciones;
     }
 
-    // CALCULAR POLLOS
     private double calcularPollos(
             double cantidad,
             String unidad,
@@ -444,7 +437,6 @@ public class PedidoServiceImpl implements IPedidoService {
         }
     }
 
-    // RESTAURAR STOCK
     private void restaurarStock(
             List<Distribucion> distribuciones) {
 
@@ -465,38 +457,39 @@ public class PedidoServiceImpl implements IPedidoService {
             }
 
             insumo.setCantidadStock(
-                    stock + distribucion.getCantidad()
-            );
+                    stock + distribucion.getCantidad());
 
             insumoRepository.save(insumo);
         }
     }
 
-    // CONVERTIR A RESPONSE
     private PedidoResponseDTO convertirAResponse(
             Pedido pedido,
             List<DetallePedido> detalles) {
 
-        double totalPedido = detalles.stream()
-                .mapToDouble(DetallePedido::getSubtotal)
-                .sum();
-
+        double totalPedido = 0;
         List<DetalleResponseDTO> productosResponse =
-                detalles.stream()
-                        .map(detalle ->
-                                new DetalleResponseDTO(
-                                        detalle.getProducto().getNombre(),
-                                        detalle.getCantidad(),
-                                        detalle.getUnidad(),
-                                        detalle.getCantidadPollos(),
-                                        detalle.getPrecio(),
-                                        detalle.getSubtotal(),
-                                        detalle.getAcompanamiento(),
-                                        detalle.getTipoArroz(),
-                                        detalle.getTipoEnsalada()
-                                )
-                        )
-                        .toList();
+                new ArrayList<>();
+
+        for (DetallePedido detalle : detalles) {
+
+            totalPedido += detalle.getSubtotal();
+
+            DetalleResponseDTO producto =
+                    new DetalleResponseDTO(
+                            detalle.getProducto().getNombre(),
+                            detalle.getCantidad(),
+                            detalle.getUnidad(),
+                            detalle.getCantidadPollos(),
+                            detalle.getPrecio(),
+                            detalle.getSubtotal(),
+                            detalle.getAcompanamiento(),
+                            detalle.getTipoArroz(),
+                            detalle.getTipoEnsalada()
+                    );
+
+            productosResponse.add(producto);
+        }
 
         return new PedidoResponseDTO(
                 pedido.getIdPedido(),

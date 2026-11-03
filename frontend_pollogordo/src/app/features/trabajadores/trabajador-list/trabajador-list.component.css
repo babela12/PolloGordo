@@ -1,3 +1,4 @@
+
 .trabajadores-container {
   max-width: 1350px;
   font-family: "Segoe UI", Arial, sans-serif;
@@ -79,6 +80,7 @@
   white-space: nowrap;
 }
 
+/* Tabla */
 .tabla-trabajadores {
   background: #FFFFFF;
   border: 1px solid #E9DED7;
@@ -87,7 +89,25 @@
   box-shadow: 0 4px 16px rgba(80, 30, 20, 0.07);
 }
 
+.tabla-trabajadores .table-responsive {
+  height: 520px;
+  overflow-y: auto !important;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #B88B8D #FFF8F0;
+}
+
+.tabla-trabajadores .table {
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
 .tabla-trabajadores thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background: #7B1E21;
   color: #FFFFFF;
   padding: 16px 13px;
@@ -102,10 +122,25 @@
   font-size: 13px;
   color: #4A3434;
   vertical-align: middle;
+  background: #FFFFFF;
 }
 
 .tabla-trabajadores tbody tr:hover td {
   background: #FFFAF6;
+}
+
+.tabla-trabajadores .table-responsive::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tabla-trabajadores .table-responsive::-webkit-scrollbar-thumb {
+  background: #B88B8D;
+  border-radius: 10px;
+}
+
+.tabla-trabajadores .table-responsive::-webkit-scrollbar-track {
+  background: #FFF8F0;
 }
 
 .trabajador-info {

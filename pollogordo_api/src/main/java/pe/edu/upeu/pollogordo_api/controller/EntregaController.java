@@ -1,13 +1,16 @@
+
 package pe.edu.upeu.pollogordo_api.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import pe.edu.upeu.pollogordo_api.dto.EntregaDTO;
 import pe.edu.upeu.pollogordo_api.exception.ResourceNotFoundException;
 import pe.edu.upeu.pollogordo_api.services.IEntregaService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/entregas")
@@ -21,20 +24,31 @@ public class EntregaController {
 
     @GetMapping
     public ResponseEntity<List<EntregaDTO>> listarTodo() {
-        return ResponseEntity.ok(entregaService.listarTodo());
+
+        List<EntregaDTO> lista = entregaService.listarTodo();
+
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EntregaDTO> buscarPorId(@PathVariable Long id) {
-        return entregaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+
+        Optional<EntregaDTO> resultado = entregaService.buscarPorId(id);
+
+        if (resultado.isPresent()) {
+            return ResponseEntity.ok(resultado.get());
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
     public ResponseEntity<EntregaDTO> crear(
             @Valid @RequestBody EntregaDTO dto) {
-        return ResponseEntity.ok(entregaService.crear(dto));
+
+        EntregaDTO entrega = entregaService.crear(dto);
+
+        return ResponseEntity.ok(entrega);
     }
 
     @PutMapping("/{id}")
@@ -42,19 +56,26 @@ public class EntregaController {
             @PathVariable Long id,
             @Valid @RequestBody EntregaDTO dto) {
 
-        return entregaService.actualizar(id, dto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<EntregaDTO> resultado = entregaService.actualizar(id, dto);
+
+        if (resultado.isPresent()) {
+            return ResponseEntity.ok(resultado.get());
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
 
-        if (entregaService.eliminar(id)) {
+        boolean eliminado = entregaService.eliminar(id);
+
+        if (eliminado) {
             return ResponseEntity.noContent().build();
         }
 
         throw new ResourceNotFoundException(
-                "No se pudo eliminar: " + id);
+                "No se pudo eliminar: " + id
+        );
     }
 }
