@@ -7,6 +7,7 @@ import { RouterLink } from '@angular/router';
 import { ClienteService } from '../../../core/services/cliente.service';
 import { Cliente } from '../../../core/interfaces/cliente.interface';
 import { AlertService } from '../../../core/services/alert.service';
+import { PedidoTemporalService } from '../../../core/services/pedido-temporal.service';
 
 @Component({
   selector: 'app-cliente-list',
@@ -19,6 +20,7 @@ export class ClienteListComponent implements OnInit {
 
   private clienteService = inject(ClienteService);
   private alertService = inject(AlertService);
+  private pedidoTemporalService = inject(PedidoTemporalService);
 
   clientes: Cliente[] = [];
   busqueda = '';
@@ -60,6 +62,12 @@ export class ClienteListComponent implements OnInit {
         persona.numTelef.includes(texto)
       );
     });
+  }
+
+  contarPedidos(idCliente: number): number {
+    return this.pedidoTemporalService.getPedidos().filter(
+      item => Number(item.pedido.idCliente) === Number(idCliente)
+    ).length;
   }
 
   verDetalles(cliente: Cliente): void {

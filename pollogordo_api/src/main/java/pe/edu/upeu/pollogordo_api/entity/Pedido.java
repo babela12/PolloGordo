@@ -3,7 +3,6 @@ package pe.edu.upeu.pollogordo_api.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Entity
 @Table(name = "PEDIDO")
@@ -27,9 +26,8 @@ public class Pedido {
     @Column(name = "tipo_evento", length = 20)
     private String tipoEvento;
 
-    @Convert(converter = LocalTimeConverter.class)
     @Column(name = "hora_entrega", length = 5)
-    private LocalTime horaEntrega;
+    private String horaEntrega;
 
     @Column(name = "direccion_evento", length = 250)
     private String direccionEvento;
@@ -110,11 +108,11 @@ public class Pedido {
         this.tipoEvento = tipoEvento;
     }
 
-    public LocalTime getHoraEntrega() {
+    public String getHoraEntrega() {
         return horaEntrega;
     }
 
-    public void setHoraEntrega(LocalTime horaEntrega) {
+    public void setHoraEntrega(String horaEntrega) {
         this.horaEntrega = horaEntrega;
     }
 

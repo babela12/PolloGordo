@@ -1,9 +1,22 @@
-:host{
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
 
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
-main{
-    flex-grow: 1;
+
+app-header {
+  flex-shrink: 0;
+}
+
+.main-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+app-footer {
+  flex-shrink: 0;
 }

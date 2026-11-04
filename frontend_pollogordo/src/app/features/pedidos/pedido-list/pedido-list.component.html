@@ -1,0 +1,319 @@
+<div class="contenedor-pedidos">
+
+    @if (pedidoSeleccionado === null) {
+
+    <div class="encabezado">
+        <div>
+            <h2>
+                <i class="bi bi-cart-check"></i>
+                Pedidos por confirmar
+            </h2>
+            <p>Busca y revisa los pedidos antes de confirmarlos.</p>
+        </div>
+
+        <button class="btn-nuevo" (click)="nuevoPedido()">
+            <i class="bi bi-plus-circle"></i>
+            Nuevo Pedido
+        </button>
+    </div>
+
+    <div class="barra-busqueda">
+        <div class="buscador">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Buscar por cliente, teléfono o fecha..." [(ngModel)]="buscar">
+        </div>
+
+        <span class="contador">
+            {{ pedidosFiltrados.length }} pedidos
+        </span>
+    </div>
+
+    @if (pedidosFiltrados.length === 0) {
+
+    <div class="sin-pedidos">
+        <i class="bi bi-cart-x"></i>
+
+        @if (buscar.trim()) {
+        <h3>No se encontraron pedidos</h3>
+        <p>Prueba con otro nombre, teléfono o fecha.</p>
+        } @else {
+        <h3>No hay pedidos por confirmar</h3>
+        <p>Los pedidos que prepares aparecerán aquí.</p>
+
+        <button class="btn-nuevo" (click)="nuevoPedido()">
+            Crear pedido
+        </button>
+        }
+    </div>
+
+    } @else {
+
+    <div class="lista-pedidos">
+
+        @for (pedido of pedidosFiltrados; track pedido.idTemporal) {
+
+        <div class="tarjeta-pedido">
+
+            <div class="cabecera-pedido">
+                <div>
+                    <h3>{{ pedido.nombreCliente }}</h3>
+                    <p>
+                        <i class="bi bi-telephone"></i>
+                        {{ pedido.pedido.telefonoContacto }}
+                    </p>
+                </div>
+
+                <span class="estado-pendiente">
+                    <i class="bi bi-clock-history"></i>
+                    Pendiente
+                </span>
+            </div>
+
+            <div class="informacion-pedido">
+
+                <div>
+                    <span class="etiqueta">Fecha del evento</span>
+                    <strong>{{ pedido.pedido.fechaEvento }}</strong>
+                </div>
+
+                <div>
+                    <span class="etiqueta">Hora de entrega</span>
+                    <strong>{{ pedido.pedido.horaEntrega }}</strong>
+                </div>
+
+                <div>
+                    <span class="etiqueta">Cantidad</span>
+                    <strong>
+                        {{ calcularTotalProductos(pedido) }} unidades
+                    </strong>
+                </div>
+
+                <div>
+                    <span class="etiqueta">Total</span>
+                    <strong>
+                        S/ {{ calcularTotal(pedido).toFixed(2) }}
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="acciones-pedido">
+
+                <button class="btn-detalle" (click)="verPedido(pedido.idTemporal)">
+                    <i class="bi bi-eye"></i>
+                    Ver pedido
+                </button>
+
+                <button class="btn-editar" (click)="editarPedido(pedido.idTemporal)">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar
+                </button>
+
+                <button class="btn-eliminar" (click)="eliminarPedido(pedido.idTemporal)">
+                    <i class="bi bi-trash"></i>
+                    Eliminar
+                </button>
+
+            </div>
+
+        </div>
+
+        }
+
+    </div>
+
+    }
+
+    } @else {
+
+    @if (pedidoActual; as pedido) {
+
+    <div class="encabezado-detalle">
+
+        <button class="btn-volver" (click)="volverListado()">
+            <i class="bi bi-arrow-left"></i>
+            Volver a pedidos
+        </button>
+
+        <h2>
+            <i class="bi bi-cart-check"></i>
+            Detalle del pedido
+        </h2>
+
+    </div>
+
+    <div class="datos-cliente">
+
+        <div>
+            <h3>{{ pedido.nombreCliente }}</h3>
+            <p>
+                <i class="bi bi-telephone"></i>
+                {{ pedido.pedido.telefonoContacto }}
+            </p>
+        </div>
+
+        <span class="estado-pendiente">
+            <i class="bi bi-clock-history"></i>
+            Por confirmar
+        </span>
+
+    </div>
+
+    <div class="informacion-pedido informacion-detalle">
+
+        <div>
+            <span class="etiqueta">Fecha del evento</span>
+            <strong>{{ pedido.pedido.fechaEvento }}</strong>
+        </div>
+
+        <div>
+            <span class="etiqueta">Hora de entrega</span>
+            <strong>{{ pedido.pedido.horaEntrega }}</strong>
+        </div>
+
+        <div>
+            <span class="etiqueta">Dirección</span>
+            <strong>{{ pedido.pedido.direccionEvento }}</strong>
+        </div>
+
+    </div>
+
+    <div class="contenido-carrito">
+
+        <div class="columna-productos">
+
+            <h4 class="titulo-productos">
+                <i class="bi bi-bag-check"></i>
+                Productos del pedido
+            </h4>
+
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @for (fila of obtenerFilasCarrito(pedido); track $index) {
+
+                        <tr>
+
+                            <td>
+                                <div class="producto-info">
+
+                                    <img [src]="fila.imagen" [alt]="fila.nombre" class="imagen-producto">
+
+                                    <div>
+                                        <strong>{{ fila.nombre }}</strong>
+
+                                        <small>
+                                            {{ fila.detalle }}
+                                        </small>
+                                    </div>
+
+                                </div>
+                            </td>
+
+                            <td>
+                                S/ {{ fila.precio.toFixed(2) }}
+                            </td>
+
+                            <td>
+                                {{ fila.cantidad }}
+                            </td>
+
+                            <td class="subtotal">
+                                <strong>
+                                    S/ {{ fila.subtotal.toFixed(2) }}
+                                </strong>
+                            </td>
+
+                        </tr>
+
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="acciones-productos">
+
+                <button class="btn-editar" (click)="editarPedido(pedido.idTemporal)">
+                    <i class="bi bi-pencil-square"></i>
+                    Editar pedido
+                </button>
+
+                <button class="btn-eliminar" (click)="eliminarPedido(pedido.idTemporal)">
+                    <i class="bi bi-trash"></i>
+                    Eliminar pedido
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="columna-resumen">
+
+            <div class="resumen-compra">
+
+                <h4>Resumen del pedido</h4>
+
+                <div class="fila-resumen">
+                    <span>
+                        Subtotal ({{ obtenerFilasCarrito(pedido).length }} productos)
+                    </span>
+
+                    <span>
+                        S/ {{ calcularTotal(pedido).toFixed(2) }}
+                    </span>
+                </div>
+
+                <div class="fila-resumen">
+                    <span>Entrega</span>
+                    <span class="texto-gratis">Incluida</span>
+                </div>
+
+                <hr>
+
+                <div class="fila-total">
+                    <strong>Total</strong>
+                    <strong>
+                        S/ {{ calcularTotal(pedido).toFixed(2) }}
+                    </strong>
+                </div>
+
+                <button class="btn-confirmar" (click)="confirmarPedido(pedido.idTemporal)">
+                    CONFIRMAR PEDIDO
+                </button>
+
+            </div>
+
+            <div class="observaciones">
+
+                <strong>Observaciones</strong>
+
+                <p>
+                    {{ pedido.pedido.observacion || 'Sin observaciones' }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    }
+
+    }
+
+</div>

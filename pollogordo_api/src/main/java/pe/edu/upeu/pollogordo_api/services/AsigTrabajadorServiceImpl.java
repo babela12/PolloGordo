@@ -152,14 +152,9 @@ public class AsigTrabajadorServiceImpl
                     "El pedido ya tiene asignaciones registradas");
         }
 
-        for (Entrega entrega : entregaRepository.findAll()) {
-
-            if (entrega.getPedido().getIdPedido()
-                    .equals(dto.idPedido())) {
-
-                throw new IllegalArgumentException(
-                        "El pedido ya tiene entregas registradas");
-            }
+        if (entregaRepository.existsByPedido_IdPedido(dto.idPedido())) {
+            throw new IllegalArgumentException(
+                    "El pedido ya tiene entregas registradas");
         }
 
         List<DetallePedido> detalles =

@@ -1,3 +1,4 @@
+
 package pe.edu.upeu.pollogordo_api.services;
 
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import pe.edu.upeu.pollogordo_api.repository.PedidoRepository;
 import pe.edu.upeu.pollogordo_api.repository.ProductoRepository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +66,7 @@ public class PedidoServiceImpl implements IPedidoService {
         pedido.setCliente(cliente);
         pedido.setFechaPedido(LocalDate.now());
         pedido.setFechaEvento(dto.fechaEvento());
-        pedido.setHoraEntrega(dto.horaEntrega());
+        pedido.setHoraEntrega(dto.horaEntrega().toString());
         pedido.setDireccionEvento(dto.direccionEvento().trim());
         pedido.setTelefonoContacto(dto.telefonoContacto());
         pedido.setConfirmado("N");
@@ -147,7 +149,7 @@ public class PedidoServiceImpl implements IPedidoService {
 
         pedido.setCliente(cliente);
         pedido.setFechaEvento(dto.fechaEvento());
-        pedido.setHoraEntrega(dto.horaEntrega());
+        pedido.setHoraEntrega(dto.horaEntrega().toString());
         pedido.setDireccionEvento(dto.direccionEvento().trim());
         pedido.setTelefonoContacto(dto.telefonoContacto());
         pedido.setObservacion(dto.observacion());
@@ -475,7 +477,7 @@ public class PedidoServiceImpl implements IPedidoService {
                 pedido.getEstado(),
                 pedido.getFechaPedido(),
                 pedido.getFechaEvento(),
-                pedido.getHoraEntrega(),
+                LocalTime.parse(pedido.getHoraEntrega()),
                 pedido.getDireccionEvento(),
                 pedido.getTelefonoContacto(),
                 pedido.getConfirmado(),

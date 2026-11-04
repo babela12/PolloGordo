@@ -1,0 +1,355 @@
+
+.contenedor-pedido {
+  padding: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contenedor-pedido h2 {
+  color: #7B1E21;
+  margin-bottom: 8px;
+}
+
+.contenedor-pedido p {
+  color: #666;
+}
+
+.seccion {
+  background: #FFFFFF;
+  border: 1px solid #E8DED5;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.seccion h3,
+.seccion h4 {
+  color: #7B1E21;
+  margin-bottom: 15px;
+}
+
+.seccion h4 {
+  margin-top: 22px;
+}
+
+label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #E8DED5;
+  border-radius: 6px;
+  background: #FFFFFF;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #7B1E21;
+}
+
+button {
+  background: #7B1E21;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #60171A;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fila-cliente {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+}
+
+.fila-cliente .campo-busqueda {
+  flex: 1;
+  min-width: 0;
+}
+
+.fila-cliente button {
+  white-space: nowrap;
+}
+
+.campo-busqueda {
+  position: relative;
+}
+
+.resultados {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #E8DED5;
+  border-radius: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.resultado {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #E8DED5;
+}
+
+.resultado:hover {
+  background: #FAF7F4;
+}
+
+.resultado strong,
+.resultado small {
+  display: block;
+}
+
+.resultado small {
+  color: #777;
+  margin-top: 4px;
+}
+
+.resultados p {
+  padding: 12px;
+}
+
+.fila-datos {
+  display: flex;
+  gap: 15px;
+}
+
+.fila-datos > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-agregar {
+  margin-top: 18px;
+}
+
+.ficha-cliente {
+  background: #FAF7F4;
+  border: 1px solid #E8DED5;
+  border-radius: 8px;
+  padding: 18px;
+  margin-top: 18px;
+}
+
+.ficha-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ficha-titulo h4 {
+  margin: 0;
+}
+
+.ficha-cliente .fila-datos {
+  margin-top: 15px;
+}
+
+.dato-etiqueta {
+  display: block;
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 5px;
+}
+
+.ficha-cliente strong {
+  font-size: 14px;
+}
+
+.dato-direccion {
+  margin-top: 15px;
+}
+
+.tabla-contenedor {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+thead {
+  background: #7B1E21;
+  color: white;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #E8DED5;
+}
+
+tbody tr:hover {
+  background: #FAF7F4;
+}
+
+td button {
+  margin: 3px;
+  padding: 6px 10px;
+}
+
+td span {
+  margin: 0 10px;
+}
+
+.detalle-precios {
+  text-align: left;
+  min-width: 210px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.acciones-tabla {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.btn-secundario {
+  background: #777;
+}
+
+.btn-secundario:hover {
+  background: #555;
+}
+
+.resumen-pedido {
+  margin-top: 25px;
+  padding: 20px;
+  background: #FAF7F4;
+  border-radius: 8px;
+  text-align: right;
+}
+
+.resumen-pedido strong {
+  color: #7B1E21;
+  font-size: 20px;
+}
+
+.acciones-pedido {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.btn-guardar-pedido {
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.mensaje-error {
+  color: #B91C1C !important;
+  font-size: 13px;
+}
+
+.mensaje-exito {
+  color: #15803D !important;
+  font-size: 13px;
+}
+
+.fondo-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 15px;
+}
+
+.modal-contenido {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 10px;
+  padding: 25px;
+  box-sizing: border-box;
+}
+
+.modal-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-cabecera h3 {
+  color: #7B1E21;
+  margin: 0;
+}
+
+.modal-cabecera button {
+  background: transparent;
+  color: #555;
+  font-size: 20px;
+  padding: 5px 10px;
+}
+
+.modal-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+@media (max-width: 768px) {
+  .contenedor-pedido {
+    padding: 15px;
+  }
+
+  .seccion {
+    padding: 15px;
+  }
+
+  .fila-cliente,
+  .fila-datos {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ficha-titulo {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  th,
+  td {
+    padding: 8px;
+    font-size: 13px;
+  }
+}

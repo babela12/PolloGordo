@@ -1,0 +1,597 @@
+
+<div class="contenedor-pedido">
+
+  <h2>Nuevo Pedido</h2>
+  <p>Registro de pedidos - Pollo Gordo</p>
+
+  <div class="seccion">
+    <h3>Datos del cliente</h3>
+
+    <div class="fila-cliente">
+      <div class="campo-busqueda">
+        <label>Cliente</label>
+        <input
+          type="text"
+          placeholder="Buscar por nombre, DNI o celular"
+          [(ngModel)]="buscarCliente"
+          (input)="idCliente = null; clienteSeleccionado = null; mostrarClientes = true"
+          (focus)="mostrarClientes = true">
+
+        @if (mostrarClientes) {
+          <div class="resultados">
+            @for (cliente of clientesFiltrados; track cliente.idCliente) {
+              <div
+                class="resultado"
+                (click)="seleccionarCliente(cliente)">
+                <strong>
+                  {{ cliente.persona.nombre }}
+                  {{ cliente.persona.apellidos }}
+                </strong>
+                <small>
+                  {{ cliente.persona.dni }} -
+                  {{ cliente.persona.numTelef }}
+                </small>
+              </div>
+            } @empty {
+              <p>No se encontraron clientes.</p>
+            }
+          </div>
+        }
+      </div>
+
+      <button type="button" (click)="abrirNuevoCliente()">
+        + Nuevo cliente
+      </button>
+    </div>
+
+    @if (clienteSeleccionado) {
+      <div class="ficha-cliente">
+        <div class="ficha-titulo">
+          <h4>Información del cliente</h4>
+          <button
+            type="button"
+            class="btn-secundario"
+            (click)="buscarOtroCliente()">
+            Cambiar cliente
+          </button>
+        </div>
+
+        <div class="fila-datos">
+          <div>
+            <span class="dato-etiqueta">Nombres</span>
+            <strong>{{ clienteSeleccionado.persona.nombre }}</strong>
+          </div>
+          <div>
+            <span class="dato-etiqueta">Apellidos</span>
+            <strong>{{ clienteSeleccionado.persona.apellidos }}</strong>
+          </div>
+        </div>
+
+        <div class="fila-datos">
+          <div>
+            <span class="dato-etiqueta">DNI</span>
+            <strong>{{ clienteSeleccionado.persona.dni }}</strong>
+          </div>
+          <div>
+            <span class="dato-etiqueta">Celular</span>
+            <strong>{{ clienteSeleccionado.persona.numTelef }}</strong>
+          </div>
+        </div>
+
+        <div class="dato-direccion">
+          <span class="dato-etiqueta">Dirección registrada</span>
+          <strong>
+            {{ clienteSeleccionado.direccion || 'Sin dirección registrada' }}
+          </strong>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="seccion">
+    <h3>Agregar productos</h3>
+
+    <label>Producto</label>
+    <div class="campo-busqueda">
+      <input
+        type="text"
+        placeholder="Buscar y seleccionar producto"
+        [(ngModel)]="buscarProducto"
+        (input)="idProducto = null; mostrarProductos = true"
+        (focus)="mostrarProductos = true">
+
+      @if (mostrarProductos) {
+        <div class="resultados">
+          @for (producto of productosFiltrados; track producto.idProducto) {
+            <div
+              class="resultado"
+              (click)="seleccionarProducto(producto)">
+              <strong>{{ producto.nombre }}</strong>
+              <small>S/ {{ producto.precio.toFixed(2) }}</small>
+            </div>
+          } @empty {
+            <p>No se encontraron productos.</p>
+          }
+        </div>
+      }
+    </div>
+
+    @if (productoSeleccionado; as producto) {
+      <div class="fila-datos">
+        <div>
+          <label>Presentación</label>
+          <select [(ngModel)]="unidad">
+            @if (esPreparado(producto)) {
+              <option value="POLLO">
+                {{ producto.tipo.toUpperCase() === 'CHULETA'
+                  ? 'Paquete completo'
+                  : 'Pollo entero' }}
+              </option>
+
+              @if (obtenerDivisor(producto) === 4) {
+                <option value="CUARTO">Cuarto</option>
+              } @else {
+                <option value="OCTAVO">Octavo</option>
+              }
+            } @else {
+              <option value="POLLO">Unidad completa</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label>Cantidad</label>
+          <input
+            type="number"
+            min="1"
+            step="1"
+            [(ngModel)]="cantidad">
+        </div>
+      </div>
+
+      @if (esPreparado(producto)) {
+        <p>
+          @if (unidad === 'POLLO') {
+            {{ cantidad }} completos =
+            {{ cantidad * obtenerDivisor(producto) }}
+            {{ obtenerDivisor(producto) === 4 ? 'cuartos' : 'octavos' }}
+          } @else {
+            {{ cantidad }}
+            {{ unidad === 'CUARTO' ? 'cuartos' : 'octavos' }}
+            =
+            {{ obtenerUnidadesCompletas(producto, cantidad, unidad) }}
+            completos
+          }
+        </p>
+
+        <h4>Acompañamientos</h4>
+
+        <div class="fila-datos">
+          <div>
+            <label>Papa o yuca</label>
+            <select [(ngModel)]="acompanamiento">
+              <option value="PAPA">Papa</option>
+              <option value="YUCA">Yuca</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Arroz</label>
+            <select [(ngModel)]="tipoArroz">
+              <option value="">Sin arroz</option>
+              <option value="ARABE">Árabe - S/ 2.00</option>
+              <option value="JARDINERA">Jardinera - S/ 1.80</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Ensalada</label>
+            <select [(ngModel)]="tipoEnsalada">
+              <option value="">Sin ensalada</option>
+              <option value="FRESCA">Fresca - S/ 1.80</option>
+              <option value="BLANCA">Blanca - S/ 2.00</option>
+            </select>
+          </div>
+        </div>
+      }
+
+      <button
+        type="button"
+        class="btn-agregar"
+        (click)="agregarProducto()">
+        + Agregar al pedido
+      </button>
+    }
+  </div>
+
+  <div class="seccion">
+    <h3>Datos de entrega</h3>
+
+    <div class="fila-datos">
+      <div>
+        <label>Fecha del evento</label>
+        <input type="date" [(ngModel)]="fechaEvento">
+      </div>
+
+      <div>
+        <label>Hora de entrega</label>
+        <input type="time" [(ngModel)]="horaEntrega">
+      </div>
+    </div>
+
+    <label>Dirección de entrega</label>
+    <input
+      type="text"
+      placeholder="Ej. Jr. Lima 250, Morales"
+      [(ngModel)]="direccionEvento">
+
+    <label>Teléfono de contacto</label>
+    <input
+      type="text"
+      maxlength="9"
+      placeholder="Número de contacto"
+      [(ngModel)]="telefonoContacto">
+
+    <label>Observaciones</label>
+    <textarea
+      rows="3"
+      placeholder="Ej. Entregar en la entrada principal"
+      [(ngModel)]="observacion">
+    </textarea>
+  </div>
+
+  <div class="seccion">
+    <h3>Resumen del pedido</h3>
+
+    @if (carrito.length === 0) {
+      <p>Todavía no se agregaron productos.</p>
+    } @else {
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Presentación</th>
+              <th>Cantidad</th>
+              <th>Detalle de precios</th>
+              <th>Subtotal</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (item of carrito; track $index; let i = $index) {
+              <tr>
+                <td>{{ item.producto.nombre }}</td>
+
+                <td>
+                  @if (item.unidad === 'POLLO') {
+                    {{ item.producto.tipo.toUpperCase() === 'CHULETA'
+                      ? 'Paquete completo'
+                      : 'Entero' }}
+                  } @else if (item.unidad === 'CUARTO') {
+                    Cuartos
+                  } @else if (item.unidad === 'OCTAVO') {
+                    Octavos
+                  } @else {
+                    {{ item.unidad }}
+                  }
+                </td>
+
+                <td>
+                  <button
+                    type="button"
+                    (click)="actualizarCantidad(i, item.cantidad - 1)">
+                    -
+                  </button>
+
+                  <span>{{ item.cantidad }}</span>
+
+                  <button
+                    type="button"
+                    (click)="actualizarCantidad(i, item.cantidad + 1)">
+                    +
+                  </button>
+                </td>
+
+                <td class="detalle-precios">
+                  <div>
+                    Producto:
+                    S/ {{ item.producto.precio.toFixed(2) }}
+                    x
+                    {{ obtenerUnidadesCompletas(
+                      item.producto,
+                      item.cantidad,
+                      item.unidad
+                    ) }}
+                    =
+                    S/ {{ calcularPrecioBase(item).toFixed(2) }}
+                  </div>
+
+                  @if (esPreparado(item.producto)) {
+                    <div>
+                      Equivalencia:
+                      @if (item.unidad === 'POLLO') {
+                        {{ item.cantidad }} completos =
+                        {{ calcularPorciones(item) }}
+                        {{ obtenerDivisor(item.producto) === 4
+                          ? 'cuartos'
+                          : 'octavos' }}
+                      } @else {
+                        {{ item.cantidad }}
+                        {{ item.unidad === 'CUARTO' ? 'cuartos' : 'octavos' }}
+                        =
+                        {{ obtenerUnidadesCompletas(
+                          item.producto,
+                          item.cantidad,
+                          item.unidad
+                        ) }}
+                        completos
+                      }
+                    </div>
+                  }
+
+                  @if (item.acompanamiento) {
+                    <div>
+                      Acompañamiento: {{ item.acompanamiento }}
+                    </div>
+                  }
+
+                  @if (item.tipoArroz) {
+                    <div>
+                      Arroz {{ item.tipoArroz }}:
+                      S/ {{ precioArroz(item.tipoArroz).toFixed(2) }}
+                      x {{ calcularPorciones(item) }} porciones
+                      =
+                      S/ {{
+                        (
+                          precioArroz(item.tipoArroz) *
+                          calcularPorciones(item)
+                        ).toFixed(2)
+                      }}
+                    </div>
+                  }
+
+                  @if (item.tipoEnsalada) {
+                    <div>
+                      Ensalada {{ item.tipoEnsalada }}:
+                      S/ {{ precioEnsalada(item.tipoEnsalada).toFixed(2) }}
+                      x {{ calcularPorciones(item) }} porciones
+                      =
+                      S/ {{
+                        (
+                          precioEnsalada(item.tipoEnsalada) *
+                          calcularPorciones(item)
+                        ).toFixed(2)
+                      }}
+                    </div>
+                  }
+                </td>
+
+                <td>
+                  <strong>
+                    S/ {{ calcularSubtotal(item).toFixed(2) }}
+                  </strong>
+                </td>
+
+                <td>
+                  <div class="acciones-tabla">
+                    <button
+                      type="button"
+                      (click)="abrirEditarProducto(i)">
+                      Editar
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn-secundario"
+                      (click)="eliminarItem(i)">
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="resumen-pedido">
+        <p>
+          Total provisional:
+          <strong>S/ {{ calcularTotal().toFixed(2) }}</strong>
+        </p>
+
+        <button type="button" (click)="vaciarCarrito()">
+          Vaciar selección
+        </button>
+      </div>
+    }
+  </div>
+
+  <div class="seccion acciones-pedido">
+    @if (errorPedido) {
+      <p class="mensaje-error">{{ errorPedido }}</p>
+    }
+
+    @if (mensajePedido) {
+      <p class="mensaje-exito">{{ mensajePedido }}</p>
+    }
+
+    <button
+      type="button"
+      class="btn-guardar-pedido"
+      [disabled]="guardandoPedido"
+      (click)="guardarPedido()">
+      {{ guardandoPedido ? 'Guardando...' : 'Guardar pedido' }}
+    </button>
+  </div>
+
+</div>
+
+@if (mostrarNuevoCliente) {
+  <div class="fondo-modal">
+    <div class="modal-contenido">
+
+      <div class="modal-cabecera">
+        <h3>Registrar nuevo cliente</h3>
+        <button
+          type="button"
+          (click)="mostrarNuevoCliente = false">
+          ✕
+        </button>
+      </div>
+
+      <label>Nombres</label>
+      <input type="text" [(ngModel)]="nombre">
+
+      <label>Apellidos</label>
+      <input type="text" [(ngModel)]="apellidos">
+
+      <label>DNI</label>
+      <input type="text" maxlength="8" [(ngModel)]="dni">
+
+      <label>Celular</label>
+      <input type="text" maxlength="9" [(ngModel)]="numTelef">
+
+      <label>Dirección</label>
+      <input type="text" [(ngModel)]="direccionCliente">
+
+      @if (errorCliente) {
+        <p class="mensaje-error">{{ errorCliente }}</p>
+      }
+
+      <div class="modal-acciones">
+        <button
+          type="button"
+          class="btn-secundario"
+          (click)="mostrarNuevoCliente = false">
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          [disabled]="guardandoCliente"
+          (click)="guardarCliente()">
+          {{ guardandoCliente ? 'Guardando...' : 'Guardar cliente' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+@if (mostrarEditarProducto && indiceEditar >= 0) {
+  <div class="fondo-modal">
+    <div class="modal-contenido">
+
+      <div class="modal-cabecera">
+        <h3>Editar producto</h3>
+        <button
+          type="button"
+          (click)="mostrarEditarProducto = false">
+          ✕
+        </button>
+      </div>
+
+      <h4>{{ carrito[indiceEditar].producto.nombre }}</h4>
+
+      <div class="fila-datos">
+        <div>
+          <label>Presentación</label>
+          <select [(ngModel)]="unidadEditar">
+            @if (esPreparado(carrito[indiceEditar].producto)) {
+              <option value="POLLO">
+                {{
+                  carrito[indiceEditar].producto.tipo.toUpperCase() === 'CHULETA'
+                    ? 'Paquete completo'
+                    : 'Pollo entero'
+                }}
+              </option>
+
+              @if (obtenerDivisor(carrito[indiceEditar].producto) === 4) {
+                <option value="CUARTO">Cuarto</option>
+              } @else {
+                <option value="OCTAVO">Octavo</option>
+              }
+            } @else {
+              <option value="POLLO">Unidad completa</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label>Cantidad</label>
+          <input
+            type="number"
+            min="1"
+            step="1"
+            [(ngModel)]="cantidadEditar">
+        </div>
+      </div>
+
+      @if (esPreparado(carrito[indiceEditar].producto)) {
+        <p>
+          @if (unidadEditar === 'POLLO') {
+            {{ cantidadEditar }} completos =
+            {{
+              cantidadEditar *
+              obtenerDivisor(carrito[indiceEditar].producto)
+            }}
+            {{
+              obtenerDivisor(carrito[indiceEditar].producto) === 4
+                ? 'cuartos'
+                : 'octavos'
+            }}
+          } @else {
+            {{ cantidadEditar }}
+            {{ unidadEditar === 'CUARTO' ? 'cuartos' : 'octavos' }}
+            =
+            {{
+              obtenerUnidadesCompletas(
+                carrito[indiceEditar].producto,
+                cantidadEditar,
+                unidadEditar
+              )
+            }}
+            completos
+          }
+        </p>
+
+        <label>Papa o yuca</label>
+        <select [(ngModel)]="acompanamientoEditar">
+          <option value="PAPA">Papa</option>
+          <option value="YUCA">Yuca</option>
+        </select>
+
+        <label>Arroz</label>
+        <select [(ngModel)]="tipoArrozEditar">
+          <option value="">Sin arroz</option>
+          <option value="ARABE">Árabe - S/ 2.00</option>
+          <option value="JARDINERA">Jardinera - S/ 1.80</option>
+        </select>
+
+        <label>Ensalada</label>
+        <select [(ngModel)]="tipoEnsaladaEditar">
+          <option value="">Sin ensalada</option>
+          <option value="FRESCA">Fresca - S/ 1.80</option>
+          <option value="BLANCA">Blanca - S/ 2.00</option>
+        </select>
+      }
+
+      <div class="modal-acciones">
+        <button
+          type="button"
+          class="btn-secundario"
+          (click)="mostrarEditarProducto = false">
+          Cancelar
+        </button>
+
+        <button type="button" (click)="guardarEdicion()">
+          Guardar cambios
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
