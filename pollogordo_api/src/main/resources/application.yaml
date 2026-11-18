@@ -29,3 +29,8 @@ server:
 
 storage:
   location: ./images
+
+security:
+  jwt:
+    secret-key: a2FzbW90aGVvcmVtYW5kcm9tZWRhZ2FsYWN0aWNhcHB1bHNlY3JldGtleQ==
+    expiration-time: 120000
