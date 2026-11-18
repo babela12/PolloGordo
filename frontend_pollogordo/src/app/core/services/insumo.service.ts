@@ -7,7 +7,7 @@ import { Insumo } from '../interfaces/insumo.interface';
 @Injectable({
   providedIn: 'root'
 })
-export class InsumoService {
+export class InsumoService { 
 
   private http = inject(HttpClient);
 

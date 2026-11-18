@@ -9,8 +9,6 @@ import { Producto } from '../interfaces/producto.interface';
 })
 export class ProductoService {
   private http = inject(HttpClient);
-
-  // Ruta del backend de Pollo Gordo
   private apiUrl = '/pollogordo_api/productos';
 
   // Listar productos

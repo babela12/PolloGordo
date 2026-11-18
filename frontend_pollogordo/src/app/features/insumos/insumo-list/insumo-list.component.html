@@ -1,6 +1,5 @@
 <div class="container mt-2">
 
-    <!-- TÍTULO Y BOTÓN NUEVO INSUMO -->
     <div class="encabezado-insumos">
 
         <h2 class="titulo-insumos">
@@ -34,7 +33,6 @@
                 @for (i of insumosFiltrados; track i.idInsumo) {
 
                 <tr>
-
                     <td>
                         <img [src]="getImagen(i)" [alt]="i.nombre" class="rounded">
                     </td>
