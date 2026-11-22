@@ -1,0 +1,265 @@
+<div class="pago-pedido">
+          <!-- ACCIONES Y SALDO DEL PEDIDO -->
+          <div class="acciones-compactas-pedido">
+            <div class="saldo-compacto">
+              <span>Deuda pendiente</span>
+              <strong>{{ cargandoPagos ? 'Cargando...' : resumenPago ? 'S/ ' + importe(resumenPago.saldoPendiente) : 'No disponible' }}</strong>
+            </div>
+            <div class="botones-compactos">
+              @if (resumenPago && resumenPago.saldoPendiente > 0) {
+                <button type="button" class="btn-registrar-pago" (click)="abrirFormularioPago()">Registrar pago</button>
+              }
+              <details class="detalle-compacto">
+                <summary>Ver detalles</summary>
+                <div class="contenido-detalle-compacto">
+                  @if (errorPagos) { <p class="error-pagos">{{ errorPagos }}</p> }
+                  @if (resumenPago) {
+                    <p>Total: S/ {{ importe(resumenPago.totalPedido) }} · Abonado: S/ {{ importe(resumenPago.totalAbonado) }}</p>
+              <div class="historial-pagos">
+                <h5>
+                  <i class="bi bi-clock-history"></i>
+                  Historial de abonos
+                </h5>
+                @if (errorPagos) {
+                  <p class="error-pagos">{{ errorPagos }}</p>
+                }
+                @for (pago of pagosPedido; track pago.idPago) {
+                  <div class="fila-pago">
+                    <div class="informacion-abono">
+                      <strong>{{ pago.metodo }}</strong>
+                      <small>
+                        {{ pago.fechaPago | date:'dd/MM/yyyy' }}
+                        · {{ pago.estado }}
+                      </small>
+                      @if (pago.referencia) {
+                        <small>
+                          Ref.: {{ pago.referencia }}
+                        </small>
+                      }
+                      @if (pago.evidencia) {
+                        <button
+                          type="button"
+                          class="btn-ver-comprobante"
+                          (click)="verComprobante(pago)"
+                        >
+                          <i class="bi bi-file-earmark-image"></i>
+                          Ver comprobante
+                        </button>
+                      }
+                    </div>
+                    <strong class="importe-abono">
+                      S/ {{ importe(pago.monto) }}
+                    </strong>
+                  </div>
+                } @empty {
+                  <p class="sin-abonos">
+                    Todavía no hay abonos registrados.
+                  </p>
+                }
+              </div>
+
+                  }
+                </div>
+              </details>
+            </div>
+          </div>
+
+  <!-- VENTANA EMERGENTE PARA REGISTRAR PAGOS -->
+  @if (mostrarFormularioPago && pedido) {
+    <div class="fondo-modal-pago">
+      <div class="modal-pago">
+        <div class="cabecera-modal-pago">
+          <div>
+            <h3>
+              <i class="bi bi-wallet2"></i>
+              Registrar pago
+            </h3>
+            <p>
+              Pedido N.º {{ pedido.idPedido }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="btn-cerrar-modal"
+            [disabled]="guardandoPago || subiendoComprobante"
+            (click)="cerrarFormularioPago()"
+            aria-label="Cerrar"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="contenido-modal-pago">
+          @if (resumenPago) {
+            <div class="resumen-modal-pago">
+              <div>
+                <span>Total del pedido</span>
+                <strong>
+                  S/ {{ importe(resumenPago.totalPedido) }}
+                </strong>
+              </div>
+              <div>
+                <span>Ya abonado</span>
+                <strong>
+                  S/ {{ importe(resumenPago.totalAbonado) }}
+                </strong>
+              </div>
+              <div class="saldo-modal">
+                <span>Saldo pendiente</span>
+                <strong>
+                  S/ {{ importe(resumenPago.saldoPendiente) }}
+                </strong>
+              </div>
+            </div>
+          }
+          @if (pagoPendienteEvidencia !== null) {
+            <div class="aviso-comprobante-pendiente">
+              <i class="bi bi-exclamation-triangle"></i>
+              <p>
+                El pago ya fue registrado. Solo falta subir
+                el comprobante. No se registrará otro abono.
+              </p>
+            </div>
+          }
+          <div class="campo-modal-pago">
+            <label for="metodo-modal">
+              Método de pago
+            </label>
+            <select
+              id="metodo-modal"
+              [(ngModel)]="metodoPago"
+              [disabled]="guardandoPago || subiendoComprobante || pagoPendienteEvidencia !== null"
+            >
+              <option value="YAPE">Yape</option>
+              <option value="PLIN">Plin</option>
+              <option value="TRANSFERENCIA">Transferencia bancaria</option>
+              <option value="EFECTIVO">Efectivo</option>
+            </select>
+          </div>
+          <div class="campo-modal-pago">
+            <label for="monto-modal">
+              Monto del pago (S/)
+            </label>
+            <input
+              id="monto-modal"
+              type="number"
+              min="0.01"
+              step="0.01"
+              [max]="resumenPago?.saldoPendiente ?? null"
+              [(ngModel)]="montoPago"
+              [disabled]="guardandoPago || subiendoComprobante || pagoPendienteEvidencia !== null"
+              placeholder="0.00"
+            >
+          </div>
+          <div class="campo-modal-pago">
+            <label for="referencia-modal">
+              Número de operación o referencia
+            </label>
+            <input
+              id="referencia-modal"
+              type="text"
+              [(ngModel)]="referenciaPago"
+              [disabled]="guardandoPago || subiendoComprobante || pagoPendienteEvidencia !== null"
+              placeholder="Opcional"
+            >
+          </div>
+          <div class="campo-modal-pago">
+            <label for="comprobante-modal">
+              Comprobante de pago
+            </label>
+            <input
+              id="comprobante-modal"
+              type="file"
+              accept=".jpg,.jpeg,.png,.pdf"
+              [disabled]="guardandoPago || subiendoComprobante"
+              (change)="seleccionarComprobante($event)"
+            >
+            <small>
+              Formatos permitidos: JPG, PNG y PDF.
+              Tamaño máximo: 5 MB.
+            </small>
+            @if (archivoComprobante) {
+              <div class="archivo-seleccionado">
+                <div>
+                  <i class="bi bi-file-earmark-check"></i>
+                  <span>{{ archivoComprobante.name }}</span>
+                </div>
+                <button
+                  type="button"
+                  [disabled]="guardandoPago || subiendoComprobante"
+                  (click)="quitarComprobante()"
+                  aria-label="Quitar comprobante"
+                >
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="acciones-modal-pago">
+          <button
+            type="button"
+            class="btn-cancelar-pago"
+            [disabled]="guardandoPago || subiendoComprobante"
+            (click)="cerrarFormularioPago()"
+          >
+            Cancelar
+          </button>
+          @if (pagoPendienteEvidencia !== null) {
+            <button
+              type="button"
+              class="btn-guardar-pago"
+              [disabled]="subiendoComprobante || !archivoComprobante"
+              (click)="reintentarSubidaComprobante()"
+            >
+              @if (subiendoComprobante) {
+                <i class="bi bi-arrow-repeat"></i>
+                Subiendo...
+              } @else {
+                <i class="bi bi-cloud-arrow-up"></i>
+                Reintentar comprobante
+              }
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="btn-guardar-pago"
+              [disabled]="guardandoPago || subiendoComprobante || montoPago === null || montoPago <= 0"
+              (click)="registrarPago()"
+            >
+              @if (guardandoPago) {
+                <i class="bi bi-arrow-repeat"></i>
+                Guardando...
+              } @else {
+                <i class="bi bi-check-circle"></i>
+                Registrar pago
+              }
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+  <!-- VISOR DE COMPROBANTES -->
+  @if (mostrarModalComprobante) {
+    <div class="fondo-modal-pago" role="dialog" aria-modal="true" aria-label="Comprobante de pago">
+      <div class="modal-comprobante">
+        <div class="cabecera-comprobante">
+          <h3><i class="bi bi-receipt"></i> Comprobante de pago</h3>
+          <button type="button" (click)="cerrarModalComprobante()" aria-label="Cerrar comprobante">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="contenido-comprobante">
+          @if (cargandoComprobante) {
+            <p>Cargando comprobante...</p>
+          } @else if (tipoComprobante === 'imagen' && urlComprobante) {
+            <img [src]="urlComprobante" alt="Comprobante de pago">
+          } @else if (tipoComprobante === 'pdf' && urlPdfSeguro) {
+            <iframe [src]="urlPdfSeguro" title="Comprobante PDF"></iframe>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

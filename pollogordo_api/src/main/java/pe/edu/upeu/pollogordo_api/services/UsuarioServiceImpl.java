@@ -8,10 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.upeu.pollogordo_api.dto.RegistroDTO;
 import pe.edu.upeu.pollogordo_api.dto.UsuarioDTO;
 import pe.edu.upeu.pollogordo_api.entity.Persona;
+import pe.edu.upeu.pollogordo_api.entity.Rol;
 import pe.edu.upeu.pollogordo_api.entity.Usuario;
 import pe.edu.upeu.pollogordo_api.exception.DuplicateResourceException;
 import pe.edu.upeu.pollogordo_api.exception.ResourceNotFoundException;
 import pe.edu.upeu.pollogordo_api.repository.PersonaRepository;
+import pe.edu.upeu.pollogordo_api.repository.TrabajadorRepository;
 import pe.edu.upeu.pollogordo_api.repository.UsuarioRepository;
 
 import java.util.Optional;
@@ -21,15 +23,18 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
     private final PersonaRepository personaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final TrabajadorRepository trabajadorRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UsuarioServiceImpl(
             PersonaRepository personaRepository,
             UsuarioRepository usuarioRepository,
+            TrabajadorRepository trabajadorRepository,
             PasswordEncoder passwordEncoder
     ) {
         this.personaRepository = personaRepository;
         this.usuarioRepository = usuarioRepository;
+        this.trabajadorRepository = trabajadorRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -57,6 +62,16 @@ public class UsuarioServiceImpl implements IUsuarioService {
             );
         }
 
+        // Validar que la persona sea trabajadora
+        if (dto.rol() == Rol.TRABAJADOR) {
+
+            if (!trabajadorRepository.existsByPersona_IdPersona(dto.idPersona())) {
+                throw new ResourceNotFoundException(
+                        "La persona seleccionada no está registrada como trabajador"
+                );
+            }
+        }
+
         // Crear el usuario
         Usuario usuario = new Usuario();
         usuario.setUsuario(dto.usuario());
@@ -75,12 +90,14 @@ public class UsuarioServiceImpl implements IUsuarioService {
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
         // Devolver los datos sin mostrar la contraseña
+
         return Optional.of(new UsuarioDTO(
                 usuarioGuardado.getIdUsuario(),
                 usuarioGuardado.getUsuario(),
                 usuarioGuardado.getRol().name(),
                 persona.getNombre(),
-                persona.getApellidos()
+                persona.getApellidos(),
+                persona.getIdPersona()
         ));
     }
 }

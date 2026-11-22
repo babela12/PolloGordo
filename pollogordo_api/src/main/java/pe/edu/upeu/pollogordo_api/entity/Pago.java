@@ -1,3 +1,4 @@
+
 package pe.edu.upeu.pollogordo_api.entity;
 
 import jakarta.persistence.*;
@@ -31,10 +32,16 @@ public class Pago {
     @Column(name = "estado")
     private String estado;
 
+    @Column(name = "evidencia", length = 255)
+    private String evidencia;
+
     public Pago() {
     }
 
-    public Pago(Long idPago, Pedido pedido, String metodo, Double monto, LocalDate fechaPago, String referencia, String estado) {
+    // Conservamos el constructor anterior
+    public Pago(Long idPago, Pedido pedido, String metodo,
+                Double monto, LocalDate fechaPago,
+                String referencia, String estado) {
         this.idPago = idPago;
         this.pedido = pedido;
         this.metodo = metodo;
@@ -98,5 +105,13 @@ public class Pago {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public String getEvidencia() {
+        return evidencia;
+    }
+
+    public void setEvidencia(String evidencia) {
+        this.evidencia = evidencia;
     }
 }

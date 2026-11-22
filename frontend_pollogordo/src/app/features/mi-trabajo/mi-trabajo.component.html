@@ -1,0 +1,344 @@
+
+<div class="mi-trabajo">
+
+  <div class="encabezado">
+    <div class="encabezado-texto">
+      <span class="etiqueta-superior">
+        <i class="bi bi-person-check"></i>
+        PANEL DEL TRABAJADOR
+      </span>
+
+      <h1>Mi jornada de trabajo</h1>
+
+      <p>
+        Hola, {{ nombreUsuario }}.
+        Consulta tus pedidos, horarios y responsabilidades.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn-actualizar"
+      (click)="cargar()"
+      [disabled]="cargando"
+    >
+      <i class="bi bi-arrow-clockwise"></i>
+      {{ cargando ? 'Actualizando...' : 'Actualizar' }}
+    </button>
+  </div>
+
+  <section class="resumen">
+    <div class="resumen-tarjeta">
+      <div class="resumen-icono">
+        <i class="bi bi-box-seam"></i>
+      </div>
+
+      <div>
+        <span>Mis pedidos</span>
+        <strong>{{ totalPedidos }}</strong>
+        <small>Pedidos asignados</small>
+      </div>
+    </div>
+
+    <div class="resumen-tarjeta">
+      <div class="resumen-icono">
+        <i class="bi bi-clipboard-check"></i>
+      </div>
+
+      <div>
+        <span>Asignaciones</span>
+        <strong>{{ totalAsignaciones }}</strong>
+        <small>Funciones registradas</small>
+      </div>
+    </div>
+
+    <div class="resumen-tarjeta">
+      <div class="resumen-icono">
+        <i class="bi bi-clock-history"></i>
+      </div>
+
+      <div>
+        <span>Pendientes</span>
+        <strong>{{ totalPendientes }}</strong>
+        <small>Programadas o en proceso</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel-filtros">
+
+    <div class="titulo-seccion">
+      <div>
+        <h2>
+          <i class="bi bi-funnel"></i>
+          Buscar mis trabajos
+        </h2>
+        <p>Encuentra tus asignaciones por fecha, estado o pedido.</p>
+      </div>
+    </div>
+
+    <div class="filtros">
+
+      <div class="campo">
+        <label for="fechaTrabajo">
+          Fecha de trabajo
+        </label>
+
+        <input
+          id="fechaTrabajo"
+          type="date"
+          [(ngModel)]="fechaBusqueda"
+        />
+      </div>
+
+      <div class="campo">
+        <label for="estadoTrabajo">
+          Estado
+        </label>
+
+        <select
+          id="estadoTrabajo"
+          [(ngModel)]="estadoBusqueda"
+        >
+          <option value="TODOS">Todos los estados</option>
+          <option value="PROGRAMADO">Programado</option>
+          <option value="EN_PROCESO">En proceso</option>
+          <option value="COMPLETADO">Completado</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="numeroPedido">
+          Número de pedido
+        </label>
+
+        <div class="campo-busqueda">
+          <i class="bi bi-search"></i>
+
+          <input
+            id="numeroPedido"
+            type="text"
+            [(ngModel)]="numeroPedido"
+            placeholder="Ej. 14"
+          />
+        </div>
+      </div>
+
+    </div>
+
+    <div class="acciones-filtros">
+      <button
+        type="button"
+        class="btn-limpiar"
+        (click)="limpiarFiltros()"
+      >
+        <i class="bi bi-x-circle"></i>
+        Limpiar filtros
+      </button>
+    </div>
+
+  </section>
+
+  <section class="panel-pedidos">
+
+    <div class="titulo-seccion titulo-pedidos">
+      <div>
+        <h2>
+          <i class="bi bi-calendar-check"></i>
+          Mis pedidos asignados
+        </h2>
+
+        <p>
+          Cada pedido reúne las funciones que debes realizar.
+        </p>
+      </div>
+
+      <span class="contador-resultados">
+        {{ gruposFiltrados.length }}
+        {{ gruposFiltrados.length === 1 ? 'pedido' : 'pedidos' }}
+      </span>
+    </div>
+
+    @if (cargando) {
+
+      <div class="estado-vacio">
+        <i class="bi bi-arrow-repeat"></i>
+        <h3>Cargando tus trabajos...</h3>
+        <p>Estamos consultando tus asignaciones.</p>
+      </div>
+
+    } @else if (error) {
+
+      <div class="estado-vacio error">
+        <i class="bi bi-exclamation-triangle"></i>
+        <h3>No se pudieron cargar tus trabajos</h3>
+        <p>{{ error }}</p>
+
+        <button
+          type="button"
+          class="btn-actualizar"
+          (click)="cargar()"
+        >
+          Reintentar
+        </button>
+      </div>
+
+    } @else if (gruposFiltrados.length === 0) {
+
+      <div class="estado-vacio">
+        <i class="bi bi-calendar-x"></i>
+        <h3>No se encontraron trabajos</h3>
+        <p>
+          No tienes asignaciones que coincidan
+          con los filtros seleccionados.
+        </p>
+
+        <button
+          type="button"
+          class="btn-limpiar"
+          (click)="limpiarFiltros()"
+        >
+          Mostrar todos
+        </button>
+      </div>
+
+    } @else {
+
+      <div class="lista-pedidos">
+
+        @for (grupo of gruposFiltrados; track grupo.idPedido) {
+
+          <article class="pedido-tarjeta">
+
+            <div class="pedido-encabezado">
+
+              <div class="pedido-identidad">
+                <div class="pedido-icono">
+                  <i class="bi bi-box-seam"></i>
+                </div>
+
+                <div>
+                  <h3>Pedido N.º {{ grupo.idPedido }}</h3>
+                  <span>
+                    {{ grupo.trabajos.length }}
+                    {{ grupo.trabajos.length === 1
+                      ? 'función asignada'
+                      : 'funciones asignadas' }}
+                  </span>
+                </div>
+              </div>
+
+              <span
+                class="estado-etiqueta"
+                [ngClass]="claseEstado(estadoGrupo(grupo))"
+              >
+                {{ estadoGrupo(grupo).replace('_', ' ') }}
+              </span>
+
+            </div>
+
+            <div class="pedido-contenido">
+
+              @for (trabajo of grupo.trabajos; track trabajo.idAsig) {
+
+                <div class="actividad">
+
+                  <div class="actividad-superior">
+
+                    <div class="actividad-nombre">
+                      <i
+                        class="bi"
+                        [ngClass]="{
+                          'bi-egg-fried': trabajo.funcion === 'PREPARADOR',
+                          'bi-fire': trabajo.funcion === 'ASADOR',
+                          'bi-truck': trabajo.funcion === 'REPARTIDOR'
+                        }"
+                      ></i>
+
+                      <strong>
+                        {{ nombreFuncion(trabajo.funcion) }}
+                      </strong>
+                    </div>
+
+                    <span
+                      class="estado-etiqueta"
+                      [ngClass]="claseEstado(trabajo.estado)"
+                    >
+                      {{ trabajo.estado.replace('_', ' ') }}
+                    </span>
+
+                  </div>
+
+                  <div class="actividad-datos">
+
+                    <div class="dato">
+                      <span>
+                        <i class="bi bi-calendar3"></i>
+                        Fecha de trabajo
+                      </span>
+                      <strong>
+                        {{ mostrarFecha(trabajo.fechaTrabajo) }}
+                      </strong>
+                    </div>
+
+                    <div class="dato">
+                      <span>
+                        <i class="bi bi-clock"></i>
+                        Hora de inicio
+                      </span>
+                      <strong>
+                        {{ mostrarHora(trabajo.horaInicio) }}
+                      </strong>
+                    </div>
+
+                    <div class="dato">
+                      <span>
+                        <i class="bi bi-clock-history"></i>
+                        Hora de fin
+                      </span>
+                      <strong>
+                        {{ mostrarHora(trabajo.horaFin) }}
+                      </strong>
+                    </div>
+
+                    <div class="dato">
+                      <span>
+                        <i class="bi bi-box2"></i>
+                        Pollos asignados
+                      </span>
+                      <strong>
+                        {{ mostrarCantidad(trabajo) }}
+                      </strong>
+                    </div>
+
+                  </div>
+
+                  @if (trabajo.cantidadRealizada != null) {
+
+                    <div class="avance">
+                      <i class="bi bi-check-circle"></i>
+                      Cantidad realizada:
+                      <strong>
+                        {{ trabajo.cantidadRealizada }} pollos
+                      </strong>
+                    </div>
+
+                  }
+
+                </div>
+
+              }
+
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    }
+
+  </section>
+
+</div>

@@ -7,7 +7,6 @@ spring:
     url: jdbc:oracle:thin:@localhost:1521/XEPDB1
     username: POLLOGORDO_BD
     password: admin1234
-    driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:
     hibernate:
@@ -30,7 +29,11 @@ server:
 storage:
   location: ./images
 
+app:
+  pagos:
+    evidencias-dir: ./uploads/pagos
+
 security:
   jwt:
     secret-key: a2FzbW90aGVvcmVtYW5kcm9tZWRhZ2FsYWN0aWNhcHB1bHNlY3JldGtleQ==
-    expiration-time: 120000
+    expiration-time: 28800000

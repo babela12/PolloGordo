@@ -1,4 +1,333 @@
-<h1>Bienvenido a Multiservicios Pollo Gordo </h1>
-<p>Esta es nuestra primera página web </p>
-<p>Sistema de Gestión de Servicios Gastronómicos </p>
-<p>¡Bienvenidos! </p>
+
+<div class="home-contenedor">
+
+  <!-- BANNER PRINCIPAL -->
+  <section class="home-banner">
+
+    <div class="banner-informacion">
+
+      <img
+        src="/logo-pollogordo.png"
+        alt="Logo Pollo Gordo"
+        class="banner-logo"
+      >
+
+      <div>
+        <span class="banner-etiqueta">
+          MULTISERVICIOS POLLO GORDO
+        </span>
+
+        <h1>Gestión de servicios gastronómicos</h1>
+
+        <p>Organiza tus eventos y cuida cada detalle.</p>
+      </div>
+
+    </div>
+
+    <div class="banner-foto"></div>
+
+  </section>
+
+  <!-- ACCESOS PRINCIPALES -->
+  <section class="accesos-grid">
+
+    <!-- NUEVO PEDIDO -->
+    <article class="acceso-tarjeta">
+
+      <div class="acceso-superior">
+        <i class="bi bi-calendar-plus"></i>
+
+        <div>
+          <h2>Nuevo pedido</h2>
+          <p>
+            Selecciona un cliente, productos y los
+            datos del evento.
+          </p>
+        </div>
+      </div>
+
+      <a routerLink="/pedidos/nuevo" class="btn-principal">
+        Crear pedido
+      </a>
+
+    </article>
+
+    <!-- PEDIDOS REGISTRADOS -->
+    <article class="acceso-tarjeta">
+
+      <div class="acceso-superior">
+        <i class="bi bi-clipboard-check"></i>
+
+        <div>
+          <h2>Pedidos registrados</h2>
+          <p>
+            Consulta tus pedidos y organiza pagos,
+            personal y entregas.
+          </p>
+        </div>
+      </div>
+
+      <a routerLink="/pedidos" class="btn-secundario">
+        Ver pedidos
+      </a>
+
+    </article>
+
+    <!-- REPORTES -->
+    <article class="acceso-tarjeta">
+
+      <div class="acceso-superior">
+        <i class="bi bi-bar-chart"></i>
+
+        <div>
+          <h2>Reportes</h2>
+          <p>
+            Revisa tus eventos y los insumos
+            que necesitas.
+          </p>
+        </div>
+      </div>
+
+      <a routerLink="/reportes" class="btn-secundario">
+        Consultar reportes
+      </a>
+
+    </article>
+
+  </section>
+
+  <!-- ACCESOS ADICIONALES -->
+  <section class="accesos-secundarios">
+
+    <!-- AGENDA -->
+    <div class="acceso-horizontal">
+
+      <i class="bi bi-calendar3"></i>
+
+      <div>
+        <h3>Agenda de eventos</h3>
+        <p>Revisa los próximos eventos programados.</p>
+      </div>
+
+    </div>
+
+    <!-- COBROS -->
+    <div class="acceso-horizontal">
+
+      <i class="bi bi-wallet2"></i>
+
+      <div>
+        <h3>Cobros y saldos</h3>
+        <p>Consulta pagos y saldos pendientes.</p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- RESUMEN SEMANAL -->
+  <section class="resumen-seccion">
+
+    <div class="seccion-encabezado">
+
+      <h2>Resumen de esta semana</h2>
+
+      <button
+        type="button"
+        class="btn-actualizar"
+        (click)="actualizar()"
+        [disabled]="cargando || cargandoInsumos"
+      >
+        <i class="bi bi-arrow-clockwise"></i>
+
+        {{ (cargando || cargandoInsumos)
+            ? 'Actualizando...'
+            : 'Actualizar' }}
+      </button>
+
+    </div>
+
+    <!-- ERROR DE PEDIDOS -->
+    <div
+      *ngIf="error"
+      class="alert alert-danger mt-3"
+      role="alert"
+    >
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ error }}
+    </div>
+
+    <!-- TARJETAS DEL RESUMEN -->
+    <div class="resumen-grid">
+
+      <!-- PEDIDOS DEL PERÍODO -->
+      <div class="resumen-tarjeta">
+
+        <span>Pedidos del período</span>
+
+        <strong>
+          {{ cargando ? '...' : pedidosSemana }}
+        </strong>
+
+      </div>
+
+      <!-- IMPORTE CONTRATADO -->
+      <div class="resumen-tarjeta">
+
+        <span>Importe contratado</span>
+
+        <strong>
+          S/ {{ importeSemana | number:'1.2-2' }}
+        </strong>
+
+        <small>No representa pagos cobrados</small>
+
+      </div>
+
+      <!-- CONFIRMADOS -->
+      <div class="resumen-tarjeta">
+
+        <span>Confirmados</span>
+
+        <strong>
+          {{ cargando ? '...' : confirmadosSemana }}
+        </strong>
+
+      </div>
+
+      <!-- POR CONFIRMAR -->
+      <div class="resumen-tarjeta">
+
+        <span>Por confirmar</span>
+
+        <strong>
+          {{ cargando ? '...' : porConfirmarSemana }}
+        </strong>
+
+        <small>Pedidos pendientes de confirmación</small>
+
+      </div>
+
+      <!-- INSUMOS AGOTADOS -->
+      <div class="resumen-tarjeta">
+
+        <span>Insumos agotados</span>
+
+        <strong>
+          {{ insumosAgotados === null
+              ? '—'
+              : insumosAgotados }}
+        </strong>
+
+        <small *ngIf="cargandoInsumos">
+          Consultando inventario...
+        </small>
+
+        <small *ngIf="errorInsumos">
+          {{ errorInsumos }}
+        </small>
+
+        <small
+          *ngIf="
+            !cargandoInsumos &&
+            !errorInsumos &&
+            insumosAgotados !== null
+          "
+        >
+          Insumos sin stock disponible
+        </small>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- PRÓXIMOS EVENTOS -->
+  <section class="eventos-seccion">
+
+    <h2>Próximos eventos programados</h2>
+
+    <div class="tabla-contenedor">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Pedido</th>
+            <th>Cliente</th>
+            <th>Evento</th>
+            <th>Hora</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <!-- EVENTOS -->
+          <tr *ngFor="let evento of eventosProximos">
+
+            <td>
+              #{{ evento.idPedido }}
+            </td>
+
+            <td>
+              {{ evento.cliente }}
+            </td>
+
+            <td>
+              {{ evento.fechaEvento | date:'dd/MM/yyyy':'UTC' }}
+            </td>
+
+            <td>
+              {{ evento.horaEntrega }}
+            </td>
+
+            <td>
+              <a routerLink="/pedidos">
+                Ver pedidos
+              </a>
+            </td>
+
+          </tr>
+
+          <!-- CARGANDO -->
+          <tr *ngIf="cargando">
+            <td colspan="5" class="sin-eventos">
+
+              <i class="bi bi-hourglass-split me-2"></i>
+
+              Cargando eventos...
+
+            </td>
+          </tr>
+
+          <!-- SIN EVENTOS -->
+          <tr
+            *ngIf="
+              !cargando &&
+              !error &&
+              eventosProximos.length === 0
+            "
+          >
+            <td colspan="5" class="sin-eventos">
+              No hay próximos eventos programados.
+            </td>
+          </tr>
+
+          <!-- ERROR -->
+          <tr *ngIf="!cargando && error">
+            <td colspan="5" class="sin-eventos">
+              No se pudieron consultar los eventos.
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>

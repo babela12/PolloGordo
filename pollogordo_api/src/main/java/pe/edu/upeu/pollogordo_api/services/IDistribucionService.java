@@ -15,9 +15,14 @@ public interface IDistribucionService {
 
     DistribucionDTO crear(DistribucionDTO distribucion);
 
-    Optional<DistribucionDTO> actualizar(Long id, DistribucionDTO distribucion);
+    Optional<DistribucionDTO> actualizar(
+            Long id,
+            DistribucionDTO distribucion
+    );
 
     boolean eliminar(Long id);
+
+    DistribucionDTO registrarConsumo(Long id);
 
     void generarDistribucion(
             Pedido pedido,

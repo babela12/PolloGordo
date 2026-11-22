@@ -1,0 +1,161 @@
+
+.cuentas-contenedor {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.encabezado {
+  margin-bottom: 16px;
+}
+
+.encabezado h1 {
+  color: #7B1E21;
+  font-size: 29px;
+  margin-bottom: 8px;
+}
+
+.encabezado p {
+  color: #555;
+  font-size: 14px;
+}
+
+.informacion {
+  padding: 14px;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.tarjeta {
+  background: white;
+  border: 1px solid #E8DED5;
+  border-radius: 9px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.tarjeta h2 {
+  color: #333;
+  font-size: 19px;
+  margin-bottom: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d8d0c9;
+  border-radius: 5px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.campo small {
+  color: #777;
+  font-size: 11px;
+}
+
+.btn-crear {
+  margin-top: 17px;
+  padding: 11px 19px;
+  background: #7B1E21;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-crear:hover {
+  background: #60171A;
+}
+
+.btn-crear:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tabla-tarjeta {
+  padding: 0;
+  overflow: hidden;
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+th {
+  background: #f2e5d6;
+  color: #5a332c;
+  font-weight: 600;
+}
+
+.sin-datos {
+  text-align: center;
+  color: #777;
+}
+
+.error {
+  color: #c62828;
+  margin-top: 12px;
+}
+
+.exito {
+  color: #21803a;
+  margin-top: 12px;
+}
+
+.cargando {
+  padding: 12px;
+  color: #666;
+}
+
+@media (max-width: 850px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 550px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.exito {
+  color: #7B1E21;
+  font-weight: 500;
+  margin-top: 12px;
+}

@@ -1,0 +1,210 @@
+
+<div class="cuentas-contenedor">
+
+  <div class="encabezado">
+    <h1>
+      <i class="bi bi-person-lock me-2"></i>
+      Cuentas de acceso
+    </h1>
+
+    <p>
+      Crea cuentas de consulta y vincula a cada trabajador
+      con su propio usuario.
+    </p>
+  </div>
+
+  <div class="informacion">
+    El gerente administra el sistema.
+    El contador consulta información administrativa.
+    El trabajador consulta únicamente sus asignaciones.
+  </div>
+
+  <div class="tarjeta">
+
+    <h2>Nueva cuenta</h2>
+
+    <form (ngSubmit)="crearCuenta()">
+
+      <div class="form-grid">
+
+        <div class="campo">
+          <label>Usuario</label>
+
+          <input
+            type="text"
+            name="usuario"
+            [(ngModel)]="nuevaCuenta.usuario"
+            placeholder="Nombre de usuario"
+            required
+          />
+        </div>
+
+        <div class="campo">
+          <label>Contraseña inicial</label>
+
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="nuevaCuenta.password"
+            placeholder="Mínimo 8 caracteres"
+            minlength="8"
+            required
+          />
+
+          <small>Mínimo 8 caracteres.</small>
+        </div>
+
+        <div class="campo">
+          <label>Rol</label>
+
+          <select
+            name="rol"
+            [(ngModel)]="nuevaCuenta.rol"
+            required
+          >
+            <option value="GERENTE">GERENTE</option>
+            <option value="CONTADOR">CONTADOR</option>
+            <option value="TRABAJADOR">TRABAJADOR</option>
+          </select>
+        </div>
+
+        <div class="campo">
+
+          <label>Trabajador</label>
+
+          <select
+            name="idPersona"
+            [(ngModel)]="nuevaCuenta.idPersona"
+            [disabled]="cargandoTrabajadores || cargando"
+            required
+          >
+
+            <option [ngValue]="0">
+              Selecciona un trabajador
+            </option>
+
+            @for (
+              trabajador of trabajadoresSinCuenta;
+              track trabajador.idTrabajador
+            ) {
+              <option
+                [ngValue]="trabajador.persona?.idPersona"
+              >
+                {{ trabajador.persona?.nombre }}
+                {{ trabajador.persona?.apellidos }}
+              </option>
+            }
+
+          </select>
+
+          @if (
+            !cargando &&
+            !cargandoTrabajadores &&
+            !error &&
+            trabajadoresSinCuenta.length === 0
+          ) {
+            <small>
+              Todos los trabajadores ya tienen una cuenta.
+            </small>
+          }
+
+          @if (errorTrabajadores) {
+            <small class="error">
+              {{ errorTrabajadores }}
+            </small>
+          }
+
+        </div>
+
+      </div>
+
+      @if (error) {
+        <p class="error">
+          {{ error }}
+        </p>
+      }
+
+      @if (mensaje) {
+        <p class="exito">
+          {{ mensaje }}
+        </p>
+      }
+
+      <button
+        type="submit"
+        class="btn-crear"
+        [disabled]="
+          guardando ||
+          cargando ||
+          cargandoTrabajadores ||
+          trabajadoresSinCuenta.length === 0
+        "
+      >
+        {{ guardando ? 'Guardando...' : 'Crear cuenta' }}
+      </button>
+
+    </form>
+
+  </div>
+
+  <div class="tarjeta tabla-tarjeta">
+
+    <h2>Cuentas registradas</h2>
+
+    <div class="tabla-contenedor">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Nombre y apellido</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          @for (cuenta of cuentas; track $index) {
+
+            <tr>
+              <td>{{ cuenta.usuario }}</td>
+
+              <td>{{ cuenta.rol }}</td>
+
+              <td>
+                {{ (cuenta.nombrePersona || '').trim().split(' ')[0] }}
+                {{ (cuenta.apellidos || '').trim().split(' ')[0] }}
+              </td>
+
+              <td>—</td>
+              <td>—</td>
+            </tr>
+
+          }
+
+          @if (!cargando && !error && cuentas.length === 0) {
+            <tr>
+              <td colspan="5" class="sin-datos">
+                No hay cuentas registradas.
+              </td>
+            </tr>
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    @if (cargando) {
+      <p class="cargando">
+        Cargando cuentas...
+      </p>
+    }
+
+  </div>
+
+</div>

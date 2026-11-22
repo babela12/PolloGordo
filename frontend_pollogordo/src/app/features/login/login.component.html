@@ -1,0 +1,106 @@
+
+<div class="login-pagina">
+
+  <div class="login-tarjeta">
+
+    <!-- LADO IZQUIERDO: IMAGEN -->
+    <div class="login-imagen">
+      <div class="imagen-contenido">
+        <h2>
+          El sabor de cada evento empieza
+          con una buena organización.
+        </h2>
+
+        <p>Multiservicios Pollo Gordo</p>
+      </div>
+    </div>
+
+    <!-- LADO DERECHO: FORMULARIO -->
+    <div class="login-formulario">
+
+      <img
+        src="/logo-pollogordo.png"
+        alt="Logo Pollo Gordo"
+        class="login-logo">
+
+      <h1>Bienvenido a Pollo Gordo</h1>
+
+      <p class="login-subtitulo">
+        Acceso del gerente, contador y trabajadores
+      </p>
+
+      <form (ngSubmit)="login()">
+
+        <!-- USUARIO -->
+        <div class="login-campo">
+          <label for="userInput">Usuario</label>
+
+          <input
+            id="userInput"
+            type="text"
+            name="username"
+            [(ngModel)]="username"
+            placeholder="Ingresa tu usuario"
+            autocomplete="username"
+            required>
+        </div>
+
+        <!-- CONTRASEÑA -->
+        <div class="login-campo">
+          <label for="passInput">Contraseña</label>
+
+          <input
+            id="passInput"
+            [type]="mostrarPassword ? 'text' : 'password'"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="Ingresa tu contraseña"
+            autocomplete="current-password"
+            required>
+        </div>
+
+        <!-- MOSTRAR CONTRASEÑA -->
+        <label class="mostrar-password">
+          <input
+            type="checkbox"
+            name="mostrarPassword"
+            [(ngModel)]="mostrarPassword">
+
+          Mostrar contraseña
+        </label>
+
+        <!-- MENSAJE DE ERROR -->
+        <p class="login-error" *ngIf="loginError">
+          No se pudo iniciar sesión. Verifica tus credenciales.
+        </p>
+
+        <!-- BOTÓN INGRESAR -->
+        <button
+          type="submit"
+          class="btn-ingresar-login"
+          [disabled]="isLoading">
+
+          @if (isLoading) {
+            Ingresando...
+          } @else {
+            Ingresar
+          }
+
+        </button>
+
+      </form>
+
+      <div class="login-ayuda">
+        ¿No tienes una cuenta?
+        Solicita tus datos de acceso al gerente.
+      </div>
+
+    </div>
+
+  </div>
+
+  <p class="login-pie">
+    Multiservicios Pollo Gordo · Gestión de servicios gastronómicos
+  </p>
+
+</div>

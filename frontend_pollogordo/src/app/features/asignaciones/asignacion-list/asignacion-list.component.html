@@ -1,0 +1,364 @@
+
+<div class="contenedor-asignaciones">
+
+  <div class="cabecera-asignaciones">
+
+    <div>
+      <h2>
+        <i class="bi bi-person-check"></i>
+        Asignaciones
+      </h2>
+
+      <p>
+        Consulta el personal asignado a los pedidos
+        confirmados de Pollo Gordo.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      (click)="cargar()"
+      [disabled]="cargando"
+    >
+      Actualizar
+    </button>
+
+  </div>
+
+  @if (esGerente) {
+
+    <div class="nueva-asignacion">
+
+      <h3>Nueva asignación</h3>
+
+      <p>
+        Selecciona un pedido confirmado que todavía
+        no tenga trabajadores asignados.
+      </p>
+
+      <div class="controles-asignacion">
+
+        <select
+          name="idPedido"
+          [ngModel]="idPedido"
+          (ngModelChange)="seleccionarPedido($event)"
+        >
+
+          <option [ngValue]="0">
+            Seleccionar pedido
+          </option>
+
+          @for (
+            pedido of pedidosSinAsignar;
+            track pedido.idPedido
+          ) {
+            <option [ngValue]="pedido.idPedido">
+              Pedido N.º {{ pedido.idPedido }}
+              - {{ pedido.cliente }}
+            </option>
+          }
+
+        </select>
+
+        <button
+          type="button"
+          (click)="abrirFormulario()"
+          [disabled]="buscandoPedido || cargando"
+        >
+          {{ buscandoPedido
+            ? 'Cargando...'
+            : '+ Nueva asignación' }}
+        </button>
+
+      </div>
+
+      @if (!cargando && pedidosSinAsignar.length === 0) {
+        <p>
+          No hay pedidos confirmados sin asignaciones.
+        </p>
+      }
+
+    </div>
+
+  } @else {
+
+    <div class="nueva-asignacion">
+      <p>
+        <i class="bi bi-eye"></i>
+        Modo consulta: puedes revisar las asignaciones,
+        pero no modificarlas.
+      </p>
+    </div>
+
+  }
+
+  @if (error) {
+    <div class="mensaje-asignaciones">
+      {{ error }}
+    </div>
+  }
+
+  <div class="pestanas-asignaciones">
+
+    <button
+      type="button"
+      [class.activa]="vista === 'pedido'"
+      (click)="vista = 'pedido'"
+    >
+      <i class="bi bi-box-seam"></i>
+      Por pedido
+    </button>
+
+    <button
+      type="button"
+      [class.activa]="vista === 'trabajador'"
+      (click)="vista = 'trabajador'"
+    >
+      <i class="bi bi-people"></i>
+      Por trabajador
+    </button>
+
+  </div>
+
+  @if (cargando) {
+
+    <div class="mensaje-asignaciones">
+      Cargando asignaciones...
+    </div>
+
+  } @else if (vista === 'pedido') {
+
+    @if (gruposAsignaciones.length === 0) {
+      <div class="mensaje-asignaciones">
+        Todavía no hay asignaciones registradas.
+      </div>
+    }
+
+    @for (
+      grupo of gruposAsignaciones;
+      track grupo.idPedido
+    ) {
+
+      <div
+        class="nueva-asignacion"
+        style="margin-bottom: 14px;"
+      >
+
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"
+        >
+
+          <h3>Pedido N.º {{ grupo.idPedido }}</h3>
+
+          @if (esGerente) {
+
+            <button
+              type="button"
+              class="btn-editar"
+              (click)="editarPedido(grupo.idPedido)"
+            >
+              <i class="bi bi-pencil-square"></i>
+              Editar / Agregar
+            </button>
+
+          }
+
+        </div>
+
+        @if (grupo.cliente) {
+          <p>Cliente: {{ grupo.cliente }}</p>
+        }
+
+        @if (grupo.fechaEvento) {
+          <p>
+            Fecha del evento: {{ grupo.fechaEvento }}
+          </p>
+        }
+
+        <p>
+          Asignaciones registradas:
+          {{ grupo.asignaciones.length }}
+        </p>
+
+        <div class="tabla-asignaciones">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Trabajador</th>
+                <th>Función</th>
+                <th>Pollos</th>
+                <th>Fecha</th>
+                <th>Inicio</th>
+                <th>Estado</th>
+
+                @if (esGerente) {
+                  <th>Acción</th>
+                }
+              </tr>
+            </thead>
+
+            <tbody>
+
+              @for (
+                a of grupo.asignaciones;
+                track $index
+              ) {
+
+                <tr>
+                  <td>
+                    {{ nombreTrabajador(a.idTrabajador) }}
+                  </td>
+
+                  <td>{{ a.funcion || '—' }}</td>
+
+                  <td>
+                    {{ cantidadRepartidor(a) ?? '—' }}
+                  </td>
+
+                  <td>{{ a.fechaTrabajo || '—' }}</td>
+
+                  <td>
+                    {{ (a.horaInicio || '').slice(0, 5) || '—' }}
+                  </td>
+
+                  <td>{{ a.estado || '—' }}</td>
+
+                  @if (esGerente) {
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-eliminar"
+                        (click)="eliminar(a)"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  }
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    }
+
+  } @else {
+
+    @if (gruposTrabajadores.length === 0) {
+      <div class="mensaje-asignaciones">
+        Todavía no hay trabajadores asignados.
+      </div>
+    }
+
+    @for (
+      grupo of gruposTrabajadores;
+      track grupo.idTrabajador
+    ) {
+
+      <div
+        class="nueva-asignacion"
+        style="margin-bottom: 14px;"
+      >
+
+        <h3>{{ grupo.nombre }}</h3>
+
+        <p>
+          Asignaciones registradas:
+          {{ grupo.asignaciones.length }}
+        </p>
+
+        <div class="tabla-asignaciones">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Pedido</th>
+                <th>Cliente</th>
+                <th>Función</th>
+                <th>Pollos</th>
+                <th>Fecha</th>
+
+                @if (esGerente) {
+                  <th>Acción</th>
+                }
+              </tr>
+            </thead>
+
+            <tbody>
+
+              @for (
+                a of grupo.asignaciones;
+                track $index
+              ) {
+
+                <tr>
+                  <td>N.º {{ a.idPedido }}</td>
+
+                  <td>
+                    {{ nombreCliente(a.idPedido) }}
+                  </td>
+
+                  <td>{{ a.funcion || '—' }}</td>
+
+                  <td>
+                    {{ cantidadRepartidor(a) ?? '—' }}
+                  </td>
+
+                  <td>{{ a.fechaTrabajo || '—' }}</td>
+
+                  @if (esGerente) {
+
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-editar"
+                        (click)="editarPedido(a.idPedido)"
+                      >
+                        <i class="bi bi-pencil-square"></i>
+                        Editar
+                      </button>
+                    </td>
+
+                  }
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    }
+
+  }
+
+  @if (esGerente && mostrarFormulario && pedidoActual) {
+
+    <app-asignacion-form
+      [idPedido]="pedidoActual.idPedido"
+      [fechaEvento]="pedidoActual.fechaEvento"
+      [totalPollos]="totalPollos"
+      [visible]="mostrarFormulario"
+      (cerrar)="cerrarFormulario()"
+      (guardado)="asignacionGuardada()"
+    >
+    </app-asignacion-form>
+
+  }
+
+</div>

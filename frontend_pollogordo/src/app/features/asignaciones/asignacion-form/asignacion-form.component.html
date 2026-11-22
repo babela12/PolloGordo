@@ -1,0 +1,310 @@
+
+@if (visible) {
+  <div class="fondo-formulario" (click)="cerrarVentana()">
+    <div class="ventana-formulario" (click)="$event.stopPropagation()">
+
+      <header class="encabezado-formulario">
+        <div>
+          <h3>
+            <i class="bi bi-people"></i>
+            Gestionar personal y vehículos
+          </h3>
+          <small>Pedido N.º {{ idPedido }}</small>
+        </div>
+
+        <button
+          type="button"
+          (click)="cerrarVentana()"
+          [disabled]="guardando">
+          ✕
+        </button>
+      </header>
+
+      <div class="cuerpo-formulario">
+
+        <p>
+          <strong>Total del pedido: {{ totalPollos }} pollos</strong>
+        </p>
+
+        <p>
+          Puedes guardar avances y completar las asignaciones después.
+          Solo se guardarán los registros nuevos o modificados.
+        </p>
+
+        @if (cargando) {
+          <p>Cargando información...</p>
+        }
+
+        @if (error) {
+          <p class="error-formulario">{{ error }}</p>
+        }
+
+        <nav class="pestanas-formulario">
+          <button
+            type="button"
+            [class.activa]="pestana === 'PREPARADOR'"
+            (click)="pestana = 'PREPARADOR'">
+            Preparadores
+          </button>
+
+          <button
+            type="button"
+            [class.activa]="pestana === 'ASADOR'"
+            (click)="pestana = 'ASADOR'">
+            Asadores
+          </button>
+
+          <button
+            type="button"
+            [class.activa]="pestana === 'REPARTIDOR'"
+            (click)="pestana = 'REPARTIDOR'">
+            Repartidores
+          </button>
+
+          <button
+            type="button"
+            [class.activa]="pestana === 'ENTREGAS'"
+            (click)="pestana = 'ENTREGAS'">
+            Vehículos y entregas
+          </button>
+        </nav>
+
+        @if (pestana !== 'REPARTIDOR') {
+          <div class="contador-formulario">
+            Asignados: {{ asignados }}
+            · Faltan: {{ totalPollos - asignados }} pollos
+          </div>
+        }
+
+        @if (pestana !== 'ENTREGAS') {
+
+          @for (fila of filas; track $index; let i = $index) {
+            @if (fila.funcion === pestana) {
+
+              <div class="fila-formulario">
+
+                <label>
+                  Trabajador
+                  <select [(ngModel)]="fila.idTrabajador">
+                    <option [ngValue]="null">Seleccionar</option>
+
+                    @for (
+                      t of trabajadoresPorFuncion(fila.funcion);
+                      track t.idTrabajador
+                    ) {
+                      <option [ngValue]="t.idTrabajador">
+                        {{ nombre(t) }}
+                      </option>
+                    }
+                  </select>
+                </label>
+
+                <label>
+                  Fecha de trabajo
+                  <input
+                    type="date"
+                    [(ngModel)]="fila.fechaTrabajo">
+                </label>
+
+                <label>
+                  Hora de inicio
+                  <input
+                    type="time"
+                    [(ngModel)]="fila.horaInicio">
+                </label>
+
+                <label>
+                  Hora de fin (opcional)
+                  <input
+                    type="time"
+                    [(ngModel)]="fila.horaFin">
+                </label>
+
+                @if (fila.funcion !== 'REPARTIDOR') {
+                  <label>
+                    Pollos asignados
+                    <input
+                      type="number"
+                      min="1"
+                      [(ngModel)]="fila.cantidadAsignada">
+                  </label>
+                }
+
+                @if (fila.idAsig) {
+                  <small>
+                    Asignación N.º {{ fila.idAsig }}
+                    · Registro existente
+                  </small>
+                } @else {
+                  <button
+                    type="button"
+                    class="btn-quitar"
+                    (click)="quitar(i)">
+                    Quitar
+                  </button>
+                }
+
+              </div>
+            }
+          }
+
+          <button
+            type="button"
+            class="btn-agregar"
+            (click)="agregar(pestana)">
+            <i class="bi bi-plus-circle"></i>
+            Añadir trabajador
+          </button>
+
+        } @else {
+
+          @for (
+            entrega of entregas;
+            track $index;
+            let i = $index
+          ) {
+
+            <div class="fila-formulario">
+
+              <label>
+                Repartidor
+                <select [(ngModel)]="entrega.idTrabajador">
+                  <option [ngValue]="null">Seleccionar</option>
+
+                  @for (
+                    id of repartidoresSeleccionados;
+                    track id
+                  ) {
+                    <option [ngValue]="id">
+                      {{ nombreRepartidor(id) }}
+                    </option>
+                  }
+                </select>
+              </label>
+
+              <label>
+                Vehículo
+                <select [(ngModel)]="entrega.idVehiculo">
+                  <option [ngValue]="null">Seleccionar</option>
+
+                  @for (
+                    v of vehiculos;
+                    track v.idVehiculo
+                  ) {
+                    <option [ngValue]="v.idVehiculo">
+                      {{ v.placa }}
+                      ({{ v.capacidad }} pollos)
+                    </option>
+                  }
+                </select>
+              </label>
+
+              <label>
+                Fecha de entrega
+                <input
+                  type="date"
+                  [(ngModel)]="entrega.fechaEntrega">
+              </label>
+
+              <label>
+                Hora de salida
+                <input
+                  type="time"
+                  [(ngModel)]="entrega.horaSalida">
+              </label>
+
+              <label>
+                Hora estimada de llegada
+                <input
+                  type="time"
+                  [(ngModel)]="entrega.horaLlegada">
+              </label>
+
+              <label>
+                Pollos a transportar
+                <input
+                  type="number"
+                  min="1"
+                  [(ngModel)]="entrega.cantidadPollos">
+              </label>
+
+              <label>
+                Observación
+                <input
+                  type="text"
+                  placeholder="Ej. Primera entrega"
+                  [(ngModel)]="entrega.observacion">
+              </label>
+
+              @if (entrega.idEntrega) {
+                <small>
+                  Entrega N.º {{ entrega.idEntrega }}
+                  · Puedes editar sus horarios
+                </small>
+              } @else {
+                <button
+                  type="button"
+                  class="btn-quitar"
+                  (click)="quitarEntrega(i)">
+                  Quitar
+                </button>
+              }
+
+            </div>
+          }
+
+          <button
+            type="button"
+            class="btn-agregar"
+            (click)="agregarEntrega()">
+            <i class="bi bi-plus-circle"></i>
+            Añadir entrega
+          </button>
+
+          @if (vehiculos.length === 0) {
+            <p class="error-formulario">
+              No se encontraron vehículos registrados.
+            </p>
+          }
+
+          @if (repartidoresSeleccionados.length === 0) {
+            <p>
+              Primero selecciona un trabajador en la pestaña Repartidores.
+            </p>
+          }
+
+          <p>
+            <small>
+              Un vehículo puede realizar varios viajes durante el día,
+              siempre que no se crucen sus horarios y se respete
+              su capacidad por viaje.
+            </small>
+          </p>
+
+        }
+
+      </div>
+
+      <footer class="acciones-formulario">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cerrarVentana()"
+          [disabled]="guardando">
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardar()"
+          [disabled]="guardando || cargando">
+          {{ guardando ? 'Guardando...' : 'Guardar avance' }}
+        </button>
+
+      </footer>
+
+    </div>
+  </div>
+}

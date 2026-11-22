@@ -1,4 +1,3 @@
-
 package pe.edu.upeu.pollogordo_api.controller;
 
 import jakarta.validation.Valid;
@@ -18,20 +17,25 @@ public class DistribucionController {
 
     private final IDistribucionService distribucionService;
 
-    public DistribucionController(IDistribucionService distribucionService) {
+    public DistribucionController(
+            IDistribucionService distribucionService
+    ) {
         this.distribucionService = distribucionService;
     }
 
     @GetMapping
     public ResponseEntity<List<DistribucionDTO>> listarTodo() {
 
-        List<DistribucionDTO> lista = distribucionService.listarTodo();
+        List<DistribucionDTO> lista =
+                distribucionService.listarTodo();
 
         return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DistribucionDTO> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<DistribucionDTO> buscarPorId(
+            @PathVariable Long id
+    ) {
 
         Optional<DistribucionDTO> resultado =
                 distribucionService.buscarPorId(id);
@@ -45,9 +49,11 @@ public class DistribucionController {
 
     @PostMapping
     public ResponseEntity<DistribucionDTO> crear(
-            @Valid @RequestBody DistribucionDTO dto) {
+            @Valid @RequestBody DistribucionDTO dto
+    ) {
 
-        DistribucionDTO distribucion = distribucionService.crear(dto);
+        DistribucionDTO distribucion =
+                distribucionService.crear(dto);
 
         return ResponseEntity.ok(distribucion);
     }
@@ -55,7 +61,8 @@ public class DistribucionController {
     @PutMapping("/{id}")
     public ResponseEntity<DistribucionDTO> actualizar(
             @PathVariable Long id,
-            @Valid @RequestBody DistribucionDTO dto) {
+            @Valid @RequestBody DistribucionDTO dto
+    ) {
 
         Optional<DistribucionDTO> resultado =
                 distribucionService.actualizar(id, dto);
@@ -67,10 +74,24 @@ public class DistribucionController {
         return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+    @PutMapping("/{id}/consumir")
+    public ResponseEntity<DistribucionDTO> registrarConsumo(
+            @PathVariable Long id
+    ) {
 
-        boolean eliminado = distribucionService.eliminar(id);
+        DistribucionDTO distribucion =
+                distribucionService.registrarConsumo(id);
+
+        return ResponseEntity.ok(distribucion);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id
+    ) {
+
+        boolean eliminado =
+                distribucionService.eliminar(id);
 
         if (eliminado) {
             return ResponseEntity.noContent().build();

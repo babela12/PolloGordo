@@ -1,0 +1,511 @@
+
+<div class="pagos-container">
+
+  <div class="encabezado">
+    <div>
+      <h1>
+        <i class="bi bi-wallet2"></i>
+        Gestión de Pagos
+      </h1>
+      <p>Control de cobros y abonos de los pedidos confirmados.</p>
+    </div>
+
+    <button
+      type="button"
+      class="btn-actualizar"
+      [disabled]="cargando"
+      (click)="cargarPedidos()">
+      <i class="bi bi-arrow-clockwise"></i>
+      Actualizar
+    </button>
+  </div>
+
+  <div *ngIf="error && !mostrarFormulario && !mostrarHistorial"
+       class="alerta alerta-error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="mensaje" class="alerta alerta-exito">
+    {{ mensaje }}
+  </div>
+
+  <div *ngIf="resumenesNoDisponibles > 0 && !cargando"
+       class="alerta alerta-aviso">
+    No se pudo consultar el estado de pago de
+    {{ resumenesNoDisponibles }} pedido(s).
+    Los totales podrían estar incompletos.
+  </div>
+
+  <!-- RESUMEN GENERAL -->
+  <div class="resumen-grid">
+
+    <div class="resumen-card">
+      <div class="resumen-icono total">
+        <i class="bi bi-receipt"></i>
+      </div>
+      <span class="resumen-label">Total de pedidos</span>
+      <h2>S/ {{ totalPedidos | number:'1.2-2' }}</h2>
+      <span class="resumen-detalle">
+        {{ pedidos.length }} pedidos confirmados
+      </span>
+    </div>
+
+    <div class="resumen-card">
+      <div class="resumen-icono cobrado">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <span class="resumen-label">Total cobrado</span>
+      <h2>S/ {{ totalCobrado | number:'1.2-2' }}</h2>
+      <span class="resumen-detalle">Abonos registrados</span>
+    </div>
+
+    <div class="resumen-card">
+      <div class="resumen-icono pendiente">
+        <i class="bi bi-clock-history"></i>
+      </div>
+      <span class="resumen-label">Por cobrar</span>
+      <h2>S/ {{ totalPendiente | number:'1.2-2' }}</h2>
+      <span class="resumen-detalle">Saldo de pedidos consultados</span>
+    </div>
+
+  </div>
+
+  <!-- LISTADO -->
+  <div class="listado-card">
+
+    <div class="listado-encabezado">
+      <div>
+        <h2>Pedidos y pagos</h2>
+        <p>Consulta los clientes y registra sus abonos.</p>
+      </div>
+
+      <span class="contador">
+        {{ pedidosFiltrados.length }} resultados
+      </span>
+    </div>
+
+    <!-- PESTAÑAS -->
+    <div class="pestanas-pagos">
+
+      <button
+        type="button"
+        [class.activa]="pestanaActiva === 'PENDIENTE'"
+        (click)="pestanaActiva = 'PENDIENTE'">
+        <i class="bi bi-clock"></i>
+        Pendientes
+        <span>{{ contarPorEstado('PENDIENTE') }}</span>
+      </button>
+
+      <button
+        type="button"
+        [class.activa]="pestanaActiva === 'PARCIAL'"
+        (click)="pestanaActiva = 'PARCIAL'">
+        <i class="bi bi-wallet2"></i>
+        Pagos parciales
+        <span>{{ contarPorEstado('PARCIAL') }}</span>
+      </button>
+
+      <button
+        type="button"
+        [class.activa]="pestanaActiva === 'PAGADO'"
+        (click)="pestanaActiva = 'PAGADO'">
+        <i class="bi bi-check-circle"></i>
+        Pagados
+        <span>{{ contarPorEstado('PAGADO') }}</span>
+      </button>
+
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="filtros">
+      <div class="campo-busqueda">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Buscar por cliente o número de pedido..."
+          [(ngModel)]="busqueda"
+        />
+      </div>
+    </div>
+
+    <div *ngIf="cargando" class="estado-vacio">
+      <i class="bi bi-arrow-repeat"></i>
+      <p>Cargando pedidos y pagos...</p>
+    </div>
+
+    <div *ngIf="!cargando && pedidosFiltrados.length === 0"
+         class="estado-vacio">
+      <i class="bi bi-inbox"></i>
+      <p>No hay pedidos en este apartado.</p>
+    </div>
+
+    <!-- TARJETAS -->
+    <div *ngIf="!cargando && pedidosFiltrados.length > 0"
+         class="pedidos-lista">
+
+      <div class="pedido-card" *ngFor="let pedido of pedidosFiltrados">
+
+        <div class="pedido-superior">
+          <div class="cliente-info">
+            <div class="cliente-icono">
+              <i class="bi bi-person"></i>
+            </div>
+
+            <div>
+              <h3>{{ pedido.cliente }}</h3>
+              <p>
+                <i class="bi bi-receipt me-1"></i>
+                Pedido N.º {{ pedido.idPedido }}
+                <span class="separador">·</span>
+                <i class="bi bi-calendar3 me-1"></i>
+                {{ pedido.fechaEvento }}
+              </p>
+            </div>
+          </div>
+
+          <span
+            class="badge-estado"
+            [class.estado-pendiente]="pedido.resumen?.estadoPago === 'PENDIENTE'"
+            [class.estado-parcial]="pedido.resumen?.estadoPago === 'PARCIAL'"
+            [class.estado-pagado]="pedido.resumen?.estadoPago === 'PAGADO'">
+            {{
+              pedido.resumen?.estadoPago === 'PENDIENTE' ? 'Pendiente' :
+              pedido.resumen?.estadoPago === 'PARCIAL' ? 'Pago parcial' :
+              'Pagado'
+            }}
+          </span>
+        </div>
+
+        <div class="pedido-montos">
+          <div>
+            <span>Total del pedido</span>
+            <strong>S/ {{ pedido.total | number:'1.2-2' }}</strong>
+          </div>
+
+          <div>
+            <span>Total abonado</span>
+            <strong class="texto-cobrado">
+              S/ {{ pedido.resumen?.totalAbonado | number:'1.2-2' }}
+            </strong>
+          </div>
+
+          <div>
+            <span>Saldo pendiente</span>
+            <strong class="texto-pendiente">
+              S/ {{ pedido.resumen?.saldoPendiente | number:'1.2-2' }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="pedido-acciones">
+          <button
+            type="button"
+            class="btn-historial"
+            (click)="verHistorial(pedido)">
+            <i class="bi bi-clock-history"></i>
+            Ver historial
+          </button>
+
+          <button
+            type="button"
+            class="btn-nuevo"
+            [disabled]="!pedido.resumen || pedido.resumen.saldoPendiente <= 0"
+            (click)="abrirFormulario(pedido)">
+            <i class="bi bi-plus-circle"></i>
+            Registrar pago
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR PAGO -->
+  <div *ngIf="mostrarFormulario" class="modal-fondo">
+    <div class="modal-contenido">
+
+      <div class="modal-encabezado">
+        <div>
+          <h2>Registrar pago</h2>
+          <p>
+            Pedido N.º {{ pedidoSeleccionado?.idPedido }}
+            · {{ pedidoSeleccionado?.cliente }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="btn-cerrar"
+          [disabled]="guardando"
+          (click)="mostrarFormulario = false">
+          &times;
+        </button>
+      </div>
+
+      <div class="modal-saldo">
+        <span>Saldo disponible para abonar</span>
+        <strong>
+          S/ {{ pedidoSeleccionado?.resumen?.saldoPendiente | number:'1.2-2' }}
+        </strong>
+      </div>
+
+      <div *ngIf="error" class="alerta alerta-error">
+        {{ error }}
+      </div>
+
+      <form (ngSubmit)="registrarPago()" #formPago="ngForm">
+
+        <div class="form-grid">
+
+          <div class="form-campo">
+            <label for="metodo">Método de pago</label>
+            <select
+              id="metodo"
+              name="metodo"
+              [(ngModel)]="nuevoPago.metodo"
+              required>
+              <option value="YAPE">Yape</option>
+              <option value="PLIN">Plin</option>
+              <option value="TRANSFERENCIA">Transferencia</option>
+              <option value="EFECTIVO">Efectivo</option>
+            </select>
+          </div>
+
+          <div class="form-campo">
+            <label for="monto">Monto (S/)</label>
+            <input
+              id="monto"
+              type="number"
+              name="monto"
+              min="0.01"
+              step="0.01"
+              [max]="pedidoSeleccionado?.resumen?.saldoPendiente || 0"
+              [(ngModel)]="nuevoPago.monto"
+              placeholder="0.00"
+              required
+            />
+          </div>
+
+          <div class="form-campo">
+            <label for="fechaPago">Fecha del pago</label>
+            <input
+              id="fechaPago"
+              type="date"
+              name="fechaPago"
+              [(ngModel)]="nuevoPago.fechaPago"
+              required
+            />
+          </div>
+
+          <div class="form-campo">
+            <label for="referencia">Referencia (opcional)</label>
+            <input
+              id="referencia"
+              type="text"
+              name="referencia"
+              [(ngModel)]="nuevoPago.referencia"
+              placeholder="Número de operación"
+            />
+          </div>
+
+        </div>
+
+        <div class="form-campo campo-archivo">
+          <label for="comprobante">Comprobante (opcional)</label>
+          <input
+            id="comprobante"
+            type="file"
+            accept=".jpg,.jpeg,.png,.pdf"
+            (change)="seleccionarArchivo($event)"
+          />
+          <small>
+            JPG, PNG o PDF. Máximo 5 MB.
+            No es obligatorio adjuntar un comprobante.
+          </small>
+        </div>
+
+        <div class="modal-acciones">
+          <button
+            type="button"
+            class="btn-cancelar"
+            [disabled]="guardando"
+            (click)="mostrarFormulario = false">
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-guardar"
+            [disabled]="guardando || formPago.invalid">
+            {{ guardando ? 'Guardando...' : 'Guardar pago' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTORIAL -->
+  <div *ngIf="mostrarHistorial" class="modal-fondo">
+    <div class="modal-contenido modal-historial">
+
+      <div class="modal-encabezado">
+        <div>
+          <h2>Historial de pagos</h2>
+          <p>
+            Pedido N.º {{ pedidoSeleccionado?.idPedido }}
+            · {{ pedidoSeleccionado?.cliente }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="btn-cerrar"
+          (click)="mostrarHistorial = false">
+          &times;
+        </button>
+      </div>
+
+      <div *ngIf="error" class="alerta alerta-error">
+        {{ error }}
+      </div>
+
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Método</th>
+              <th>Referencia</th>
+              <th>Monto</th>
+              <th>Estado</th>
+              <th>Comprobante</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let pago of pagos">
+              <td>{{ pago.fechaPago }}</td>
+              <td>{{ pago.metodo }}</td>
+              <td>{{ pago.referencia || '—' }}</td>
+              <td class="monto">
+                S/ {{ pago.monto | number:'1.2-2' }}
+              </td>
+              <td>
+                <span
+                  class="estado"
+                  [class.estado-registrado]="pago.estado === 'REGISTRADO'"
+                  [class.estado-anulado]="pago.estado === 'ANULADO'">
+                  {{ pago.estado }}
+                </span>
+              </td>
+              <td>
+                <button
+                  *ngIf="pago.evidencia"
+                  type="button"
+                  class="btn-comprobante"
+                  (click)="verComprobante(pago)">
+                  <i class="bi bi-eye"></i>
+                  Ver comprobante
+                </button>
+
+                <span *ngIf="!pago.evidencia" class="sin-comprobante">
+                  Sin archivo
+                </span>
+              </td>
+            </tr>
+
+            <tr *ngIf="!cargandoHistorial && pagos.length === 0">
+              <td colspan="6" class="tabla-vacia">
+                Este pedido todavía no tiene pagos registrados.
+              </td>
+            </tr>
+
+            <tr *ngIf="cargandoHistorial">
+              <td colspan="6" class="tabla-vacia">
+                Cargando historial...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-acciones">
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="mostrarHistorial = false">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: VISTA PREVIA DEL COMPROBANTE -->
+  <div *ngIf="mostrarComprobante"
+       class="modal-fondo modal-comprobante-fondo">
+
+    <div class="modal-contenido modal-comprobante">
+
+      <div class="modal-encabezado">
+        <div>
+          <h2>
+            <i class="bi bi-file-earmark-image"></i>
+            Comprobante de pago
+          </h2>
+          <p>Vista previa del comprobante registrado</p>
+        </div>
+
+        <button
+          type="button"
+          class="btn-cerrar"
+          (click)="cerrarComprobante()">
+          &times;
+        </button>
+      </div>
+
+      <div class="comprobante-visor">
+
+        <div *ngIf="cargandoComprobante" class="estado-vacio">
+          <i class="bi bi-arrow-repeat"></i>
+          <p>Cargando comprobante...</p>
+        </div>
+
+        <div *ngIf="errorComprobante" class="alerta alerta-error">
+          {{ errorComprobante }}
+        </div>
+
+        <img
+          *ngIf="!cargandoComprobante &&
+                 tipoComprobante === 'imagen' &&
+                 urlComprobante"
+          [src]="urlComprobante"
+          alt="Comprobante de pago"
+          class="comprobante-imagen"
+        />
+
+        <iframe
+          *ngIf="!cargandoComprobante &&
+                 tipoComprobante === 'pdf' &&
+                 urlPdfSeguro"
+          [src]="urlPdfSeguro"
+          title="Comprobante PDF"
+          class="comprobante-pdf">
+        </iframe>
+
+      </div>
+
+      <div class="modal-acciones">
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cerrarComprobante()">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

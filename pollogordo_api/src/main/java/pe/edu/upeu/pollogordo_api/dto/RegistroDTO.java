@@ -19,6 +19,5 @@ public record RegistroDTO(
 
         @NotNull(message = "La persona es obligatoria")
         Long idPersona
-
 ) {
 }

@@ -12,6 +12,8 @@ public interface IAsigTrabajadorService {
 
     Optional<AsigTrabajadorDTO> buscarPorId(Long id);
 
+    List<AsigTrabajadorDTO> listarPorPedido(Long idPedido);
+
     AsigTrabajadorDTO crear(AsigTrabajadorDTO asignacion);
 
     Optional<AsigTrabajadorDTO> actualizar(
@@ -24,5 +26,4 @@ public interface IAsigTrabajadorService {
     AsigTrabajadorDTO crearAsignacionCompleta(
             AsigTrabajadorDTO asignacion
     );
-
 }

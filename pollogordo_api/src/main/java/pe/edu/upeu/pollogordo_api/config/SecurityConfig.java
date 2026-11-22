@@ -35,8 +35,8 @@ public class SecurityConfig {
             JwtAuthenticationFilter jwtFilter,
             AuthenticationProvider authenticationProvider,
             CustomAccessDeniedHandler accessDeniedHandler,
-            CustomAuthenticationEntryPoint authenticationEntryPoint
-    ) {
+            CustomAuthenticationEntryPoint authenticationEntryPoint) {
+
         this.jwtFilter = jwtFilter;
         this.authenticationProvider = authenticationProvider;
         this.accessDeniedHandler = accessDeniedHandler;
@@ -48,92 +48,138 @@ public class SecurityConfig {
             throws Exception {
 
         http
-                // Permitir conexión con Angular
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // Desactivar CSRF porque utilizamos JWT
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // 1. Rutas públicas
                         .requestMatchers(
-                                "/api/v1/auth/login"
-                        ).permitAll()
-
-                        // 2. Swagger
-                        .requestMatchers(
+                                "/api/v1/auth/login",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // 3. Registro de usuarios
-                        // Solo el gerente puede registrar cuentas
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/images/**"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/productos/**"
+                        ).permitAll()
+
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/v1/auth/registro"
                         ).hasAuthority("GERENTE")
 
-                        // 4. Imágenes de productos
+                        // MI TRABAJO: SOLO TRABAJADOR
+                        .requestMatchers(
+                                "/api/v1/mi-trabajo",
+                                "/api/v1/mi-trabajo/**"
+                        ).hasAuthority("TRABAJADOR")
+
+                        // ASIGNACIONES: CONSULTA
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "/images/**"
+                                "/asignaciones",
+                                "/asignaciones/**"
                         ).hasAnyAuthority("GERENTE", "CONTADOR")
 
-                        // 5. Consultar pedidos
-                        // Gerente y contador
+                        // ASIGNACIONES: MODIFICACIONES
+                        .requestMatchers(
+                                "/asignaciones",
+                                "/asignaciones/**"
+                        ).hasAuthority("GERENTE")
+
+                        // ENTREGAS: CONSULTA
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/entregas",
+                                "/entregas/**"
+                        ).hasAnyAuthority("GERENTE", "CONTADOR")
+
+                        // ENTREGAS: MODIFICACIONES
+                        .requestMatchers(
+                                "/entregas",
+                                "/entregas/**"
+                        ).hasAuthority("GERENTE")
+
+                        // TRABAJADORES Y VEHÍCULOS
+                        .requestMatchers(
+                                "/trabajadores",
+                                "/trabajadores/**",
+                                "/vehiculos",
+                                "/vehiculos/**"
+                        ).hasAuthority("GERENTE")
+
+                        // CUENTAS
+                        .requestMatchers(
+                                "/usuarios",
+                                "/usuarios/**",
+                                "/api/v1/usuarios",
+                                "/api/v1/usuarios/**"
+                        ).hasAuthority("GERENTE")
+
+                        // PEDIDOS: CONSULTA
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/v1/pedidos/**"
                         ).hasAnyAuthority("GERENTE", "CONTADOR")
 
-                        // 6. Crear, modificar y cancelar pedidos
-                        // Solo gerente
+                        // PEDIDOS: MODIFICACIONES
                         .requestMatchers(
                                 "/api/v1/pedidos/**"
                         ).hasAuthority("GERENTE")
 
-                        // 7. Pagos
-                        // Gerente y contador
+                        // PAGOS
                         .requestMatchers(
+                                "/pagos",
+                                "/pagos/**",
+                                "/api/v1/pagos",
                                 "/api/v1/pagos/**"
                         ).hasAnyAuthority("GERENTE", "CONTADOR")
 
-                        // 8. Otros módulos
-                        // Productos, insumos, clientes,
-                        // trabajadores, vehículos y asignaciones
+                        // REPORTES
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/reportes",
+                                "/reportes/**",
+                                "/api/v1/reportes",
+                                "/api/v1/reportes/**"
+                        ).hasAnyAuthority("GERENTE", "CONTADOR")
+
+                        // PRODUCTOS: MODIFICACIONES
+                        .requestMatchers(
+                                "/api/v1/productos/**"
+                        ).hasAuthority("GERENTE")
+
+                        // RESTO DE API ADMINISTRATIVA
                         .requestMatchers(
                                 "/api/v1/**"
                         ).hasAuthority("GERENTE")
 
-                        // 9. Otras solicitudes
+                        // OTRAS RUTAS
                         .anyRequest().authenticated()
                 )
 
-                // No guardar sesiones
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
                         )
                 )
 
-                // Proveedor de autenticación
                 .authenticationProvider(authenticationProvider)
 
-                // Verificar JWT en cada solicitud
                 .addFilterBefore(
                         jwtFilter,
                         UsernamePasswordAuthenticationFilter.class
                 )
 
-                // Manejar errores de seguridad
                 .exceptionHandling(exception -> exception
-
-                        // Error 401: no autenticado
                         .authenticationEntryPoint(authenticationEntryPoint)
-
-                        // Error 403: sin permisos
                         .accessDeniedHandler(accessDeniedHandler)
                 );
 
@@ -145,10 +191,10 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Puertos permitidos de Angular
         configuration.setAllowedOrigins(
                 List.of(
                         "http://localhost:4200",
+                        "http://localhost:4201",
                         "http://localhost:3080",
                         "http://localhost:4001"
                 )

@@ -2,6 +2,33 @@ package pe.edu.upeu.pollogordo_api.entity;
 
 import jakarta.persistence.*;
 
+@NamedStoredProcedureQuery(
+        name = "Distribucion.reporteInsumos",
+        procedureName = "P_REPORTE_INSUMOS",
+        parameters = {
+                @StoredProcedureParameter(
+                        mode = ParameterMode.IN,
+                        name = "PFECHA_INICIO",
+                        type = java.sql.Date.class
+                ),
+                @StoredProcedureParameter(
+                        mode = ParameterMode.IN,
+                        name = "PFECHA_FIN",
+                        type = java.sql.Date.class
+                ),
+                @StoredProcedureParameter(
+                        mode = ParameterMode.IN,
+                        name = "PSOLO_CONFIRMADOS",
+                        type = Integer.class
+                ),
+                @StoredProcedureParameter(
+                        mode = ParameterMode.REF_CURSOR,
+                        name = "PRESULTADO",
+                        type = void.class
+                )
+        }
+)
+
 @Entity
 @Table(name = "DISTRIBUCION")
 public class Distribucion {

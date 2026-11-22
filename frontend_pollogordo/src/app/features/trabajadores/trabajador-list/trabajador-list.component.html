@@ -1,9 +1,10 @@
+
 <div class="container trabajadores-container mt-4 mb-5">
 
   <div class="encabezado-trabajadores">
     <h2 class="titulo-trabajadores">Gestión de Trabajadores</h2>
 
-    <a routerLink="/trabajadores/new" class="btn btn-nuevo">
+    <a routerLink="/trabajadores/nuevo" class="btn btn-nuevo">
       <i class="bi bi-plus-circle me-2"></i>
       Nuevo Trabajador
     </a>
@@ -105,6 +106,7 @@
 
               <td>
                 <div class="acciones-trabajador">
+
                   <a
                     [routerLink]="['/trabajadores/editar', trabajador.idTrabajador]"
                     class="btn btn-editar">
@@ -127,7 +129,9 @@
                     </i>
 
                     {{ trabajador.estado === 'A' ? 'Desactivar' : 'Activar' }}
+
                   </button>
+
                 </div>
               </td>
 
@@ -144,11 +148,14 @@
         </tbody>
 
       </table>
+
     </div>
   </div>
 
   @if (cargando) {
-    <p class="text-center mt-4">Cargando trabajadores...</p>
+    <p class="text-center mt-4">
+      Cargando trabajadores...
+    </p>
   }
 
 </div>

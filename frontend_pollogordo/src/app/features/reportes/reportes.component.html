@@ -1,0 +1,450 @@
+
+<section class="reportes">
+
+  <!-- ENCABEZADO -->
+  <header class="encabezado">
+    <div>
+      <p class="etiqueta">POLLO GORDO · GESTIÓN</p>
+      <h1>Reportes</h1>
+      <p class="subtitulo">
+        Consulta los pedidos, insumos necesarios y planificación de compras por período.
+      </p>
+    </div>
+
+    <span class="criterio">Por fecha del evento</span>
+  </header>
+
+  <!-- FILTROS -->
+  <form class="filtros no-imprimir" (ngSubmit)="consultar()">
+
+    <div>
+      <label for="fechaInicio">Desde</label>
+      <input
+        id="fechaInicio"
+        name="fechaInicio"
+        type="date"
+        class="form-control"
+        [(ngModel)]="fechaInicio"
+        (ngModelChange)="invalidar()"
+        [disabled]="cargando"
+        required>
+    </div>
+
+    <div>
+      <label for="fechaFin">Hasta</label>
+      <input
+        id="fechaFin"
+        name="fechaFin"
+        type="date"
+        class="form-control"
+        [(ngModel)]="fechaFin"
+        (ngModelChange)="invalidar()"
+        [disabled]="cargando"
+        required>
+    </div>
+
+    <label class="confirmacion" for="soloConfirmados">
+      <input
+        id="soloConfirmados"
+        name="soloConfirmados"
+        type="checkbox"
+        [(ngModel)]="soloConfirmados"
+        (ngModelChange)="invalidar()"
+        [disabled]="cargando">
+      Solo confirmados
+    </label>
+
+    <button
+      class="btn btn-consultar"
+      type="submit"
+      [disabled]="cargando">
+      {{ cargando ? 'Consultando...' : 'Consultar' }}
+    </button>
+
+    <button
+      class="btn btn-outline-secondary"
+      type="button"
+      (click)="seleccionarSemana()"
+      [disabled]="cargando">
+      Esta semana
+    </button>
+
+  </form>
+
+  <!-- ERRORES -->
+  @if (error) {
+    <div class="alert alert-danger">
+      {{ error }}
+    </div>
+  }
+
+  @if (cargando) {
+    <p class="mensaje">Consultando reportes...</p>
+  }
+
+  <!-- RESULTADOS -->
+  @if (reporte; as datos) {
+
+    <p class="periodo">
+      <strong>Período consultado:</strong>
+      {{ datos.fechaInicio | date:'dd/MM/yyyy' }}
+      al {{ datos.fechaFin | date:'dd/MM/yyyy' }}
+    </p>
+
+    <!-- RESUMEN GENERAL -->
+    <div class="resumen">
+
+      <article>
+        <span>Pedidos</span>
+        <strong>{{ totalPedidos }}</strong>
+      </article>
+
+      <article>
+        <span>Importe de pedidos</span>
+        <strong>
+          {{ totalImporte | currency:'PEN':'S/ ':'1.2-2' }}
+        </strong>
+      </article>
+
+      <article>
+        <span>Confirmados</span>
+        <strong>{{ confirmados }}</strong>
+      </article>
+
+      <article>
+        <span>Insumos distintos</span>
+        <strong>{{ datos.insumos.length }}</strong>
+      </article>
+
+    </div>
+
+    <!-- OPCIONES DEL REPORTE -->
+    <div class="barra-reporte no-imprimir">
+
+      <div class="selector">
+
+        <button
+          type="button"
+          [class.activo]="tipo === 'pedidos'"
+          (click)="tipo = 'pedidos'">
+          Pedidos
+        </button>
+
+        <button
+          type="button"
+          [class.activo]="tipo === 'insumos'"
+          (click)="tipo = 'insumos'">
+          Consolidado de insumos
+        </button>
+
+      </div>
+
+      <div class="acciones">
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="exportarCsv()"
+          [disabled]="!hayFilas">
+          Exportar CSV
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="imprimir()"
+          [disabled]="!hayFilas">
+          Imprimir / Guardar PDF
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- REPORTE DE PEDIDOS -->
+    @if (tipo === 'pedidos') {
+
+      <div class="tabla-reporte">
+
+        <h2>Pedidos por fecha de evento</h2>
+
+        @if (datos.pedidos.length > 0) {
+
+          <div class="tabla-scroll">
+
+            <table class="table align-middle">
+
+              <thead>
+                <tr>
+                  <th>Pedido</th>
+                  <th>Cliente</th>
+                  <th>Evento</th>
+                  <th>Hora</th>
+                  <th>Dirección</th>
+                  <th>Estado</th>
+                  <th>Confirmado</th>
+                  <th class="numero">Importe</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (pedido of datos.pedidos; track pedido.idPedido) {
+                  <tr>
+                    <td>#{{ pedido.idPedido }}</td>
+                    <td>{{ pedido.cliente }}</td>
+                    <td>
+                      {{ pedido.fechaEvento | date:'dd/MM/yyyy' }}
+                    </td>
+                    <td>
+                      {{ pedido.horaEntrega?.slice(0, 5) || '—' }}
+                    </td>
+                    <td>{{ pedido.direccionEvento || '—' }}</td>
+                    <td>{{ pedido.estado || '—' }}</td>
+                    <td>
+                      {{ pedido.confirmado === 'S' ? 'Sí' : 'No' }}
+                    </td>
+                    <td class="numero">
+                      {{ pedido.total | currency:'PEN':'S/ ':'1.2-2' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+
+              <tfoot>
+                <tr>
+                  <th colspan="7">Total</th>
+                  <td class="numero">
+                    {{ totalImporte | currency:'PEN':'S/ ':'1.2-2' }}
+                  </td>
+                </tr>
+              </tfoot>
+
+            </table>
+
+          </div>
+
+        } @else {
+
+          <p class="mensaje">
+            No hay pedidos en este período.
+          </p>
+
+        }
+
+      </div>
+
+    } @else {
+
+      <!-- CONSOLIDADO DE INSUMOS -->
+      <div class="tabla-reporte">
+
+        <h2>Consolidado de insumos</h2>
+
+        @if (datos.insumos.length > 0) {
+
+          <div class="tabla-scroll">
+
+            <table class="table align-middle">
+
+              <thead>
+                <tr>
+                  <th>Insumo</th>
+                  <th>Unidad</th>
+                  <th class="numero">Cantidad necesaria</th>
+                  <th class="numero">Pedidos relacionados</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (insumo of datos.insumos; track insumo.idInsumo) {
+                  <tr>
+                    <td>{{ insumo.insumo }}</td>
+                    <td>{{ insumo.unidad }}</td>
+                    <td class="numero">
+                      {{ insumo.cantidad | number:'1.0-3' }}
+                    </td>
+                    <td class="numero">
+                      {{ insumo.pedidos }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+
+            </table>
+
+          </div>
+
+        } @else {
+
+          <p class="mensaje">
+            No hay insumos registrados para este período.
+          </p>
+
+        }
+
+      </div>
+
+      <!-- PLANIFICACIÓN DE COMPRAS -->
+      <div class="tabla-reporte">
+
+        <h2>Planificación de compras</h2>
+
+        <p class="subtitulo">
+          Insumos y pollos requeridos para los eventos del período.
+        </p>
+
+        @if (errorInventario) {
+          <div class="alert alert-warning">
+            {{ errorInventario }}
+          </div>
+        }
+
+        <!-- RESUMEN DE COMPRAS -->
+        <div class="resumen">
+
+          <article>
+            <span>Insumos necesarios</span>
+            <strong>{{ planificacionCompras.length }}</strong>
+          </article>
+
+          @if (inventarioDisponible) {
+
+            <article>
+              <span>Requieren pedido</span>
+              <strong>{{ insumosPorComprar }}</strong>
+            </article>
+
+            <article>
+              <span>Sin seguimiento</span>
+              <strong>{{ insumosSinControl }}</strong>
+            </article>
+
+          }
+
+          <!-- NUEVO: POLLOS PARA PEDIR -->
+          <article>
+            <span>Pollos para pedir</span>
+            <strong>
+              {{ datos.totalPollos | number:'1.0-0' }}
+            </strong>
+          </article>
+
+        </div>
+
+        @if (datos.insumos.length > 0) {
+
+          <!-- TABLA DE PLANIFICACIÓN -->
+          <div class="tabla-scroll">
+
+            <table class="table align-middle">
+
+              <thead>
+                <tr>
+                  <th>Insumo</th>
+                  <th>Unidad</th>
+                  <th class="numero">Cantidad necesaria</th>
+                  <th class="numero">Stock disponible</th>
+                  <th class="numero">Para pedir</th>
+                  <th class="numero">Pedidos</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                @for (item of planificacionCompras; track item.insumo) {
+
+                  <tr>
+
+                    <td>
+                      <strong>{{ item.insumo }}</strong>
+                    </td>
+
+                    <td>{{ item.unidad }}</td>
+
+                    <td class="numero">
+                      {{ item.cantidadNecesaria | number:'1.0-3' }}
+                    </td>
+
+                    <!-- STOCK DISPONIBLE -->
+                    <td class="numero">
+
+                      @if (item.stockDisponible !== null) {
+
+                        {{ item.stockDisponible | number:'1.0-3' }}
+
+                      } @else {
+
+                        <span class="text-muted">—</span>
+
+                      }
+
+                    </td>
+
+                    <!-- CANTIDAD PARA PEDIR -->
+                    <td class="numero">
+
+                      @if (item.cantidadComprar !== null) {
+
+                        <strong
+                          [class.text-danger]="item.cantidadComprar > 0 && item.controlaStock"
+                          [class.text-success]="item.cantidadComprar === 0"
+                          [class.text-warning]="item.cantidadComprar > 0 && !item.controlaStock">
+
+                          {{ item.cantidadComprar | number:'1.0-3' }}
+
+                        </strong>
+
+                      } @else {
+
+                        <span class="text-muted">—</span>
+
+                      }
+
+                    </td>
+
+                    <td class="numero">
+                      {{ item.pedidos }}
+                    </td>
+
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+          <!-- NOTA -->
+          <p class="subtitulo">
+            Los insumos sin control de stock muestran la cantidad
+            requerida sin descontar existencias.
+          </p>
+
+        } @else {
+
+          <p class="mensaje">
+            No hay insumos para planificar compras en este período.
+          </p>
+
+        }
+
+        <p class="subtitulo">
+          Los pollos para pedir corresponden al total requerido
+          por los pedidos consultados, sin descontar existencias.
+        </p>
+
+      </div>
+
+    }
+
+  } @else if (!cargando && !error) {
+
+    <p class="mensaje">
+      Selecciona las fechas y presiona Consultar.
+    </p>
+
+  }
+
+</section>

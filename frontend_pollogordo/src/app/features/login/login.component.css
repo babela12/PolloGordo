@@ -1,0 +1,210 @@
+
+/* PÁGINA COMPLETA */
+.login-pagina {
+  min-height: 100vh;
+  background: #fff8f1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 20px;
+}
+
+/* TARJETA PRINCIPAL */
+.login-tarjeta {
+  width: 100%;
+  max-width: 850px;
+  min-height: 480px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: white;
+  border: 1px solid #e8ded5;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(70, 30, 20, 0.12);
+}
+
+/* IMAGEN IZQUIERDA */
+.login-imagen {
+  background:
+    linear-gradient(
+      to top,
+      rgba(65, 12, 15, 0.9),
+      rgba(65, 12, 15, 0.05)
+    ),
+    url('/pollo-login.png');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  align-items: flex-end;
+  padding: 30px;
+}
+
+/* TEXTO SOBRE LA IMAGEN */
+.imagen-contenido h2 {
+  color: white;
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 26px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.imagen-contenido p {
+  color: #f4d7c5;
+  font-size: 12px;
+  margin-top: 15px;
+}
+
+/* FORMULARIO DERECHO */
+.login-formulario {
+  padding: 35px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* LOGO */
+.login-logo {
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+  align-self: center;
+  margin-bottom: 15px;
+}
+
+/* TÍTULO */
+.login-formulario h1 {
+  font-family: Georgia, serif;
+  color: #7b1e21;
+  text-align: center;
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+/* SUBTÍTULO */
+.login-subtitulo {
+  text-align: center;
+  color: #777;
+  font-size: 12px;
+  margin-bottom: 25px;
+}
+
+/* CAMPOS */
+.login-campo {
+  margin-bottom: 17px;
+}
+
+.login-campo label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 7px;
+  color: #333;
+}
+
+.login-campo input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d9cec4;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+}
+
+.login-campo input:focus {
+  border-color: #7b1e21;
+  box-shadow: 0 0 0 3px rgba(123, 30, 33, 0.1);
+}
+
+/* MOSTRAR CONTRASEÑA */
+.mostrar-password {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 18px;
+  cursor: pointer;
+}
+
+.mostrar-password input {
+  accent-color: #7b1e21;
+}
+
+/* BOTÓN INGRESAR */
+.btn-ingresar-login {
+  width: 100%;
+  background: #7b1e21;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-ingresar-login:hover {
+  background: #60171a;
+}
+
+.btn-ingresar-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* MENSAJE DE ERROR */
+.login-error {
+  color: #b42318;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+/* AYUDA */
+.login-ayuda {
+  border-top: 1px solid #e8ded5;
+  margin-top: 25px;
+  padding-top: 18px;
+  text-align: center;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* PIE DE PÁGINA */
+.login-pie {
+  margin-top: 18px;
+  font-size: 11px;
+  color: #998c83;
+  text-align: center;
+}
+
+/* DISEÑO RESPONSIVE */
+@media (max-width: 650px) {
+
+  .login-tarjeta {
+    max-width: 420px;
+    grid-template-columns: 1fr;
+  }
+
+  .login-imagen {
+    min-height: 190px;
+    padding: 20px;
+  }
+
+  .imagen-contenido h2 {
+    font-size: 20px;
+  }
+
+  .login-formulario {
+    padding: 28px 24px;
+  }
+
+  .login-formulario h1 {
+    font-size: 22px;
+  }
+}

@@ -1,12 +1,21 @@
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-pollo-gordo sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-pollo-gordo">
   <div class="container-fluid">
 
-    <a class="navbar-brand d-flex align-items-center" routerLink="/home">
-      <img src="/logo-pollogordo.png" alt="Logo Pollo Gordo" class="logo-pollogordo">
+    <!-- LOGO -->
+    <a
+      class="navbar-brand d-flex align-items-center"
+      [routerLink]="userRole === 'TRABAJADOR' ? '/mi-trabajo' : '/home'"
+    >
+      <img
+        src="/logo-pollogordo.png"
+        alt="Logo Pollo Gordo"
+        class="logo-pollogordo"
+      >
       <span>Pollo Gordo</span>
     </a>
 
+    <!-- BOTÓN RESPONSIVE -->
     <button
       class="navbar-toggler"
       type="button"
@@ -14,148 +23,269 @@
       data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent"
       aria-expanded="false"
-      aria-label="Mostrar menú">
-
+      aria-label="Mostrar menú"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
+    <div
+      class="collapse navbar-collapse"
+      id="navbarSupportedContent"
+    >
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
+        <!-- INICIO -->
         <li class="nav-item">
-          <a class="nav-link" routerLink="/home" routerLinkActive="active">
+          <a
+            class="nav-link"
+            [routerLink]="userRole === 'TRABAJADOR' ? '/mi-trabajo' : '/home'"
+            routerLinkActive="active"
+          >
             <i class="bi bi-house-door me-1"></i>
             Inicio
           </a>
         </li>
 
-        <li class="nav-item dropdown">
+        <!-- GESTIÓN: SOLO GERENTE -->
+        @if (isAdmin) {
 
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            id="gestionDropdown"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false">
+          <li class="nav-item dropdown">
 
-            <i class="bi bi-grid me-1"></i>
-            Gestión
-          </a>
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="gestionDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="bi bi-grid me-1"></i>
+              Gestión
+            </a>
 
-          <ul class="dropdown-menu menu-gestion" aria-labelledby="gestionDropdown">
+            <ul
+              class="dropdown-menu menu-gestion"
+              aria-labelledby="gestionDropdown"
+            >
 
-            <li>
-              <a class="dropdown-item" routerLink="/productos">
-                <i class="bi bi-box-seam me-2"></i>
-                Productos
-              </a>
-            </li>
+              <li>
+                <a class="dropdown-item" routerLink="/productos">
+                  <i class="bi bi-box-seam me-2"></i>
+                  Productos
+                </a>
+              </li>
 
-            <li>
-              <a class="dropdown-item" routerLink="/insumos">
-                <i class="bi bi-basket2 me-2"></i>
-                Insumos
-              </a>
-            </li>
+              <li>
+                <a class="dropdown-item" routerLink="/insumos">
+                  <i class="bi bi-basket2 me-2"></i>
+                  Insumos
+                </a>
+              </li>
 
-            <li>
-              <hr class="dropdown-divider">
-            </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
 
-            <li>
-              <a class="dropdown-item" routerLink="/clientes">
-                <i class="bi bi-people me-2"></i>
-                Clientes
-              </a>
-            </li>
+              <li>
+                <a class="dropdown-item" routerLink="/clientes">
+                  <i class="bi bi-people me-2"></i>
+                  Clientes
+                </a>
+              </li>
 
-            <li>
-              <a class="dropdown-item" routerLink="/trabajadores">
-                <i class="bi bi-person-badge me-2"></i>
-                Trabajadores
-              </a>
-            </li>
+              <li>
+                <a class="dropdown-item" routerLink="/trabajadores">
+                  <i class="bi bi-person-badge me-2"></i>
+                  Trabajadores
+                </a>
+              </li>
 
-            <li>
-              <a class="dropdown-item" routerLink="/vehiculos">
-                <i class="bi bi-truck me-2"></i>
-                Vehículos
-              </a>
-            </li>
+              <li>
+                <a class="dropdown-item" routerLink="/vehiculos">
+                  <i class="bi bi-truck me-2"></i>
+                  Vehículos
+                </a>
+              </li>
 
-          </ul>
-        </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
 
-        <li class="nav-item dropdown">
+              <li>
+                <a class="dropdown-item" routerLink="/cuentas">
+                  <i class="bi bi-person-lock me-2"></i>
+                  Cuentas de acceso
+                </a>
+              </li>
 
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            id="operacionesDropdown"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false">
+            </ul>
+          </li>
+        }
 
-            <i class="bi bi-clipboard-check me-1"></i>
-            Operaciones
-          </a>
+        <!-- OPERACIONES: GERENTE Y CONTADOR -->
+        @if (isAdmin || userRole === 'CONTADOR') {
 
-          <ul class="dropdown-menu menu-gestion" aria-labelledby="operacionesDropdown">
+          <li class="nav-item dropdown">
 
-            <li>
-              <a class="dropdown-item" routerLink="/pedidos/nuevo">
-                <i class="bi bi-plus-circle me-2"></i>
-                Nuevo Pedido
-              </a>
-            </li>
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="operacionesDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="bi bi-clipboard-check me-1"></i>
+              Operaciones
+            </a>
 
-            <li>
-              <a class="dropdown-item" routerLink="/pedidos">
-                <i class="bi bi-receipt me-2"></i>
-                Pedidos
-              </a>
-            </li>
+            <ul
+              class="dropdown-menu menu-gestion"
+              aria-labelledby="operacionesDropdown"
+            >
 
-          </ul>
-        </li>
+              <!-- NUEVO PEDIDO: SOLO GERENTE -->
+              @if (isAdmin) {
+                <li>
+                  <a
+                    class="dropdown-item"
+                    routerLink="/pedidos/nuevo"
+                  >
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Nuevo Pedido
+                  </a>
+                </li>
+              }
+
+              <!-- PEDIDOS: GERENTE Y CONTADOR -->
+              <li>
+                <a
+                  class="dropdown-item"
+                  routerLink="/pedidos"
+                >
+                  <i class="bi bi-receipt me-2"></i>
+                  Pedidos
+                </a>
+              </li>
+
+              <!-- ASIGNACIONES: SOLO GERENTE -->
+              @if (isAdmin) {
+                <li>
+                  <a
+                    class="dropdown-item"
+                    routerLink="/asignaciones"
+                  >
+                    <i class="bi bi-person-check me-2"></i>
+                    Asignaciones
+                  </a>
+                </li>
+              }
+
+              <!-- PAGOS: GERENTE Y CONTADOR -->
+              <li>
+                <a
+                  class="dropdown-item"
+                  routerLink="/pagos"
+                >
+                  <i class="bi bi-cash-coin me-2"></i>
+                  Pagos
+                </a>
+              </li>
+
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+
+              <!-- REPORTES: GERENTE Y CONTADOR -->
+              <li>
+                <a
+                  class="dropdown-item"
+                  routerLink="/reportes"
+                >
+                  <i class="bi bi-file-earmark-bar-graph me-2"></i>
+                  Reportes
+                </a>
+              </li>
+
+            </ul>
+          </li>
+        }
+
+        <!-- MI TRABAJO: SOLO TRABAJADOR -->
+        @if (userRole === 'TRABAJADOR') {
+
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              routerLink="/mi-trabajo"
+              routerLinkActive="active"
+            >
+              <i class="bi bi-calendar-check me-1"></i>
+              Mi trabajo
+            </a>
+          </li>
+
+        }
 
       </ul>
 
-      <form
-        class="d-flex buscador-header me-3"
-        role="search"
-        (submit)="$event.preventDefault()">
+      <!-- BUSCADOR: GERENTE Y CONTADOR -->
+      @if (isAdmin || userRole === 'CONTADOR') {
 
-        <input
-          class="form-control me-2"
-          type="search"
-          placeholder="Buscar..."
-          aria-label="Buscar">
+        <form
+          class="d-flex buscador-header me-3"
+          role="search"
+          (submit)="$event.preventDefault()"
+        >
 
-        <button class="btn btn-outline-pollo" type="submit">
-          Buscar
-        </button>
-      </form>
+          <input
+            class="form-control me-2"
+            type="search"
+            placeholder="Buscar..."
+            aria-label="Buscar"
+          >
 
+          <button
+            class="btn btn-outline-pollo"
+            type="submit"
+          >
+            Buscar
+          </button>
+
+        </form>
+
+      }
+
+      <!-- USUARIO -->
       <div class="usuario-header d-flex align-items-center">
 
-        <button type="button" class="btn btn-outline-light btn-ingresar">
-          Ingresar
-        </button>
+        @if (!(authService.isLoggedIn$ | async)) {
 
-        <span class="saludo-usuario text-white mx-3">
-          Hola, <strong>Patrick Ortiz</strong>
-        </span>
+          <a
+            class="btn btn-outline-light btn-ingresar"
+            routerLink="/login"
+          >
+            Ingresar
+          </a>
 
-        <button type="button" class="btn btn-sm btn-cerrar">
-          Cerrar Sesión
-        </button>
+        } @else {
+
+          <span class="saludo-usuario text-white mx-3">
+            Hola, <strong>{{ userName }}</strong>
+          </span>
+
+          <button
+            type="button"
+            class="btn btn-sm btn-cerrar"
+            (click)="logout()"
+          >
+            Cerrar Sesión
+          </button>
+
+        }
 
       </div>
 
     </div>
-
   </div>
 </nav>

@@ -1,3 +1,4 @@
+
 package pe.edu.upeu.pollogordo_api.dto;
 
 public record UsuarioDTO(
@@ -5,7 +6,7 @@ public record UsuarioDTO(
         String usuario,
         String rol,
         String nombrePersona,
-        String apellidos
+        String apellidos,
+        Long idPersona
 ) {
 }
-

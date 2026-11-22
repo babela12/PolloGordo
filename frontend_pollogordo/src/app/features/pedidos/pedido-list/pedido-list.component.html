@@ -1,319 +1,473 @@
 <div class="contenedor-pedidos">
-
-    @if (pedidoSeleccionado === null) {
-
+  @if (pedidoSeleccionado === null && pedidoConfirmadoSeleccionado === null) {
     <div class="encabezado">
-        <div>
-            <h2>
-                <i class="bi bi-cart-check"></i>
-                Pedidos por confirmar
-            </h2>
-            <p>Busca y revisa los pedidos antes de confirmarlos.</p>
-        </div>
-
-        <button class="btn-nuevo" (click)="nuevoPedido()">
-            <i class="bi bi-plus-circle"></i>
-            Nuevo Pedido
-        </button>
+      <div>
+        <h2><i class="bi bi-cart-check"></i> Gestión de pedidos</h2>
+        <p>Consulta y administra los pedidos de Pollo Gordo.</p>
+      </div>
+      <button type="button" class="btn-nuevo" (click)="nuevoPedido()">
+        <i class="bi bi-plus-circle"></i> Nuevo Pedido
+      </button>
     </div>
-
+    <div class="pestanas-pedidos">
+      <button type="button" [class.activa]="pestanaActiva === 'pendientes'" (click)="cambiarPestana('pendientes')">
+        <i class="bi bi-clock-history"></i> Por confirmar
+        <span>{{ pedidos.length }}</span>
+      </button>
+      <button type="button" [class.activa]="pestanaActiva === 'confirmados'" (click)="cambiarPestana('confirmados')">
+        <i class="bi bi-check-circle"></i> Confirmados
+        <span>{{ cantidadConfirmadosActivos }}</span>
+      </button>
+      <button type="button" [class.activa]="pestanaActiva === 'finalizados'" (click)="cambiarPestana('finalizados')">
+        <i class="bi bi-check2-all"></i> Finalizados
+        <span>{{ cantidadFinalizados }}</span>
+      </button>
+      <button type="button" [class.activa]="pestanaActiva === 'historial'" (click)="cambiarPestana('historial')">
+        <i class="bi bi-clock-history"></i> Historial
+        <span>{{ pedidosOracle.length }}</span>
+      </button>
+    </div>
     <div class="barra-busqueda">
-        <div class="buscador">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Buscar por cliente, teléfono o fecha..." [(ngModel)]="buscar">
-        </div>
-
-        <span class="contador">
-            {{ pedidosFiltrados.length }} pedidos
-        </span>
-    </div>
-
-    @if (pedidosFiltrados.length === 0) {
-
-    <div class="sin-pedidos">
-        <i class="bi bi-cart-x"></i>
-
-        @if (buscar.trim()) {
-        <h3>No se encontraron pedidos</h3>
-        <p>Prueba con otro nombre, teléfono o fecha.</p>
+      <div class="buscador">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Buscar por cliente, teléfono, número o fecha..." [(ngModel)]="buscar">
+      </div>
+      <span class="contador">
+        @if (pestanaActiva === 'pendientes') {
+          {{ pedidosFiltrados.length }} pedidos
         } @else {
-        <h3>No hay pedidos por confirmar</h3>
-        <p>Los pedidos que prepares aparecerán aquí.</p>
-
-        <button class="btn-nuevo" (click)="nuevoPedido()">
-            Crear pedido
-        </button>
+          {{ pedidosConfirmadosFiltrados.length }} pedidos
         }
+      </span>
     </div>
-
-    } @else {
-
-    <div class="lista-pedidos">
-
-        @for (pedido of pedidosFiltrados; track pedido.idTemporal) {
-
-        <div class="tarjeta-pedido">
-
-            <div class="cabecera-pedido">
+    @if (pestanaActiva === 'pendientes') {
+      @if (pedidosFiltrados.length === 0) {
+        <div class="sin-pedidos">
+          <i class="bi bi-cart-x"></i>
+          @if (buscar.trim()) {
+            <h3>No se encontraron pedidos</h3>
+            <p>Prueba con otro nombre, teléfono o fecha.</p>
+          } @else {
+            <h3>No hay pedidos por confirmar</h3>
+            <p>Los pedidos que prepares aparecerán aquí.</p>
+            <button type="button" class="btn-nuevo" (click)="nuevoPedido()">Crear pedido</button>
+          }
+        </div>
+      } @else {
+        <div class="lista-pedidos">
+          @for (pedido of pedidosFiltrados; track pedido.idTemporal) {
+            <div class="tarjeta-pedido">
+              <div class="cabecera-pedido">
                 <div>
-                    <h3>{{ pedido.nombreCliente }}</h3>
-                    <p>
-                        <i class="bi bi-telephone"></i>
-                        {{ pedido.pedido.telefonoContacto }}
-                    </p>
+                  <h3>{{ pedido.nombreCliente }}</h3>
+                  <p><i class="bi bi-telephone"></i> {{ pedido.pedido.telefonoContacto }}</p>
                 </div>
-
                 <span class="estado-pendiente">
-                    <i class="bi bi-clock-history"></i>
-                    Pendiente
+                  <i class="bi bi-clock-history"></i> Pendiente
                 </span>
-            </div>
-
-            <div class="informacion-pedido">
-
+              </div>
+              <div class="informacion-pedido">
                 <div>
-                    <span class="etiqueta">Fecha del evento</span>
-                    <strong>{{ pedido.pedido.fechaEvento }}</strong>
+                  <span class="etiqueta">Fecha del evento</span>
+                  <strong>{{ pedido.pedido.fechaEvento }}</strong>
                 </div>
-
                 <div>
-                    <span class="etiqueta">Hora de entrega</span>
-                    <strong>{{ pedido.pedido.horaEntrega }}</strong>
+                  <span class="etiqueta">Hora de entrega</span>
+                  <strong>{{ pedido.pedido.horaEntrega }}</strong>
                 </div>
-
                 <div>
-                    <span class="etiqueta">Cantidad</span>
-                    <strong>
-                        {{ calcularTotalProductos(pedido) }} unidades
-                    </strong>
+                  <span class="etiqueta">Cantidad</span>
+                  <strong>{{ calcularTotalProductos(pedido) }} unidades</strong>
                 </div>
-
                 <div>
-                    <span class="etiqueta">Total</span>
-                    <strong>
-                        S/ {{ calcularTotal(pedido).toFixed(2) }}
-                    </strong>
+                  <span class="etiqueta">Total</span>
+                  <strong>S/ {{ importe(calcularTotal(pedido)) }}</strong>
                 </div>
-
-            </div>
-
-            <div class="acciones-pedido">
-
-                <button class="btn-detalle" (click)="verPedido(pedido.idTemporal)">
-                    <i class="bi bi-eye"></i>
-                    Ver pedido
+              </div>
+              <div class="acciones-pedido">
+                <button type="button" class="btn-detalle" (click)="verPedido(pedido.idTemporal)">
+                  <i class="bi bi-eye"></i> Ver pedido
                 </button>
-
-                <button class="btn-editar" (click)="editarPedido(pedido.idTemporal)">
-                    <i class="bi bi-pencil-square"></i>
-                    Editar
+                <button type="button" class="btn-editar" (click)="editarPedido(pedido.idTemporal)">
+                  <i class="bi bi-pencil-square"></i> Editar
                 </button>
-
-                <button class="btn-eliminar" (click)="eliminarPedido(pedido.idTemporal)">
-                    <i class="bi bi-trash"></i>
-                    Eliminar
+                <button type="button" class="btn-eliminar" (click)="eliminarPedido(pedido.idTemporal)">
+                  <i class="bi bi-trash"></i> Eliminar
                 </button>
-
+              </div>
             </div>
-
+          }
         </div>
-
-        }
-
-    </div>
-
-    }
-
+      }
     } @else {
-
+      @if (cargandoConfirmados) {
+        <div class="sin-pedidos">
+          <i class="bi bi-arrow-repeat"></i>
+          <h3>Cargando pedidos...</h3>
+          <p>Consultando los pedidos registrados.</p>
+        </div>
+      } @else if (errorConfirmados) {
+        <div class="sin-pedidos">
+          <i class="bi bi-exclamation-circle"></i>
+          <h3>No se pudieron cargar los pedidos</h3>
+          <p>{{ errorConfirmados }}</p>
+          <button type="button" class="btn-nuevo" (click)="cargarPedidosConfirmados()">Reintentar</button>
+        </div>
+      } @else if (pedidosConfirmadosFiltrados.length === 0) {
+        <div class="sin-pedidos">
+          <i class="bi bi-clipboard-check"></i>
+          @if (buscar.trim()) {
+            <h3>No se encontraron pedidos</h3>
+            <p>Prueba con otro criterio de búsqueda.</p>
+          } @else if (pestanaActiva === 'finalizados') {
+            <h3>No hay pedidos finalizados</h3>
+            <p>Los pedidos aparecerán aquí cuando haya pasado la fecha de su evento.</p>
+          } @else if (pestanaActiva === 'historial') {
+            <h3>El historial está vacío</h3>
+            <p>Los pedidos confirmados aparecerán aquí.</p>
+          } @else {
+            <h3>No hay pedidos confirmados activos</h3>
+            <p>Los pedidos con eventos pendientes aparecerán aquí.</p>
+          }
+          <button type="button" class="btn-editar" (click)="cargarPedidosConfirmados()">
+            <i class="bi bi-arrow-clockwise"></i> Actualizar
+          </button>
+        </div>
+      } @else {
+        <div class="lista-pedidos">
+          @for (pedido of pedidosConfirmadosFiltrados; track pedido.idPedido) {
+            <div class="tarjeta-pedido">
+              <div class="cabecera-pedido">
+                <div>
+                  <h3>Pedido N.º {{ pedido.idPedido }}</h3>
+                  <p>{{ pedido.cliente }}</p>
+                  <p><i class="bi bi-telephone"></i> {{ pedido.telefonoContacto }}</p>
+                </div>
+                @if (esPedidoFinalizado(pedido)) {
+                  <span class="estado-finalizado">
+                    <i class="bi bi-check2-all"></i> Finalizado
+                  </span>
+                } @else {
+                  <span class="estado-confirmado">
+                    <i class="bi bi-check-circle"></i> Confirmado
+                  </span>
+                }
+              </div>
+              <div class="informacion-pedido">
+                <div>
+                  <span class="etiqueta">Fecha del evento</span>
+                  <strong>{{ pedido.fechaEvento }}</strong>
+                </div>
+                <div>
+                  <span class="etiqueta">Hora de entrega</span>
+                  <strong>{{ pedido.horaEntrega }}</strong>
+                </div>
+                <div>
+                  <span class="etiqueta">Cantidad</span>
+                  <strong>{{ totalProductosConfirmados(pedido) }} unidades</strong>
+                </div>
+                <div>
+                  <span class="etiqueta">Total</span>
+                  <strong>S/ {{ importe(pedido.total) }}</strong>
+                </div>
+              </div>
+              <div class="acciones-pedido">
+                <button type="button" class="btn-detalle" [disabled]="cargandoDetalleConfirmado" (click)="verPedidoConfirmado(pedido.idPedido)">
+                  <i class="bi bi-eye"></i> Ver pedido
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  } @else if (pedidoSeleccionado !== null) {
     @if (pedidoActual; as pedido) {
-
-    <div class="encabezado-detalle">
-
-        <button class="btn-volver" (click)="volverListado()">
-            <i class="bi bi-arrow-left"></i>
-            Volver a pedidos
+      <div class="encabezado-detalle">
+        <button type="button" class="btn-volver" (click)="volverListado()">
+          <i class="bi bi-arrow-left"></i> Volver a pedidos
         </button>
-
-        <h2>
-            <i class="bi bi-cart-check"></i>
-            Detalle del pedido
-        </h2>
-
-    </div>
-
-    <div class="datos-cliente">
-
+        <h2><i class="bi bi-cart-check"></i> Detalle del pedido</h2>
+      </div>
+      <div class="datos-cliente">
         <div>
-            <h3>{{ pedido.nombreCliente }}</h3>
-            <p>
-                <i class="bi bi-telephone"></i>
-                {{ pedido.pedido.telefonoContacto }}
-            </p>
+          <h3>{{ pedido.nombreCliente }}</h3>
+          <p><i class="bi bi-telephone"></i> {{ pedido.pedido.telefonoContacto }}</p>
         </div>
-
         <span class="estado-pendiente">
-            <i class="bi bi-clock-history"></i>
-            Por confirmar
+          <i class="bi bi-clock-history"></i> Por confirmar
         </span>
-
-    </div>
-
-    <div class="informacion-pedido informacion-detalle">
-
+      </div>
+      <div class="informacion-pedido informacion-detalle">
         <div>
-            <span class="etiqueta">Fecha del evento</span>
-            <strong>{{ pedido.pedido.fechaEvento }}</strong>
+          <span class="etiqueta">Fecha del evento</span>
+          <strong>{{ pedido.pedido.fechaEvento }}</strong>
         </div>
-
         <div>
-            <span class="etiqueta">Hora de entrega</span>
-            <strong>{{ pedido.pedido.horaEntrega }}</strong>
+          <span class="etiqueta">Hora de entrega</span>
+          <strong>{{ pedido.pedido.horaEntrega }}</strong>
         </div>
-
         <div>
-            <span class="etiqueta">Dirección</span>
-            <strong>{{ pedido.pedido.direccionEvento }}</strong>
+          <span class="etiqueta">Dirección</span>
+          <strong>{{ pedido.pedido.direccionEvento }}</strong>
         </div>
-
-    </div>
-
-    <div class="contenido-carrito">
-
+      </div>
+      <div class="contenido-carrito">
         <div class="columna-productos">
-
-            <h4 class="titulo-productos">
-                <i class="bi bi-bag-check"></i>
-                Productos del pedido
-            </h4>
-
-            <div class="tabla-contenedor">
-
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Precio</th>
-                            <th>Cantidad</th>
-                            <th>Subtotal</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        @for (fila of obtenerFilasCarrito(pedido); track $index) {
-
-                        <tr>
-
-                            <td>
-                                <div class="producto-info">
-
-                                    <img [src]="fila.imagen" [alt]="fila.nombre" class="imagen-producto">
-
-                                    <div>
-                                        <strong>{{ fila.nombre }}</strong>
-
-                                        <small>
-                                            {{ fila.detalle }}
-                                        </small>
-                                    </div>
-
-                                </div>
-                            </td>
-
-                            <td>
-                                S/ {{ fila.precio.toFixed(2) }}
-                            </td>
-
-                            <td>
-                                {{ fila.cantidad }}
-                            </td>
-
-                            <td class="subtotal">
-                                <strong>
-                                    S/ {{ fila.subtotal.toFixed(2) }}
-                                </strong>
-                            </td>
-
-                        </tr>
-
-                        }
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <div class="acciones-productos">
-
-                <button class="btn-editar" (click)="editarPedido(pedido.idTemporal)">
-                    <i class="bi bi-pencil-square"></i>
-                    Editar pedido
-                </button>
-
-                <button class="btn-eliminar" (click)="eliminarPedido(pedido.idTemporal)">
-                    <i class="bi bi-trash"></i>
-                    Eliminar pedido
-                </button>
-
-            </div>
-
+          <h4 class="titulo-productos">
+            <i class="bi bi-bag-check"></i> Productos del pedido
+          </h4>
+          <div class="tabla-contenedor">
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Precio</th>
+                  <th>Cantidad</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (fila of obtenerFilasCarrito(pedido); track $index) {
+                  <tr>
+                    <td>
+                      <div class="producto-info">
+                        <img [src]="fila.imagen" [alt]="fila.nombre" class="imagen-producto">
+                        <div>
+                          <strong>{{ fila.nombre }}</strong>
+                          <small>{{ fila.detalle }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>S/ {{ importe(fila.precio) }}</td>
+                    <td>{{ fila.cantidad }}</td>
+                    <td class="subtotal">
+                      <strong>S/ {{ importe(fila.subtotal) }}</strong>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="acciones-productos">
+            <button type="button" class="btn-editar" (click)="editarPedido(pedido.idTemporal)">
+              <i class="bi bi-pencil-square"></i> Editar pedido
+            </button>
+            <button type="button" class="btn-eliminar" (click)="eliminarPedido(pedido.idTemporal)">
+              <i class="bi bi-trash"></i> Eliminar pedido
+            </button>
+          </div>
         </div>
-
         <div class="columna-resumen">
-
-            <div class="resumen-compra">
-
-                <h4>Resumen del pedido</h4>
-
-                <div class="fila-resumen">
-                    <span>
-                        Subtotal ({{ obtenerFilasCarrito(pedido).length }} productos)
-                    </span>
-
-                    <span>
-                        S/ {{ calcularTotal(pedido).toFixed(2) }}
-                    </span>
-                </div>
-
-                <div class="fila-resumen">
-                    <span>Entrega</span>
-                    <span class="texto-gratis">Incluida</span>
-                </div>
-
-                <hr>
-
-                <div class="fila-total">
-                    <strong>Total</strong>
-                    <strong>
-                        S/ {{ calcularTotal(pedido).toFixed(2) }}
-                    </strong>
-                </div>
-
-                <button class="btn-confirmar" (click)="confirmarPedido(pedido.idTemporal)">
-                    CONFIRMAR PEDIDO
-                </button>
-
+          <div class="resumen-compra">
+            <h4>Resumen del pedido</h4>
+            <div class="fila-resumen">
+              <span>Subtotal ({{ obtenerFilasCarrito(pedido).length }} productos)</span>
+              <span>S/ {{ importe(calcularTotal(pedido)) }}</span>
             </div>
-
-            <div class="observaciones">
-
-                <strong>Observaciones</strong>
-
-                <p>
-                    {{ pedido.pedido.observacion || 'Sin observaciones' }}
-                </p>
-
+            <div class="fila-resumen">
+              <span>Entrega</span>
+              <span class="texto-gratis">Incluida</span>
             </div>
-
+            <hr>
+            <div class="fila-total">
+              <strong>Total</strong>
+              <strong>S/ {{ importe(calcularTotal(pedido)) }}</strong>
+            </div>
+            <button type="button" class="btn-confirmar" [disabled]="confirmandoPedido" (click)="confirmarPedido(pedido.idTemporal)">
+              {{ confirmandoPedido ? 'CONFIRMANDO...' : 'CONFIRMAR PEDIDO' }}
+            </button>
+          </div>
+          <div class="observaciones">
+            <strong>Observaciones</strong>
+            <p>{{ pedido.pedido.observacion || 'Sin observaciones' }}</p>
+          </div>
         </div>
-
+      </div>
+    }
+  } @else if (pedidoConfirmadoSeleccionado) {
+    @let pedido = pedidoConfirmadoSeleccionado;
+    <div class="detalle-confirmado">
+      <div class="encabezado-detalle">
+        <button type="button" class="btn-volver" (click)="volverConfirmados()">
+          <i class="bi bi-arrow-left"></i> Volver a pedidos
+        </button>
+        <div class="titulo-detalle-confirmado">
+          <div>
+            <h2>
+              <i class="bi bi-receipt-cutoff"></i>
+              Pedido N.º {{ pedido.idPedido }}
+            </h2>
+            <p>Información del evento, productos y pagos registrados</p>
+          </div>
+          @if (esPedidoFinalizado(pedido)) {
+            <span class="estado-finalizado">
+              <i class="bi bi-check2-all"></i> Finalizado
+            </span>
+          } @else {
+            <span class="estado-confirmado">
+              <i class="bi bi-check-circle-fill"></i> Confirmado
+            </span>
+          }
+        </div>
+      </div>
+      <section class="ficha-evento">
+        <div class="ficha-cliente">
+          <div class="avatar-cliente">
+            <i class="bi bi-person"></i>
+          </div>
+          <div>
+            <h3>{{ pedido.cliente }}</h3>
+            <p>
+              <i class="bi bi-telephone"></i>
+              {{ pedido.telefonoContacto || 'Sin teléfono registrado' }}
+            </p>
+          </div>
+        </div>
+        <div class="ficha-datos">
+          <div>
+            <span>Fecha del evento</span>
+            <strong>{{ pedido.fechaEvento || '—' }}</strong>
+          </div>
+          <div>
+            <span>Hora de entrega</span>
+            <strong>{{ pedido.horaEntrega.slice(0, 5) || '—' }}</strong>
+          </div>
+          <div>
+            <span>Dirección</span>
+            <strong>{{ pedido.direccionEvento || '—' }}</strong>
+          </div>
+          <div>
+            <span>Confirmado el</span>
+            <strong>{{ pedido.fechaConfirmacion || 'No disponible' }}</strong>
+          </div>
+        </div>
+      </section>
+      <div class="contenido-carrito contenido-confirmado">
+        <div class="columna-productos">
+          <h4 class="titulo-productos">
+            <i class="bi bi-bag-check"></i> Productos confirmados
+          </h4>
+          <div class="tabla-contenedor">
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio unitario</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (producto of pedido.productos; track $index) {
+                  <tr>
+                    <td>
+                      <div class="producto-info">
+                        <img
+                          class="imagen-producto"
+                          [src]="imagenProductoConfirmado(producto.producto)"
+                          [alt]="producto.producto"
+                        >
+                        <div>
+                          <strong>{{ producto.producto }}</strong>
+                          <small>{{ producto.unidad }}</small>
+                          <div class="detalle-adicional">
+                            @if (producto.acompanamiento) {
+                              <span>
+                                Acompañamiento: {{ producto.acompanamiento }}
+                              </span>
+                            }
+                            @if (producto.tipoArroz) {
+                              <span>Arroz: {{ producto.tipoArroz }}</span>
+                            }
+                            @if (producto.tipoEnsalada) {
+                              <span>Ensalada: {{ producto.tipoEnsalada }}</span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ producto.cantidad }}</td>
+                    <td>S/ {{ importe(producto.precioUnitario) }}</td>
+                    <td class="subtotal">
+                      S/ {{ importe(producto.subtotal) }}
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4">No hay productos registrados.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="observaciones observaciones-confirmado">
+            <strong>
+              <i class="bi bi-chat-left-text"></i> Observaciones
+            </strong>
+            <p>{{ pedido.observacion || 'Sin observaciones' }}</p>
+          </div>
+        </div>
+        <aside class="columna-resumen">
+          <div class="resumen-compra resumen-confirmado">
+            <h4>
+              <i class="bi bi-receipt"></i> Resumen del pedido
+            </h4>
+            <div class="fila-resumen">
+              <span>Productos registrados</span>
+              <strong>{{ pedido.productos.length }}</strong>
+            </div>
+            <div class="fila-resumen">
+              <span>Estado</span>
+              <strong>
+                {{ esPedidoFinalizado(pedido) ? 'Finalizado' : 'Confirmado' }}
+              </strong>
+            </div>
+            <div class="fila-resumen">
+              <span>Entrega</span>
+              <strong>Incluida</strong>
+            </div>
+            <hr>
+            <div class="fila-total">
+              <strong>Total del pedido</strong>
+              <strong>S/ {{ importe(pedido.total) }}</strong>
+            </div>
+          </div>
+          @if (esGerente) {
+          <div class="acciones-asignacion-pedido">
+            @if (!cargandoAsignaciones && asignacionesPedido.length === 0) {
+              <button type="button" class="btn-asignar" (click)="abrirFormularioAsignacion()">Asignar personal</button>
+            }
+            @if (asignacionesPedido.length > 0) {
+              <details><summary>Personal asignado ({{ asignacionesPedido.length }})</summary>
+                @for (asignacion of asignacionesPedido; track asignacion.idAsig) {
+                  <p>{{ asignacion.funcion }} · {{ nombreTrabajadorPorId(asignacion.idTrabajador) }}</p>
+                }
+              </details>
+            }
+            @if (errorAsignaciones) { <p>{{ errorAsignaciones }}</p> }
+          </div>
+          }
+          <app-pago-form [pedido]="pedido"></app-pago-form>
+          <div class="nota-confirmado">
+            <i class="bi bi-info-circle"></i>
+            <span>
+              Los insumos necesarios y las compras se consultan
+              en el módulo Reportes.
+            </span>
+          </div>
+        </aside>
+      </div>
     </div>
-
-    }
-
-    }
-
+  }
+  @if (pedidoConfirmadoSeleccionado && esGerente) {
+    <app-asignacion-form
+      [idPedido]="pedidoConfirmadoSeleccionado.idPedido"
+      [fechaEvento]="pedidoConfirmadoSeleccionado.fechaEvento"
+      [totalPollos]="totalPollosAsignacion"
+      [visible]="mostrarFormularioAsignacion"
+      (cerrar)="cerrarFormularioAsignacion()"
+      (guardado)="asignacionGuardada()">
+    </app-asignacion-form>
+  }
 </div>

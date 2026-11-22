@@ -1,0 +1,24 @@
+.fondo-formulario{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px;z-index:1200}
+.ventana-formulario{background:#fff;border-radius:12px;width:100%;max-width:850px;max-height:92vh;overflow-y:auto;color:#342a27}
+.encabezado-formulario{display:flex;justify-content:space-between;align-items:center;padding:17px 22px;border-bottom:1px solid #e8ded5;background:#fff9f5}
+.encabezado-formulario h3{margin:0 0 5px;color:#7b1e21;font-size:17px}
+.encabezado-formulario small{color:#777}
+.encabezado-formulario button{border:0;background:transparent;color:#7b1e21;cursor:pointer;font-size:19px}
+.cuerpo-formulario{padding:20px 22px}
+.pestanas-formulario{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.pestanas-formulario button{border:1px solid #e8ded5;background:#fff;border-radius:7px;padding:10px;color:#7b1e21;cursor:pointer}
+.pestanas-formulario button.activa{background:#7b1e21;color:#fff}
+.contador-formulario{background:#f8f2ed;padding:10px;border-radius:7px;margin-bottom:15px;font-size:13px}
+.fila-formulario{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border:1px solid #e8ded5;border-radius:9px;padding:14px;margin:10px 0;background:#fffaf7}
+.fila-formulario label{font-size:12px;color:#555;display:flex;flex-direction:column;gap:6px}
+.fila-formulario input,.fila-formulario select{min-width:0;width:100%;padding:9px;border:1px solid #ddd;border-radius:6px;background:#fff}
+.btn-agregar{width:100%;border:1px solid #7b1e21;background:#fff;color:#7b1e21;padding:10px;border-radius:7px;cursor:pointer}
+.btn-quitar{border:1px solid #cc7c7c;background:#fff;color:#9c2424;border-radius:6px;cursor:pointer}
+.acciones-formulario{display:flex;justify-content:flex-end;gap:10px;padding:15px 22px;border-top:1px solid #e8ded5}
+.acciones-formulario button{padding:10px 15px;border-radius:7px;cursor:pointer}
+.btn-cancelar{border:1px solid #ddd;background:#fff}
+.btn-guardar{border:0;background:#7b1e21;color:#fff}
+.error-formulario{background:#fff0f0;color:#a22;padding:10px;border-radius:6px}
+@media(max-width:650px){.fila-formulario{grid-template-columns:1fr}.cuerpo-formulario{padding:15px}.acciones-formulario{flex-wrap:wrap}}
+
+.fila-formulario input[readonly]{background:#f4eee9;color:#555}
