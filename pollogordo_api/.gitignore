@@ -1,3 +1,4 @@
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
@@ -14,7 +15,7 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -31,3 +32,22 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Oracle Cloud Wallet ###
+wallet/
+wallet_pollogordo/
+**/wallet/
+**/wallet_pollogordo/
+*.sso
+*.p12
+*.pem
+*.jks
+
+### Credenciales y variables de entorno ###
+.env
+.env.*
+!.env.example
+
+### Archivos temporales ###
+*.log
+*.tmp

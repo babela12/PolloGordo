@@ -5,12 +5,12 @@ spring:
   datasource:
     url: "jdbc:oracle:thin:@pollogordo_low?TNS_ADMIN=C:/oracle/wallet_pollogordo"
     username: POLLOGORDO_BD
-    password: Pollogordo123
+    password: Patrick12345
 
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.OracleDialect
@@ -34,5 +34,5 @@ app:
 
 security:
   jwt:
-    secret-key: "jdbc:oracle:thin:@pollogordo_low?TNS_ADMIN=C:/oracle/wallet_pollogordo"
+    secret-key: "a2FzbW90aGVvcmVtYW5kcm9tZWRhZ2FsYWN0aWNhcHB1bHNlY3JldGtleQ=="
     expiration-time: 28800000
