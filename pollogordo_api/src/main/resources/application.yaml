@@ -3,9 +3,9 @@ spring:
     name: pollogordo_api
 
   datasource:
-    url: "jdbc:oracle:thin:@pollogordo_low?TNS_ADMIN=C:/oracle/wallet_pollogordo"
-    username: POLLOGORDO_BD
-    password: Patrick12345
+    url: "${DB_URL}"
+    username: "${DB_USERNAME}"
+    password: "${DB_PASSWORD}"
 
   jpa:
     hibernate:
@@ -34,5 +34,5 @@ app:
 
 security:
   jwt:
-    secret-key: "a2FzbW90aGVvcmVtYW5kcm9tZWRhZ2FsYWN0aWNhcHB1bHNlY3JldGtleQ=="
+    secret-key: "${JWT_SECRET}"
     expiration-time: 28800000
