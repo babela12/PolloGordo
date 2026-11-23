@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Vehiculo } from '../interfaces/vehiculo.interface';
+import { environment } from '../../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +13,7 @@ export class VehiculoService {
 
   private http = inject(HttpClient);
 
-  private apiUrl = '/pollogordo_api/vehiculos';
+  private apiUrl = `${environment.apiUrl}/vehiculos`;
 
   getVehiculos(): Observable<Vehiculo[]> {
     return this.http.get<Vehiculo[]>(this.apiUrl);

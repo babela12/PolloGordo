@@ -2,10 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EntregaAsignacion } from '../interfaces/asig-trabajador.interface';
+import { environment } from '../../../environments/environment';
+
 @Injectable({ providedIn: 'root' })
 export class EntregaService {
   private http = inject(HttpClient);
-  private apiUrl = '/pollogordo_api/entregas';
+ private apiUrl = `${environment.apiUrl}/entregas`;
   getEntregas(): Observable<EntregaAsignacion[]> {
     return this.http.get<EntregaAsignacion[]>(this.apiUrl);
   }

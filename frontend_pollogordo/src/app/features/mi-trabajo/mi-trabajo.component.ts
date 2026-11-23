@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 interface MiTrabajo {
   idAsig: number;
@@ -57,7 +58,7 @@ export class MiTrabajoComponent implements OnInit {
     this.error = '';
 
     this.http.get<MiTrabajo[]>(
-      '/pollogordo_api/api/v1/mi-trabajo'
+      `${environment.apiUrl}/api/v1/mi-trabajo`
     ).subscribe({
 
       next: datos => {

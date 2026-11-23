@@ -2,6 +2,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ReporteEventos } from '../interfaces/reporte.interface';
+import { environment } from '../../../environments/environment';
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +12,7 @@ import { ReporteEventos } from '../interfaces/reporte.interface';
 export class ReporteService {
 
   private http = inject(HttpClient);
-  private apiUrl = '/pollogordo_api/reportes';
+  private apiUrl = `${environment.apiUrl}/reportes`;
 
   getReporteEventos(
     fechaInicio: string,

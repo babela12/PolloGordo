@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductoService } from '../../../core/services/producto.service';
 import { Producto } from '../../../core/interfaces/producto.interface';
 import { AlertService } from '../../../core/services/alert.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-product-list',
@@ -47,8 +48,7 @@ export class ProductListComponent implements OnInit {
   }
 
   getImagen(producto: Producto): string {
-    return '/pollogordo_api/images/' +
-      (producto.imagen || 'no-image.png');
+    return `${environment.apiUrl}/images/${producto.imagen || 'no-image.png'}`;
   }
 
   async cambiarEstado(producto: Producto): Promise<void> {

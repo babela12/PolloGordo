@@ -7,6 +7,8 @@ import { RouterLink } from '@angular/router';
 import { InsumoService } from '../../../core/services/insumo.service';
 import { Insumo } from '../../../core/interfaces/insumo.interface';
 import { AlertService } from '../../../core/services/alert.service';
+import { environment } from '../../../../environments/environment';
+
 
 @Component({
   selector: 'app-insumo-list',
@@ -54,11 +56,13 @@ export class InsumoListComponent implements OnInit {
     );
   }
 
-  getImagen(insumo: Insumo): string {
-    return insumo.imagen
-      ? '/pollogordo_api/images/' + insumo.imagen
-      : '/pollogordo_api/images/no-image.png';
-  }
+  
+getImagen(insumo: Insumo): string {
+  return insumo.imagen
+    ? `${environment.apiUrl}/images/${insumo.imagen}`
+    : `${environment.apiUrl}/images/no-image.png`;
+}
+
 
   getStock(insumo: Insumo): string {
     if (insumo.controlaStock === 'N') {

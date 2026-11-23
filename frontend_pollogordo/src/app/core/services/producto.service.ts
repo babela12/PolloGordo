@@ -3,13 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Producto } from '../interfaces/producto.interface';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductoService {
   private http = inject(HttpClient);
-  private apiUrl = '/pollogordo_api/productos';
+  private apiUrl = `${environment.apiUrl}/productos`;
 
   // Listar productos
   getProductos(): Observable<Producto[]> {

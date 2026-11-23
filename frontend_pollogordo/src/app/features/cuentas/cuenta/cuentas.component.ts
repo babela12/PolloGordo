@@ -4,6 +4,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 import {
   Cuenta,
@@ -65,7 +66,7 @@ export class CuentasComponent implements OnInit {
     forkJoin({
       cuentas: this.cuentaService.listar(),
       trabajadores: this.http.get<Trabajador[]>(
-        '/pollogordo_api/trabajadores'
+        `${environment.apiUrl}/trabajadores`
       )
     }).subscribe({
 

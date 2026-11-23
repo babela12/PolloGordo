@@ -2,6 +2,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+
 
 import {
   Pago,
@@ -14,7 +16,7 @@ import {
 })
 export class PagoService {
 
-  private readonly apiUrl = '/pollogordo_api/pagos';
+  private readonly apiUrl = `${environment.apiUrl}/pagos`;
 
   constructor(private http: HttpClient) {}
 

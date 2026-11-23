@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Cliente } from '../interfaces/cliente.interface';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { Cliente } from '../interfaces/cliente.interface';
 export class ClienteService {
 
   private http = inject(HttpClient);
-  private apiUrl = '/pollogordo_api/clientes';
+  private apiUrl = `${environment.apiUrl}/clientes`;
 
   getClientes(): Observable<Cliente[]> {
     return this.http.get<Cliente[]>(this.apiUrl);

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { environment } from '../../../environments/environment';
 import { ILoginResponse } from '../interfaces/auth.interface';
 
 import {
@@ -25,7 +26,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private apiUrl = '/pollogordo_api/api/v1/auth';
+  private apiUrl = `${environment.apiUrl}/api/v1/auth`;
 
   private loggedIn = new BehaviorSubject<boolean>(
     !!localStorage.getItem('token_ecommerce')

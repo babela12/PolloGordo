@@ -11,6 +11,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { ProductoService } from '../../../core/services/producto.service';
 import { AlertService } from '../../../core/services/alert.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-product-form',
@@ -123,7 +124,7 @@ export class ProductFormComponent implements OnInit {
 
   getImagenActual(): string {
     return this.imagenActual
-      ? '/pollogordo_api/images/' + this.imagenActual
-      : '/pollogordo_api/images/no-image.png';
+      ? `${environment.apiUrl}/images/${this.imagenActual}`
+      : `${environment.apiUrl}/images/no-image.png`;
   }
 }

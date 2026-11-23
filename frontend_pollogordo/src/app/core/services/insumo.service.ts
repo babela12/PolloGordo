@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Insumo } from '../interfaces/insumo.interface';
+import { environment } from '../../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +13,7 @@ export class InsumoService {
 
   private http = inject(HttpClient);
 
-  private apiUrl = '/pollogordo_api/insumos';
+  private apiUrl = `${environment.apiUrl}/insumos`;
 
   getInsumos(): Observable<Insumo[]> {
     return this.http.get<Insumo[]>(this.apiUrl);

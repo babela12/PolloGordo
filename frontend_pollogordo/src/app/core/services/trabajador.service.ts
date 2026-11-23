@@ -2,6 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Trabajador } from '../interfaces/trabajador.interface';
+import { environment } from '../../../environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +11,7 @@ import { Trabajador } from '../interfaces/trabajador.interface';
 export class TrabajadorService {
 
   private http = inject(HttpClient);
-  private apiUrl = '/pollogordo_api/trabajadores';
+  private apiUrl = `${environment.apiUrl}/trabajadores`;
 
   getTrabajadores(): Observable<Trabajador[]> {
     return this.http.get<Trabajador[]>(this.apiUrl);

@@ -17,6 +17,7 @@ import { Insumo } from '../../../core/interfaces/insumo.interface';
 import { ProductoService } from '../../../core/services/producto.service';
 import { InsumoService } from '../../../core/services/insumo.service';
 import { PedidoService } from '../../../core/services/pedido.service';
+import { environment } from '../../../../environments/environment';
 import {
   PedidoTemporal,
   PedidoTemporalService
@@ -339,7 +340,7 @@ export class PedidoListComponent implements OnInit {
       next: (pedido: PedidoConfirmado) => {
         this.pedidoConfirmadoSeleccionado = pedido;
         this.cargandoDetalleConfirmado = false;
-            this.mostrarFormularioAsignacion = false;
+        this.mostrarFormularioAsignacion = false;
         this.asignacionesPedido = [];
         this.errorAsignaciones = '';
         if (this.esGerente) {
@@ -382,8 +383,7 @@ export class PedidoListComponent implements OnInit {
     return producto ? producto.nombre : 'Producto #' + idProducto;
   }
   getImagen(producto: Producto): string {
-    return '/pollogordo_api/images/' +
-      (producto.imagen || 'no-image.png');
+    return `${environment.apiUrl}/images/${producto.imagen || 'no-image.png'}`;
   }
   esPreparado(producto: Producto): boolean {
     const tipo = producto.tipo.toUpperCase().trim();
@@ -593,8 +593,8 @@ export class PedidoListComponent implements OnInit {
         item.nombre.toUpperCase().trim() ===
         nombre.toUpperCase().trim()
     );
-    return '/pollogordo_api/images/' +
-      (insumo?.imagen || 'no-image.png');
+
+    return `${environment.apiUrl}/images/${insumo?.imagen || 'no-image.png'}`;
   }
   // FILAS DEL CARRITO
   obtenerFilasCarrito(pedido: PedidoTemporal): FilaCarrito[] {
@@ -612,10 +612,10 @@ export class PedidoListComponent implements OnInit {
       );
       const porciones = preparado
         ? this.calcularPorciones(
-            item.cantidad,
-            item.unidad,
-            item.idProducto
-          )
+          item.cantidad,
+          item.unidad,
+          item.idProducto
+        )
         : item.cantidad;
       filas.push({
         nombre: producto.nombre,
@@ -629,13 +629,13 @@ export class PedidoListComponent implements OnInit {
         ),
         detalle: preparado
           ? item.cantidad + ' ' +
-            this.obtenerNombreUnidad(
-              item.idProducto,
-              item.unidad
-            ) +
-            (item.acompanamiento
-              ? ' - ' + item.acompanamiento
-              : '')
+          this.obtenerNombreUnidad(
+            item.idProducto,
+            item.unidad
+          ) +
+          (item.acompanamiento
+            ? ' - ' + item.acompanamiento
+            : '')
           : item.cantidad + ' unidades'
       });
       if (preparado && item.tipoArroz) {
@@ -818,6 +818,6 @@ export class PedidoListComponent implements OnInit {
     if (producto) {
       return this.getImagen(producto);
     }
-    return '/pollogordo_api/images/no-image.png';
+    return `${environment.apiUrl}/images/no-image.png`;
   }
 }

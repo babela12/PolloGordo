@@ -2,6 +2,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+
 
 export interface PedidoHome {
   idPedido: number;
@@ -24,7 +26,7 @@ export class HomeService {
 
   private http = inject(HttpClient);
 
-  private apiUrl = '/pollogordo_api/pedidos';
+  private apiUrl = `${environment.apiUrl}/pedidos`;
 
   listarPedidos(): Observable<PedidoHome[]> {
     return this.http.get<PedidoHome[]>(this.apiUrl);
