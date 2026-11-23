@@ -186,6 +186,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
@@ -196,7 +197,8 @@ public class SecurityConfig {
                         "http://localhost:4200",
                         "http://localhost:4201",
                         "http://localhost:3080",
-                        "http://localhost:4001"
+                        "http://localhost:4001",
+                        "https://pollogordo-frontend.onrender.com"
                 )
         );
 
@@ -224,4 +226,5 @@ public class SecurityConfig {
 
         return source;
     }
+
 }
