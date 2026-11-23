@@ -4,10 +4,12 @@ package pe.edu.upeu.pollogordo_api.controller;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import pe.edu.upeu.pollogordo_api.dto.ActualizarCuentaDTO;
 import pe.edu.upeu.pollogordo_api.dto.AuthResponse;
 import pe.edu.upeu.pollogordo_api.dto.LoginRequest;
 import pe.edu.upeu.pollogordo_api.dto.RegistroDTO;
@@ -42,9 +44,11 @@ public class AuthController {
 
     // Registrar usuarios internos
     @PostMapping("/registro")
+    @PreAuthorize("hasAuthority('GERENTE')")
     public ResponseEntity<UsuarioDTO> registrar(
             @Valid @RequestBody RegistroDTO dto
     ) {
+
         UsuarioDTO usuario = usuarioService.registrarUsuario(dto)
                 .orElseThrow(() ->
                         new IllegalStateException(
@@ -106,5 +110,21 @@ public class AuthController {
                 idPersona,
                 nombreMostrar
         ));
+    }
+
+    // Editar cuenta existente
+    @PutMapping("/cuentas/{idUsuario}")
+    @PreAuthorize("hasAuthority('GERENTE')")
+    public ResponseEntity<UsuarioDTO> actualizarCuenta(
+            @PathVariable Long idUsuario,
+            @Valid @RequestBody ActualizarCuentaDTO dto
+    ) {
+
+        UsuarioDTO usuario = usuarioService.actualizarCuenta(
+                idUsuario,
+                dto
+        );
+
+        return ResponseEntity.ok(usuario);
     }
 }

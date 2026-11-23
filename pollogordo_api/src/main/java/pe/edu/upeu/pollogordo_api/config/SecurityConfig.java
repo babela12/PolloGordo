@@ -75,6 +75,12 @@ public class SecurityConfig {
                                 "/api/v1/auth/registro"
                         ).hasAuthority("GERENTE")
 
+                        // EDITAR CUENTAS: SOLO GERENTE
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/v1/auth/cuentas/*"
+                        ).hasAuthority("GERENTE")
+
                         // MI TRABAJO: SOLO TRABAJADOR
                         .requestMatchers(
                                 "/api/v1/mi-trabajo",
