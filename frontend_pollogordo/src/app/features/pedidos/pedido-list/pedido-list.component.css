@@ -1266,3 +1266,12 @@
 .pestanas-asignacion button{border:1px solid #e8ded5;border-radius:7px;background:#fff;color:#7b1e21;padding:9px 12px;cursor:pointer;font-weight:600}
 .pestanas-asignacion button.activa{background:#7b1e21;color:#fff;border-color:#7b1e21}
 .resumen-asignacion{background:#f8f2ed;border-radius:7px;padding:10px 12px;font-size:13px}
+.acciones-asignacion-pedido {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.acciones-asignacion-pedido .btn-asignar {
+  display: inline-block;
+  border-radius: 6px;
+}

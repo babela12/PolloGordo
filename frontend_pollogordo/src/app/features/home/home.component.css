@@ -372,3 +372,13 @@
     grid-template-columns: 1fr;
   }
 }
+.acceso-horizontal {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.acceso-horizontal:hover {
+  text-decoration: none;
+  color: inherit;
+}

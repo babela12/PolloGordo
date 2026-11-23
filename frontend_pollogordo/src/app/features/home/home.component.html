@@ -1,4 +1,3 @@
-
 <div class="home-contenedor">
 
   <!-- BANNER PRINCIPAL -->
@@ -6,11 +5,7 @@
 
     <div class="banner-informacion">
 
-      <img
-        src="/logo-pollogordo.png"
-        alt="Logo Pollo Gordo"
-        class="banner-logo"
-      >
+      <img src="/logo-pollogordo.png" alt="Logo Pollo Gordo" class="banner-logo">
 
       <div>
         <span class="banner-etiqueta">
@@ -98,31 +93,21 @@
 
   <!-- ACCESOS ADICIONALES -->
   <section class="accesos-secundarios">
-
     <!-- AGENDA -->
-    <div class="acceso-horizontal">
-
+    <a href="#proximos-eventos" class="acceso-horizontal">
       <i class="bi bi-calendar3"></i>
-
       <div>
         <h3>Agenda de eventos</h3>
         <p>Revisa los próximos eventos programados.</p>
       </div>
-
-    </div>
-
-    <!-- COBROS -->
-    <div class="acceso-horizontal">
-
+    </a>
+    <a routerLink="/pagos" class="acceso-horizontal">
       <i class="bi bi-wallet2"></i>
-
       <div>
         <h3>Cobros y saldos</h3>
         <p>Consulta pagos y saldos pendientes.</p>
       </div>
-
-    </div>
-
+    </a>
   </section>
 
   <!-- RESUMEN SEMANAL -->
@@ -132,27 +117,18 @@
 
       <h2>Resumen de esta semana</h2>
 
-      <button
-        type="button"
-        class="btn-actualizar"
-        (click)="actualizar()"
-        [disabled]="cargando || cargandoInsumos"
-      >
+      <button type="button" class="btn-actualizar" (click)="actualizar()" [disabled]="cargando || cargandoInsumos">
         <i class="bi bi-arrow-clockwise"></i>
 
         {{ (cargando || cargandoInsumos)
-            ? 'Actualizando...'
-            : 'Actualizar' }}
+        ? 'Actualizando...'
+        : 'Actualizar' }}
       </button>
 
     </div>
 
     <!-- ERROR DE PEDIDOS -->
-    <div
-      *ngIf="error"
-      class="alert alert-danger mt-3"
-      role="alert"
-    >
+    <div *ngIf="error" class="alert alert-danger mt-3" role="alert">
       <i class="bi bi-exclamation-triangle me-2"></i>
       {{ error }}
     </div>
@@ -215,8 +191,8 @@
 
         <strong>
           {{ insumosAgotados === null
-              ? '—'
-              : insumosAgotados }}
+          ? '—'
+          : insumosAgotados }}
         </strong>
 
         <small *ngIf="cargandoInsumos">
@@ -227,13 +203,11 @@
           {{ errorInsumos }}
         </small>
 
-        <small
-          *ngIf="
+        <small *ngIf="
             !cargandoInsumos &&
             !errorInsumos &&
             insumosAgotados !== null
-          "
-        >
+          ">
           Insumos sin stock disponible
         </small>
 
@@ -244,7 +218,7 @@
   </section>
 
   <!-- PRÓXIMOS EVENTOS -->
-  <section class="eventos-seccion">
+  <section id="proximos-eventos" class="eventos-seccion">
 
     <h2>Próximos eventos programados</h2>
 
@@ -303,13 +277,11 @@
           </tr>
 
           <!-- SIN EVENTOS -->
-          <tr
-            *ngIf="
+          <tr *ngIf="
               !cargando &&
               !error &&
               eventosProximos.length === 0
-            "
-          >
+            ">
             <td colspan="5" class="sin-eventos">
               No hay próximos eventos programados.
             </td>
