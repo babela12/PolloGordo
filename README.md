@@ -9,6 +9,14 @@ El presente proyecto consiste en el desarrollo de un sistema web que permite ges
 
 El sistema busca mejorar la organización de los pedidos, reducir los errores en el registro de información y facilitar el control de las actividades que realiza la empresa.
 
+## Aplicación desplegada
+
+- **Sitio web:** https://pollogordo-frontend.onrender.com
+- **API REST:** https://pollogordo.onrender.com/pollogordo_api
+- **Swagger:** https://pollogordo.onrender.com/pollogordo_api/swagger-ui/index.html
+
+El frontend y el backend están alojados en Render, mientras que la base de datos de producción utiliza Oracle Autonomous Database en Oracle Cloud. El primer acceso puede tardar si el servicio ha estado inactivo.
+
 ## Información académica
 
 - Universidad: Universidad Peruana Unión
@@ -30,7 +38,9 @@ El sistema busca mejorar la organización de los pedidos, reducir los errores en
 | TypeScript | Programación del frontend |
 | HTML y CSS | Estructura y estilos |
 | Bootstrap | Diseño de interfaces |
-| Oracle Database 21c | Base de datos |
+| Oracle Database 21c | Base de datos en desarrollo |
+| Oracle Autonomous Database (Oracle Cloud) | Base de datos en la nube |
+| Render | Despliegue de frontend y backend |
 | Maven | Gestión de dependencias |
 | Git y GitHub | Control de versiones |
 
@@ -40,7 +50,7 @@ El proyecto utiliza una arquitectura cliente-servidor, separando el frontend, ba
 
 - Frontend: aplicación web desarrollada con Angular.
 - Backend: API REST desarrollada con Spring Boot.
-- Base de datos: Oracle Database 21c.
+- Base de datos: Oracle Database 21c en desarrollo y Oracle Autonomous Database en producción.
 - Seguridad: autenticación JWT y control de acceso mediante Spring Security.
 
 La aplicación Angular realiza peticiones HTTP al backend, donde se procesan las operaciones y se establece la comunicación con Oracle.
@@ -67,6 +77,9 @@ Permite al gerente asignar trabajadores a los pedidos según las funciones de pr
 
 ### Vehículos
 Permite registrar y administrar los vehículos utilizados para la distribución de pedidos.
+
+### Entregas
+Permite programar la distribución de los pedidos, seleccionar vehículo y repartidor, registrar fechas, horarios de salida y llegada, y cantidades de pollos. Se valida la capacidad del vehículo, el total de pollos del pedido y la disponibilidad del vehículo y repartidor, evitando horarios superpuestos y permitiendo entregas consecutivas el mismo día.
 
 ### Pagos
 Permite registrar y consultar los pagos relacionados con los pedidos de los clientes.
@@ -278,6 +291,7 @@ Entre ellos se encuentran:
 - Gestión de pedidos.
 - Asignación de trabajadores.
 - Gestión de vehículos.
+- Programación y control de entregas.
 - Gestión de pagos.
 - Consulta de reportes.
 
@@ -311,3 +325,5 @@ Los servicios pueden revisarse y probarse mediante Swagger.
 ## Estado del proyecto
 
 Proyecto integrador desarrollado durante el semestre académico 2026-2 de la Universidad Peruana Unión, campus Tarapoto, para la gestión de las operaciones de Multiservicios Pollo Gordo.
+
+El sistema se encuentra desplegado en Render y continúa en desarrollo y mejora. Incluye autenticación por roles y módulos de pedidos, inventario, personal, asignaciones, vehículos y entregas.
